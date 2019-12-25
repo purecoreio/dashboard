@@ -11,6 +11,11 @@ const routes = [
     component: GeneralSummary
   },
   {
+    path: '/instance/',
+    name: 'Instance Summary',
+    component: () => import('../views/instance/Instance.vue')
+  },
+  {
     path: '/summary/instance',
     name: 'Instance Summary',
     component: () => import('../views/summary/Instance.vue')
@@ -51,11 +56,6 @@ const routes = [
     component: () => import('../views/servers/List.vue')
   },
   {
-    path: '/servers/create',
-    name: 'Server Setup',
-    component: () => import('../views/servers/Create.vue')
-  },
-  {
     path: '/donations/transactions',
     name: 'Transactions',
     component: () => import('../views/donations/Transactions.vue')
@@ -64,6 +64,12 @@ const routes = [
     path: '/donations/packages',
     name: 'Packages',
     component: () => import('../views/donations/Packages.vue')
+  },
+  {
+    path: '/donations/package/:uuid',
+    name: 'Package',
+    props: true,
+    component: () => import('../views/donations/Package.vue')
   },
   {
     path: '/donations/perks',
@@ -116,9 +122,9 @@ const routes = [
     component: () => import('../views/punishments/Actions.vue')
   },
   {
-    path: '/punishments/create',
-    name: 'Create',
-    component: () => import('../views/punishments/Create.vue')
+    path: '/punishments/history',
+    name: 'History',
+    component: () => import('../views/punishments/History.vue')
   },
   {
     path: '/punishments/appeals',
