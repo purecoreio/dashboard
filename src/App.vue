@@ -5,7 +5,7 @@
       :clipped="primaryDrawer.clipped"
       :floating="primaryDrawer.floating"
       :mini-variant="primaryDrawer.mini"
-      permanent="primaryDrawer.type === 'permanent'"
+      permanent
       :temporary="primaryDrawer.type === 'temporary'"
       expand-on-hover
       app
@@ -184,7 +184,9 @@
       </v-container>
       <v-footer absolute>
         <center style="width: 100%">
-          <span class="px-4">&copy; 2019-{{ new Date().getFullYear() }} quiquelhappy</span>
+          <router-link :to="{ name: 'About' }">
+            <span class="px-4">&copy; 2019-{{ new Date().getFullYear() }} quiquelhappy</span>
+          </router-link>
         </center>
       </v-footer>
     </v-content>
@@ -250,7 +252,10 @@ export default {
         action: "servers",
         title: "Servers",
         icon: "view_list",
-        items: [{ title: "List", path: "/servers/list" }]
+        items: [
+          { title: "List", path: "/servers/list" },
+          { title: "Machines", path: "/servers/machines" }
+        ]
       },
       {
         action: "donations",

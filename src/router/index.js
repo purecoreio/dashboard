@@ -26,6 +26,12 @@ const routes = [
     component: () => import('../views/players/Lookup.vue')
   },
   {
+    path: '/players/profile/:coreid',
+    props: true,
+    name: 'PlayerProfile',
+    component: () => import('../views/players/PlayerProfile.vue')
+  },
+  {
     path: '/players/filtered',
     name: 'Filtered Players',
     component: () => import('../views/players/Filtered.vue')
@@ -54,6 +60,11 @@ const routes = [
     path: '/servers/list',
     name: 'Server List',
     component: () => import('../views/servers/List.vue')
+  },
+  {
+    path: '/servers/machines',
+    name: 'Machine List',
+    component: () => import('../views/servers/Machines.vue')
   },
   {
     path: '/donations/transactions',
@@ -155,6 +166,11 @@ const routes = [
     path: '/website/pages',
     name: 'Pages',
     component: () => import('../views/website/Pages.vue')
+  },
+  {
+    path: '/about/',
+    name: 'About',
+    component: () => import('../views/about/About.vue')
   }
 ]
 
