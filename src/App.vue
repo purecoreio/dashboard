@@ -81,7 +81,7 @@
       <v-spacer />
 
       <v-dialog
-        :value="(selectedNetwork==undefined || selectedNetwork == null || switchingNetworks) && (session != null && session != undefined)"
+        :value="((selectedNetwork==undefined || selectedNetwork == null || switchingNetworks) && (session != null && session != undefined))&&!networkDialog"
         persistent
         max-width="500px"
       >
@@ -119,14 +119,217 @@
                     class="ma-2"
                     outlined
                     color="secondary"
-                  >CANCEL</v-btn>
+                  >CLOSE</v-btn>
                 </v-flex>
               </v-layout>
             </v-col>
             <v-col cols="6">
               <v-layout row wrap justify-end>
                 <v-flex shrink>
-                  <v-btn class="ma-2" outlined color="primary">CREATE NETWORK</v-btn>
+                  <v-dialog v-model="networkDialog" persistent max-width="600px">
+                    <template v-slot:activator="{ on }">
+                      <v-btn class="ma-2" v-on="on" outlined color="primary">CREATE NETWORK</v-btn>
+                    </template>
+                    <v-stepper v-model="e1">
+                      <v-stepper-header>
+                        <v-stepper-step :complete="e1 > 1" step="1">Game</v-stepper-step>
+
+                        <v-divider></v-divider>
+
+                        <v-stepper-step :complete="e1 > 2" step="2">ID</v-stepper-step>
+
+                        <v-divider></v-divider>
+
+                        <v-stepper-step :complete="e1 > 3" step="3">Setup</v-stepper-step>
+                      </v-stepper-header>
+
+                      <v-stepper-items>
+                        <v-stepper-content step="1">
+                          <v-row>
+                            <v-col cols="12">
+                              <p class="heading" style="font-size: 150%; margin: 0px;">
+                                <strong>Game</strong>
+                              </p>
+                              <p
+                                class="heading"
+                                style="margin: 0px;"
+                              >Select the game your network is running</p>
+                              <v-divider class="mt-4" />
+                              <v-btn
+                                @click="setup.game='minecraft', e1=2"
+                                depressed
+                                block
+                                color="secondary"
+                                class="mt-4"
+                              >Minecraft: Java Edition</v-btn>
+                              <v-btn
+                                @click="setup.game='minecraft_bedrock', e1=2"
+                                depressed
+                                block
+                                color="secondary"
+                                class="mt-1"
+                              >Minecraft: Bedrock Edition</v-btn>
+                            </v-col>
+                          </v-row>
+                          <v-row no-gutters class="px-3">
+                            <v-col cols="6">
+                              <v-layout row wrap justify-start>
+                                <v-flex shrink>
+                                  <v-btn
+                                    outlined
+                                    v-if="!setup.mandatory"
+                                    color="secondary"
+                                    @click="networkDialog=false;e1=1"
+                                  >CANCEL</v-btn>
+                                </v-flex>
+                              </v-layout>
+                            </v-col>
+                          </v-row>
+                        </v-stepper-content>
+
+                        <v-stepper-content step="2">
+                          <v-row class="mb-0 pb-0">
+                            <v-col cols="12" sm="12">
+                              <v-expand-transition>
+                                <v-alert
+                                  text
+                                  color="primary"
+                                  v-show="setup.error!=null"
+                                >{{setup.error}}</v-alert>
+                              </v-expand-transition>
+                            </v-col>
+                            <v-col cols="12" sm="12">
+                              <v-text-field
+                                v-model="setup.name"
+                                label="Network Name"
+                                required
+                                outlined
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="6" sm="6">
+                              <v-text-field
+                                v-model="setup.cname"
+                                label="Subdomain"
+                                required
+                                outlined
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="6" sm="6">
+                              <v-text-field label="purecore.io" outlined disabled></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="12">
+                              <v-checkbox
+                                v-model="setup.ipmode"
+                                color="primary"
+                                label="My network is already being hosted"
+                              ></v-checkbox>
+                            </v-col>
+                          </v-row>
+                          <v-expand-transition>
+                            <v-row v-show="setup.ipmode">
+                              <v-col cols="12" md="10" sm="8">
+                                <v-text-field v-model="setup.ip" class="ma-0" label="IP" outlined></v-text-field>
+                              </v-col>
+                              <v-col cols="12" md="2" sm="4">
+                                <v-text-field
+                                  v-model="setup.port"
+                                  class="ma-0"
+                                  label="Port"
+                                  outlined
+                                ></v-text-field>
+                              </v-col>
+                            </v-row>
+                          </v-expand-transition>
+                          <v-row no-gutters class="px-3">
+                            <v-col cols="6">
+                              <v-layout row wrap justify-start>
+                                <v-flex shrink>
+                                  <v-btn
+                                    outlined
+                                    v-if="!setup.mandatory"
+                                    color="secondary"
+                                    @click="networkDialog=false;e1=1"
+                                  >CANCEL</v-btn>
+                                </v-flex>
+                              </v-layout>
+                            </v-col>
+                            <v-col cols="6">
+                              <v-layout row wrap justify-end>
+                                <v-flex shrink>
+                                  <v-btn
+                                    depressed
+                                    color="primary"
+                                    @click="e1=3; createNetwork()"
+                                  >NEXT</v-btn>
+                                </v-flex>
+                              </v-layout>
+                            </v-col>
+                          </v-row>
+                        </v-stepper-content>
+
+                        <v-stepper-content step="3">
+                          <v-expand-transition>
+                            <div v-show="!setup.created">
+                              <center style="padding-top: 50px; padding-bottom: 50px">
+                                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                              </center>
+                            </div>
+                          </v-expand-transition>
+                          <v-expand-transition>
+                            <v-row v-show="setup.created">
+                              <v-col cols="12">
+                                <p class="heading" style="font-size: 150%; margin: 0px;">
+                                  <strong>Installation</strong>
+                                </p>
+                                <p
+                                  class="heading"
+                                  style="margin: 0px;"
+                                >Install the plugins on your network</p>
+                                <v-divider class="mt-4" />
+
+                                <router-link
+                                  :to="{ name: 'ServerList' , params: { mode: 'proxy' } }"
+                                >
+                                  <v-btn
+                                    @click="networkDialog=false;e1=1;switchingNetworks=false"
+                                    depressed
+                                    block
+                                    color="secondary"
+                                    class="mt-4"
+                                  >Multiple Server Setup (Waterfall, Bungeecord, etc)</v-btn>
+                                </router-link>
+
+                                <router-link
+                                  :to="{ name: 'ServerList' , params: { mode: 'single' } }"
+                                >
+                                  <v-btn
+                                    @click="networkDialog=false;e1=1;switchingNetworks=false"
+                                    depressed
+                                    block
+                                    color="secondary"
+                                    class="mt-1"
+                                  >Single Server Setup (Spigot, Bukkit, etc)</v-btn>
+                                </router-link>
+                              </v-col>
+                            </v-row>
+                            <v-row no-gutters class="px-3">
+                              <v-col cols="6">
+                                <v-layout row wrap justify-start>
+                                  <v-flex shrink>
+                                    <v-btn
+                                      outlined
+                                      color="secondary"
+                                      @click="networkDialog=false;e1=1"
+                                    >SKIP</v-btn>
+                                  </v-flex>
+                                </v-layout>
+                              </v-col>
+                            </v-row>
+                          </v-expand-transition>
+                        </v-stepper-content>
+                      </v-stepper-items>
+                    </v-stepper>
+                  </v-dialog>
                 </v-flex>
               </v-layout>
             </v-col>
@@ -199,6 +402,19 @@ import core from "purecore";
 export default {
   name: "App",
   data: () => ({
+    networkDialog: false,
+    setup: {
+      ipmode: true,
+      name: "",
+      ip: "",
+      port: "",
+      game: "",
+      cname: "",
+      created: false,
+      error: null,
+      mandatory: false
+    },
+    e1: 1,
     availableNetworks: [],
     session: null,
     loginString: "LOGIN WITH GOOGLE",
@@ -353,6 +569,57 @@ export default {
     }
   },
   methods: {
+    createNetwork() {
+      var mainObj = this;
+      var coreInstance = new core(JSON.parse(localStorage.session));
+      var promise = null;
+      if (this.setup.ipmode) {
+        if (this.setup.port == null || this.setup.port == "") {
+          promise = coreInstance
+            .getCoreSession()
+            .getUser()
+            .createNetwork(
+              mainObj.setup.name,
+              mainObj.setup.game,
+              mainObj.setup.cname,
+              mainObj.setup.ip
+            );
+        } else {
+          promise = coreInstance
+            .getCoreSession()
+            .getUser()
+            .createNetwork(
+              mainObj.setup.name,
+              mainObj.setup.game,
+              mainObj.setup.cname,
+              mainObj.setup.ip,
+              parseInt(mainObj.setup.port)
+            );
+        }
+      } else {
+        promise = coreInstance
+          .getCoreSession()
+          .getUser()
+          .createNetwork(
+            mainObj.setup.name,
+            mainObj.setup.game,
+            mainObj.setup.cname
+          );
+      }
+
+      promise
+        .then(function(network) {
+          mainObj.setup.created = true;
+          mainObj.getAvailableNetworks();
+          mainObj.selectedNetwork = network.getId();
+          mainObj.networkDialog = true;
+        })
+        .catch(function(error) {
+          mainObj.setup.created = false;
+          mainObj.e1 = 2;
+          mainObj.setup.error = error.message;
+        });
+    },
     disableNetworkSwitcher() {
       if (this.selectedNetwork != null && this.selectedNetwork != undefined) {
         this.switchingNetworks = false;
@@ -364,6 +631,17 @@ export default {
 
         this.session.getNetworks().then(function(networks) {
           mainObj.availableNetworks = networks;
+          if (networks.length <= 0) {
+            mainObj.networkDialog = true;
+            mainObj.setup.mandatory = true;
+          } else {
+            if (mainObj.networkDialog) {
+              setTimeout(() => {
+                mainObj.networkDialog = true;
+              }, 1);
+            }
+            mainObj.setup.mandatory = false;
+          }
         });
       }
     },

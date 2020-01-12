@@ -18,7 +18,7 @@
 
     <!-- dialog -->
 
-    <v-dialog v-model="dialog" persistent max-width="600px">
+    <v-dialog v-model="setup.active" persistent max-width="600px">
       <template v-slot:activator="{ on }">
         <v-btn color="primary" dark v-on="on">Add Server</v-btn>
       </template>
@@ -35,13 +35,26 @@
           <v-stepper-content step="1">
             <v-row>
               <v-col cols="12">
-                <v-text-field label="Instance Name*" required></v-text-field>
+                <v-text-field outlined label="Instance Name*" required></v-text-field>
               </v-col>
-              <v-col cols="12">
+            </v-row>
+            <v-row no-gutters class="px-3">
+              <v-col cols="6">
+                <v-layout row wrap justify-start>
+                  <v-flex shrink>
+                    <v-btn
+                      outlined
+                      color="secondary"
+                      v-if="(setup.mode=='view'||setup.mode=='single')||(setup.mode=='proxy'&&servers.length>1)"
+                      @click="setup.active = false;e1=1"
+                    >CANCEL</v-btn>
+                  </v-flex>
+                </v-layout>
+              </v-col>
+              <v-col cols="6">
                 <v-layout row wrap justify-end>
                   <v-flex shrink>
-                    <v-btn text @click="dialog = false;e1=1">Cancel</v-btn>
-                    <v-btn color="primary" @click="e1=2" style="margin-right: 10px">Next</v-btn>
+                    <v-btn depressed color="primary" @click="createServer()">NEXT</v-btn>
                   </v-flex>
                 </v-layout>
               </v-col>
@@ -49,44 +62,109 @@
           </v-stepper-content>
 
           <v-stepper-content step="2">
-            <v-row>
-              <v-col cols="12" md="10" sm="12">
-                <v-text-field
-                  type="password"
-                  value="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut"
-                  disabled
-                  label="Key"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="2" sm="12">
-                <v-btn block text color="primary">Copy</v-btn>
-              </v-col>
-              <v-col cols="12">
-                <v-divider></v-divider>
-              </v-col>
-              <v-col cols="12" md="5" sm="12">
-                <v-btn block color="primary" outlined>Plugin (.jar)</v-btn>
-              </v-col>
-              <v-col cols="12" md="2" sm="12" class="text-center">
-                <v-container>
-                  <v-row justify="center">Or</v-row>
-                </v-container>
-              </v-col>
-              <v-col cols="12" md="5" sm="12">
-                <v-btn block color="primary" outlined>Plugin + Config (.zip)</v-btn>
-              </v-col>
-              <v-col cols="12">
-                <v-layout row wrap justify-end>
-                  <v-flex shrink>
-                    <v-btn text @click="dialog = false;e1=1" style="margin-right: 10px">Close</v-btn>
-                  </v-flex>
-                </v-layout>
-              </v-col>
-            </v-row>
+            <v-expand-transition>
+              <div v-show="!setup.created">
+                <center style="padding-top: 50px; padding-bottom: 50px">
+                  <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                </center>
+              </div>
+            </v-expand-transition>
+            <v-expand-transition>
+              <div v-show="setup.created">
+                <v-row>
+                  <v-col cols="12" md="10" sm="12">
+                    <v-text-field
+                      type="password"
+                      value="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut"
+                      disabled
+                      label="Key"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="2" sm="12">
+                    <v-btn block text color="primary">Copy</v-btn>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-divider></v-divider>
+                  </v-col>
+                  <v-col cols="12" md="5" sm="12">
+                    <v-btn block color="primary" outlined>Plugin (.jar)</v-btn>
+                  </v-col>
+                  <v-col cols="12" md="2" sm="12" class="text-center">
+                    <v-container>
+                      <v-row justify="center">Or</v-row>
+                    </v-container>
+                  </v-col>
+                  <v-col cols="12" md="5" sm="12">
+                    <v-btn block color="primary" outlined>Plugin + Config (.zip)</v-btn>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-alert
+                      text
+                      color="primary"
+                      v-if="shouldAskProxy"
+                    >You should add at least two instances before setting up your proxy instance</v-alert>
+                  </v-col>
+                </v-row>
+                <v-row no-gutters class="px-3">
+                  <v-col cols="6">
+                    <v-layout row wrap justify-start>
+                      <v-flex shrink>
+                        <v-btn
+                          outlined
+                          color="secondary"
+                          v-if="(setup.mode=='view'||setup.mode=='single')||(setup.mode=='proxy'&&servers.length>1)"
+                          @click="setup.active = false;e1=1"
+                        >CLOSE</v-btn>
+                      </v-flex>
+                    </v-layout>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-layout row wrap justify-end>
+                      <v-flex shrink>
+                        <v-btn
+                          depressed
+                          color="primary"
+                          v-if="setup.mode=='proxy'"
+                          @click="createAnother()"
+                        >ADD ANOTHER</v-btn>
+                      </v-flex>
+                    </v-layout>
+                  </v-col>
+                </v-row>
+              </div>
+            </v-expand-transition>
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
+    </v-dialog>
+
+    <v-dialog v-model="setup.proxyAsking" persistent max-width="400px">
+      <v-card class="pa-5">
+        <h2>Setup proxy now?</h2>
+        <p>Do you want to setup your proxy instance already? Or do you prefer keep adding servers?</p>
+        <v-divider class="mt-4 mb-4" />
+        <v-row no-gutters class="px-3">
+          <v-col cols="6">
+            <v-layout row wrap justify-start>
+              <v-flex shrink>
+                <v-btn outlined color="secondary" @click="setup.proxyAsking = false">KEEP ADDING</v-btn>
+              </v-flex>
+            </v-layout>
+          </v-col>
+          <v-col cols="6">
+            <v-layout row wrap justify-end>
+              <v-flex shrink>
+                <v-btn
+                  depressed
+                  color="primary"
+                  @click="setup.active=false;setup.proxyAsking=false;"
+                >SETUP</v-btn>
+              </v-flex>
+            </v-layout>
+          </v-col>
+        </v-row>
+      </v-card>
     </v-dialog>
 
     <!-- dialog finish -->
@@ -103,7 +181,15 @@ export default {
   components: {
     ServerRow: ServerRow
   },
+  props: ["mode"],
   data: () => ({
+    setup: {
+      mode: null,
+      created: false,
+      proxyAsked: false,
+      active: false,
+      proxyAsking: false
+    },
     session: null,
     servers: [],
     location: [
@@ -122,17 +208,54 @@ export default {
     e1: 1,
     network: null
   }),
-  mounted() {
-    if (localStorage.session && localStorage.network) {
-      network = localStorage.network;
-      var coreInstance = new core(JSON.parse(localStorage.session));
-      this.session = coreInstance.getCoreSession();
-      var network = coreInstance.getInstance(localStorage.network).asNetwork();
-      var mainObj = this;
-      network.getServers().then(function(servers) {
-        mainObj.servers = servers;
-      });
+  methods: {
+    createServer() {
+      this.e1 = 2;
+      this.setup.created = false;
+      setTimeout(() => {
+        this.setup.created = true;
+      }, 1000);
+    },
+    createAnother() {
+      this.e1 = 1;
+      this.setup.created = false;
+      if (
+        this.setup.mode == "proxy" &&
+        !this.setup.proxyAsked &&
+        this.servers.length >= 2
+      ) {
+        this.setupProxy();
+      }
+    },
+    setupProxy() {
+      this.setup.proxyAsked = true;
+      this.setup.proxyAsking = true;
+    },
+    loadServers() {
+      if (localStorage.session && localStorage.network) {
+        network = localStorage.network;
+        var coreInstance = new core(JSON.parse(localStorage.session));
+        this.session = coreInstance.getCoreSession();
+        var network = coreInstance
+          .getInstance(localStorage.network)
+          .asNetwork();
+        var mainObj = this;
+        network.getServers().then(function(servers) {
+          mainObj.servers = servers;
+          if (mainObj.setup.mode != "view" && servers.length <= 0) {
+            mainObj.setup.active = true;
+          }
+        });
+      }
     }
+  },
+  mounted() {
+    let vm = this;
+    vm.loadServers();
+
+    vm.$nextTick(function() {
+      vm.setup.mode = vm.mode;
+    });
   }
 };
 </script>

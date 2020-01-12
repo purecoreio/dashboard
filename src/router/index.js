@@ -57,8 +57,9 @@ const routes = [
     component: () => import('../views/analytics/Feedback.vue')
   },
   {
-    path: '/servers/list',
-    name: 'Server List',
+    path: '/servers/list/:mode',
+    name: 'ServerList',
+    props: true,
     component: () => import('../views/servers/List.vue')
   },
   {
@@ -171,11 +172,16 @@ const routes = [
     path: '/about/',
     name: 'About',
     component: () => import('../views/about/About.vue')
-  }
+  },
+  {
+    path: '*',
+    name: 'catchAll',
+    component: GeneralSummary
+  },
+  { path: '/servers/list/', redirect: { path: '/servers/list/view' } }
 ]
 
 const router = new VueRouter({
-  mode: 'history',
   base: '/dashboard/',
   routes: routes
 })
