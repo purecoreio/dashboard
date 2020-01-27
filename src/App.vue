@@ -86,7 +86,7 @@
         max-width="500px"
       >
         <template v-slot:activator="{ on }">
-          <v-btn rounded text @click="switchingNetworks=true">
+          <v-btn v-on="on" rounded text @click="switchingNetworks=true">
             <v-icon>compare_arrows</v-icon>
           </v-btn>
         </template>

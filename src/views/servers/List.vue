@@ -12,6 +12,16 @@
       <v-divider style="margin-top: 10px; margin-bottom: 10px"></v-divider>
     </div>
 
+    <div v-if="loadingNew">
+      <v-skeleton-loader
+        v-for="index in 10"
+        :key="index"
+        style="margin-bottom: 10px"
+        height="68"
+        type="list-item-two-line"
+      ></v-skeleton-loader>
+    </div>
+
     <div v-for="server in servers" :key="server.uuid">
       <ServerRow :name="server.name" :uuid="server.uuid"></ServerRow>
     </div>
@@ -33,9 +43,12 @@
 
         <v-stepper-items>
           <v-stepper-content step="1">
+            <v-expand-transition>
+              <v-alert text color="primary" v-show="setup.error!=null">{{setup.error}}</v-alert>
+            </v-expand-transition>
             <v-row>
               <v-col cols="12">
-                <v-text-field outlined label="Instance Name*" required></v-text-field>
+                <v-text-field v-model="setup.name" outlined label="Instance Name*" required></v-text-field>
               </v-col>
             </v-row>
             <v-row no-gutters class="px-3">
@@ -188,8 +201,11 @@ export default {
       created: false,
       proxyAsked: false,
       active: false,
-      proxyAsking: false
+      proxyAsking: false,
+      error: null,
+      name: ""
     },
+    loadingNew: false,
     session: null,
     servers: [],
     location: [
@@ -212,9 +228,23 @@ export default {
     createServer() {
       this.e1 = 2;
       this.setup.created = false;
-      setTimeout(() => {
-        this.setup.created = true;
-      }, 1000);
+
+      var mainObj = this;
+      var coreInstance = new core(JSON.parse(localStorage.session));
+      coreInstance
+        .getInstance(localStorage.network)
+        .asNetwork()
+        .createServer(mainObj.setup.name)
+        .then(function() {
+          mainObj.setup.created = true;
+          mainObj.setup.error = null;
+          mainObj.loadServers();
+        })
+        .catch(function(error) {
+          mainObj.setup.created = false;
+          mainObj.setup.error = error.message;
+          mainObj.e1 = 1;
+        });
     },
     createAnother() {
       this.e1 = 1;
@@ -232,6 +262,8 @@ export default {
       this.setup.proxyAsking = true;
     },
     loadServers() {
+      this.loadingNew = true;
+      this.servers = [];
       if (localStorage.session && localStorage.network) {
         network = localStorage.network;
         var coreInstance = new core(JSON.parse(localStorage.session));
@@ -242,6 +274,7 @@ export default {
         var mainObj = this;
         network.getServers().then(function(servers) {
           mainObj.servers = servers;
+          mainObj.loadingNew = false;
           if (mainObj.setup.mode != "view" && servers.length <= 0) {
             mainObj.setup.active = true;
           }
