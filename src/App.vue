@@ -2,11 +2,8 @@
   <v-app id="sandbox">
     <v-navigation-drawer
       v-model="primaryDrawer.model"
-      :clipped="primaryDrawer.clipped"
-      :floating="primaryDrawer.floating"
-      :mini-variant="primaryDrawer.mini"
+      clipped
       permanent
-      :temporary="primaryDrawer.type === 'temporary'"
       expand-on-hover
       app
       overflow
@@ -68,6 +65,16 @@
           </v-list-item>
         </v-list-group>
       </v-list>
+
+      <template v-slot:append>
+        <div>
+          <v-row wrap no-gutters justify="center" align="center">
+            <v-col cols="12" class="pa-5">
+              <v-switch v-model="dark" label="Dark Mode"></v-switch>
+            </v-col>
+          </v-row>
+        </div>
+      </template>
     </v-navigation-drawer>
 
     <!-- login form -->
@@ -385,7 +392,7 @@
           </v-col>
         </v-row>
       </v-container>
-      <v-footer absolute>
+      <v-footer inset absolute>
         <center style="width: 100%">
           <router-link :to="{ name: 'About' }">
             <span class="px-4">&copy; 2019-{{ new Date().getFullYear() }} quiquelhappy</span>
@@ -402,6 +409,7 @@ import core from "purecore";
 export default {
   name: "App",
   data: () => ({
+    dark: false,
     networkDialog: false,
     setup: {
       ipmode: true,
@@ -525,6 +533,15 @@ export default {
     ]
   }),
   mounted() {
+    if (localStorage.getItem("dark", null) != null) {
+      var info = localStorage.getItem("dark") == "true";
+      if (info) {
+        this.dark = true;
+      } else {
+        this.dark = false;
+      }
+    }
+
     if (localStorage.session) {
       var coreInstance = new core(JSON.parse(localStorage.session));
       this.session = coreInstance.getCoreSession();
@@ -544,6 +561,15 @@ export default {
     }
   },
   watch: {
+    dark: function() {
+      if (this.dark) {
+        this.$vuetify.theme.dark = true;
+        localStorage.setItem("dark", true);
+      } else {
+        this.$vuetify.theme.dark = false;
+        localStorage.setItem("dark", false);
+      }
+    },
     session(newSession) {
       localStorage.session = JSON.stringify(newSession);
     },
