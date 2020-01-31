@@ -7,8 +7,8 @@
     </v-breadcrumbs>
     <v-alert color="primary" text>This feature is still under development.</v-alert>
 
-    <div v-if="servers.length > 1">
-      <ServerRow v-show="true" name="Proxy Instance" :uuid="network"></ServerRow>
+    <div v-if="servers.length > 1 && network != null">
+      <ServerRow v-show="true" name="Proxy Instance" :uuid="network.uuid"></ServerRow>
       <v-divider style="margin-top: 10px; margin-bottom: 10px"></v-divider>
     </div>
 
@@ -84,41 +84,55 @@
             </v-expand-transition>
             <v-expand-transition>
               <div v-show="setup.created">
-                <v-row>
-                  <v-col cols="12" md="10" sm="12">
+                <v-row justify="center" align="center">
+                  <v-col cols="8" md="9" sm="12">
                     <v-text-field
                       type="password"
-                      value="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut"
+                      hide-details
+                      :loading="setup.key.loading"
+                      :value="setup.key.value"
                       disabled
                       label="Key"
                       required
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" md="2" sm="12">
-                    <v-btn block text color="primary">Copy</v-btn>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-divider></v-divider>
-                  </v-col>
-                  <v-col cols="12" md="5" sm="12">
-                    <v-btn block color="primary" outlined>Plugin (.jar)</v-btn>
-                  </v-col>
-                  <v-col cols="12" md="2" sm="12" class="text-center">
-                    <v-container>
-                      <v-row justify="center">Or</v-row>
-                    </v-container>
-                  </v-col>
-                  <v-col cols="12" md="5" sm="12">
-                    <v-btn block color="primary" outlined>Plugin + Config (.zip)</v-btn>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-alert
+                  <v-col cols="4" md="3" sm="12">
+                    <v-btn
+                      @click="copyKey()"
+                      :disabled="setup.key.loading"
+                      :loading="setup.key.loading"
+                      block
                       text
+                      outlined
                       color="primary"
-                      v-if="shouldAskProxy"
-                    >You should add at least two instances before setting up your proxy instance</v-alert>
+                    >Copy</v-btn>
                   </v-col>
                 </v-row>
+                <v-expand-transition>
+                  <v-row v-show="false">
+                    <v-col cols="12">
+                      <v-divider></v-divider>
+                    </v-col>
+                    <v-col cols="12" md="5" sm="12">
+                      <v-btn block color="primary" outlined>Plugin (.jar)</v-btn>
+                    </v-col>
+                    <v-col cols="12" md="2" sm="12" class="text-center">
+                      <v-container>
+                        <v-row justify="center">Or</v-row>
+                      </v-container>
+                    </v-col>
+                    <v-col cols="12" md="5" sm="12">
+                      <v-btn block color="primary" outlined>Plugin + Config (.zip)</v-btn>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-alert
+                        text
+                        color="primary"
+                        v-if="shouldAskProxy"
+                      >You should add at least two instances before setting up your proxy instance</v-alert>
+                    </v-col>
+                  </v-row>
+                </v-expand-transition>
                 <v-row no-gutters class="px-3">
                   <v-col cols="6">
                     <v-layout row wrap justify-start>
@@ -203,7 +217,11 @@ export default {
       active: false,
       proxyAsking: false,
       error: null,
-      name: ""
+      name: "",
+      key: {
+        value: "",
+        loading: true
+      }
     },
     loadingNew: false,
     session: null,
@@ -225,19 +243,32 @@ export default {
     network: null
   }),
   methods: {
+    copyKey() {
+      var dummy = document.createElement("textarea");
+      document.body.appendChild(dummy);
+      dummy.value = this.setup.key.value;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+    },
     createServer() {
       this.e1 = 2;
       this.setup.created = false;
-
       var mainObj = this;
+      mainObj.setup.key.loading = true;
+
       var coreInstance = new core(JSON.parse(localStorage.session));
       coreInstance
         .getInstance(localStorage.network)
         .asNetwork()
         .createServer(mainObj.setup.name)
-        .then(function() {
+        .then(function(instance) {
           mainObj.setup.created = true;
           mainObj.setup.error = null;
+          instance.getKeys().then(function(keys) {
+            mainObj.setup.key.value = keys[0].hash;
+            mainObj.setup.key.loading = false;
+          });
           mainObj.loadServers();
         })
         .catch(function(error) {
@@ -272,6 +303,7 @@ export default {
           .getInstance(localStorage.network)
           .asNetwork();
         var mainObj = this;
+        this.network = network;
         network.getServers().then(function(servers) {
           mainObj.servers = servers;
           mainObj.loadingNew = false;

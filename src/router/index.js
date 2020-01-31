@@ -11,8 +11,9 @@ const routes = [
     component: GeneralSummary
   },
   {
-    path: '/instance/',
-    name: 'Instance Summary',
+    path: '/instance/:uuid',
+    name: 'Instance',
+    props: true,
     component: () => import('../views/instance/Instance.vue')
   },
   {

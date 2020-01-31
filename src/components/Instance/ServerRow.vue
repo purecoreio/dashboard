@@ -54,7 +54,7 @@
                   </v-card-actions>
                 </v-card>
               </v-dialog>
-              <v-btn link to="/instance/" fill-height depressed>
+              <v-btn :to="{ name: 'Instance' , params: { uuid: uuid } }" fill-height depressed>
                 <v-icon left>dns</v-icon>Panel
               </v-btn>
             </v-col>
@@ -84,8 +84,6 @@ export default {
       var coreInstance = new core(JSON.parse(localStorage.session)).getInstance(
         mainObj.uuid
       );
-
-      console.log(coreInstance);
 
       coreInstance
         .delete()
