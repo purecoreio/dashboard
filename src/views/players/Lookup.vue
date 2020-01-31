@@ -47,7 +47,7 @@
           ></v-skeleton-loader>
         </div>
       </v-expand-transition>
-      <div v-if="search.length<=0" v-intersect="loadContent"></div>
+      <div v-if="!stopLoading" v-intersect="loadContent"></div>
     </div>
   </div>
 </template>
@@ -83,7 +83,8 @@ export default {
     items: [],
     model: null,
     search: "",
-    tab: null
+    tab: null,
+    stopLoading: false
   }),
   mounted: function() {
     this.$nextTick(function() {
@@ -94,7 +95,7 @@ export default {
   },
   methods: {
     loadContent() {
-      if (!this.loadingNew && localStorage.session && localStorage.network) {
+      if (!this.loadingNew && localStorage.session && localStorage.network && !this.stopLoading) {
         this.loadingNew = true;
         network = localStorage.network;
         var coreInstance = new core(JSON.parse(localStorage.session));
@@ -110,6 +111,11 @@ export default {
 
           mainObj.loadingNew = false;
           mainObj.page++;
+
+          if(players.length<20){
+            mainObj.stopLoading=true;
+          }
+
         });
       }
     }
