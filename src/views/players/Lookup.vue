@@ -47,7 +47,7 @@
           ></v-skeleton-loader>
         </div>
       </v-expand-transition>
-      <div v-if="!stopLoading" v-intersect="loadContent"></div>
+      <div v-if="!stopLoading && search.length<=0" v-intersect="loadContent"></div>
     </div>
   </div>
 </template>
