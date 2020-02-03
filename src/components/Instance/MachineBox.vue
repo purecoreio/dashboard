@@ -1,5 +1,5 @@
 <template>
-  <v-card style="position: relative; margin-bottom: 10px; width: 100%; min-height: 350px">
+  <v-card style="position: relative; margin-bottom: 10px; min-height: 350px">
     <div id="datasheet">
       <v-list dense>
         <v-list-item>

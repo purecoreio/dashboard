@@ -8,8 +8,8 @@
     <v-alert color="primary" text>This feature is independent to the selected network, as it is stored in your account and not as a network asset.</v-alert>
     <v-row style="width: 100%">
 
-      <v-col cols="12" sm="12" md="6" lg="6" xl="4" v-for="machine in machines" :key="machine.uuid">
-        <MachineBox style="width: 100%" :uuid="machine.uuid" :machine="machine" />
+      <v-col cols="12" md="6" xl="4" v-for="machine in machines" :key="machine.uuid">
+        <MachineBox :uuid="machine.uuid" :machine="machine" />
       </v-col>
 
     </v-row>

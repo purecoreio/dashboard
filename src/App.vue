@@ -1,12 +1,11 @@
 <template>
   <v-app id="sandbox">
     <v-navigation-drawer
-      v-model="primaryDrawer.model"
+      v-model="drawer.model"
       clipped
-      permanent
-      expand-on-hover
+      :permanent="$vuetify.breakpoint.mdAndUp"
+      :expand-on-hover="$vuetify.breakpoint.mdAndUp"
       app
-      overflow
     >
       <v-list-item style="height: 120px">
         <v-list-item-content
@@ -46,7 +45,7 @@
 
       <v-list shaped>
         <v-list-group
-          v-for="item in items"
+          v-for="item in drawer.items"
           :key="item.action"
           v-model="item.active"
           :prepend-icon="item.icon"
@@ -67,22 +66,20 @@
       </v-list>
 
       <template v-slot:append>
-        <div>
-          <v-row wrap no-gutters justify="center" align="center">
-            <v-col cols="12" class="pa-5">
-              <v-switch v-model="dark" label="Dark Mode"></v-switch>
-            </v-col>
-          </v-row>
-        </div>
+        <v-fade-transition>
+          <div v-show="drawer.model" class="d-flex justify-center">
+            <v-switch v-model="dark" label="Dark Mode"></v-switch>
+          </div>
+        </v-fade-transition>
       </template>
     </v-navigation-drawer>
 
     <!-- login form -->
 
-    <v-app-bar :clipped-left="primaryDrawer.clipped" app>
+    <v-app-bar app clipped-left>
       <v-app-bar-nav-icon
-        v-if="primaryDrawer.type !== 'permanent'"
-        @click.stop="primaryDrawer.model = !primaryDrawer.model"
+        v-if="$vuetify.breakpoint.smAndDown"
+        @click.stop="drawer.model = !drawer.model"
       />
       <v-toolbar-title>purecore</v-toolbar-title>
       <v-spacer />
@@ -93,7 +90,7 @@
         max-width="500px"
       >
         <template v-slot:activator="{ on }">
-          <v-btn v-on="on" rounded text @click="switchingNetworks=true">
+          <v-btn v-on="on" icon @click="switchingNetworks=true">
             <v-icon>compare_arrows</v-icon>
           </v-btn>
         </template>
@@ -354,7 +351,7 @@
       <v-dialog :value="!(session != null && session != undefined)" persistent max-width="500px">
         <template v-slot:activator="{ on }">
           <v-btn v-if="!(session != null && session != undefined)" rounded text v-on="on">
-            LOGIN WITH GOOGLE
+            LOGIN
             <v-avatar right size="25px" style="margin-left: 10px">
               <v-img src="./assets/glogo.svg" alt="Login" />
             </v-avatar>
@@ -372,7 +369,7 @@
               :loading="loginLoading"
               style="margin-bottom: 30px"
             >
-              {{loginString}}
+              LOGIN WITH GOOGLE
               <v-avatar right size="25px" style="margin-left: 10px">
                 <v-img src="./assets/glogo.svg" alt="Login" />
               </v-avatar>
@@ -430,107 +427,99 @@ export default {
     selectedNetwork: null,
     selectedNetworkName: null,
     switchingNetworks: false,
-    drawers: ["Default (no property)", "Permanent", "Temporary"],
-    primaryDrawer: {
+    drawer: {
       model: null,
-      type: "default (no property)",
-      clipped: true,
-      floating: true,
-      mini: false
-    },
-    footer: {
-      inset: false
-    },
-    items: [
-      {
-        action: "summary",
-        title: "Summary",
-        icon: "dashboard",
-        active: true,
-        items: [
-          {
-            title: "General View",
-            path: "/summary/general"
-          },
-          { title: "Instance View", path: "/summary/instance" }
-        ]
-      },
-      {
-        action: "players",
-        title: "Players",
-        icon: "supervisor_account",
-        items: [{ title: "Lookup", path: "/players/lookup" }]
-      },
-      {
-        action: "analytics",
-        title: "Analytics",
-        icon: "bar_chart",
-        items: [
-          { title: "General Stats", path: "/analytics/general" },
-          { title: "Instance Growth", path: "/analytics/growth" },
-          { title: "Game Stats", path: "/analytics/game" },
-          { title: "Feedback", path: "/analytics/feedback" }
-        ]
-      },
-      {
-        action: "servers",
-        title: "Servers",
-        icon: "view_list",
-        items: [
-          { title: "List", path: "/servers/list" },
-          { title: "Machines", path: "/servers/machines" }
-        ]
-      },
-      {
-        action: "donations",
-        title: "Donations",
-        icon: "store",
-        items: [
-          { title: "Transactions", path: "/donations/transactions" },
-          { title: "Packages", path: "/donations/packages" }
-        ]
-      },
-      {
-        action: "forum",
-        title: "Forum",
-        icon: "chat_bubble",
-        items: [
-          { title: "News", path: "/forum/news" },
-          { title: "Sections", path: "/forum/sections" },
-          { title: "Threads", path: "/forum/threads" },
-          { title: "Actions", path: "/forum/actions" },
-          { title: "Badges", path: "/forum/badges" }
-        ]
-      },
-      {
-        action: "punishments",
-        title: "Punishments",
-        icon: "gavel",
-        items: [
-          { title: "Offences", path: "/punishments/offences" },
-          { title: "Actions", path: "/punishments/actions" },
-          { title: "History", path: "/punishments/history" },
-          { title: "Appeals", path: "/punishments/appeals" },
-          { title: "Reports", path: "/punishments/reports" }
-        ]
-      },
-      {
-        action: "billing",
-        title: "Billing",
-        icon: "attach_money",
-        items: [{ title: "Invoices", path: "/billing/invoices" }]
-      },
-      {
-        action: "website",
-        title: "Website",
-        icon: "dvr",
-        items: [
-          { title: "Domain", path: "/website/domain" },
-          { title: "Themes", path: "/website/themes" },
-          { title: "Pages", path: "/website/pages" }
-        ]
-      }
-    ]
+      items: [
+        {
+          action: "summary",
+          title: "Summary",
+          icon: "dashboard",
+          active: true,
+          items: [
+            {
+              title: "General View",
+              path: "/summary/general"
+            },
+            { title: "Instance View", path: "/summary/instance" }
+          ]
+        },
+        {
+          action: "players",
+          title: "Players",
+          icon: "supervisor_account",
+          items: [{ title: "Lookup", path: "/players/lookup" }]
+        },
+        {
+          action: "analytics",
+          title: "Analytics",
+          icon: "bar_chart",
+          items: [
+            { title: "General Stats", path: "/analytics/general" },
+            { title: "Instance Growth", path: "/analytics/growth" },
+            { title: "Game Stats", path: "/analytics/game" },
+            { title: "Feedback", path: "/analytics/feedback" }
+          ]
+        },
+        {
+          action: "servers",
+          title: "Servers",
+          icon: "view_list",
+          items: [
+            { title: "List", path: "/servers/list" },
+            { title: "Machines", path: "/servers/machines" }
+          ]
+        },
+        {
+          action: "donations",
+          title: "Donations",
+          icon: "store",
+          items: [
+            { title: "Transactions", path: "/donations/transactions" },
+            { title: "Packages", path: "/donations/packages" }
+          ]
+        },
+        {
+          action: "forum",
+          title: "Forum",
+          icon: "chat_bubble",
+          items: [
+            { title: "News", path: "/forum/news" },
+            { title: "Structure", path: "/forum/structure" },
+            { title: "Threads", path: "/forum/threads" },
+            { title: "Badges", path: "/forum/badges" },
+            { title: "Reactions", path: "/forum/reactions" }
+          ]
+        },
+        {
+          action: "punishments",
+          title: "Punishments",
+          icon: "gavel",
+          items: [
+            { title: "Offences", path: "/punishments/offences" },
+            { title: "Actions", path: "/punishments/actions" },
+            { title: "History", path: "/punishments/history" },
+            { title: "Appeals", path: "/punishments/appeals" },
+            { title: "Reports", path: "/punishments/reports" }
+          ]
+        },
+        {
+          action: "billing",
+          title: "Billing",
+          icon: "attach_money",
+          items: [{ title: "Invoices", path: "/billing/invoices" }]
+        },
+        {
+          action: "website",
+          title: "Website",
+          icon: "dvr",
+          items: [
+            { title: "Domain", path: "/website/domain" },
+            { title: "Themes", path: "/website/themes" },
+            { title: "Pages", path: "/website/pages" }
+          ]
+        }
+      ]
+    }
   }),
   mounted() {
     if (localStorage.getItem("dark", null) != null) {
@@ -675,18 +664,23 @@ export default {
       this.loginLoading = true;
       var mainObj = this;
 
-      this.$gAuth.signIn().then(GoogleUser => {
-        new core()
-          .fromToken(GoogleUser.getAuthResponse().id_token)
-          .then(function(core) {
-            // to-do save core session
+      this.$gAuth
+        .signIn()
+        .then(GoogleUser => {
+          new core()
+            .fromToken(GoogleUser.getAuthResponse().id_token)
+            .then(function(core) {
+              // to-do save core session
 
-            mainObj.loginLoading = false;
-            mainObj.session = core.getCoreSession();
+              mainObj.loginLoading = false;
+              mainObj.session = core.getCoreSession();
 
-            mainObj.getAvailableNetworks();
-          });
-      });
+              mainObj.getAvailableNetworks();
+            });
+        })
+        .catch(function() {
+          mainObj.loginLoading = false;
+        });
     }
   }
 };

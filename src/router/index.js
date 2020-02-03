@@ -105,9 +105,9 @@ const routes = [
     component: () => import('../views/forum/News.vue')
   },
   {
-    path: '/forum/sections',
-    name: 'Sections',
-    component: () => import('../views/forum/Sections.vue')
+    path: '/forum/structure',
+    name: 'Structure',
+    component: () => import('../views/forum/Structure/Structure.vue')
   },
   {
     path: '/forum/threads',
