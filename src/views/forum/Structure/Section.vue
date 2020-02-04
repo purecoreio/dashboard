@@ -8,31 +8,38 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="add.dialog" max-width="600px">
-      <v-card>
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12">
-                <v-text-field outlined hide-details v-model="add.title" label="Title" required></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  outlined
-                  hide-details
-                  v-model="add.description"
-                  label="Description"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <v-row no-gutters justify="center" align="center">
-              <v-col cols="12" align="right">
-                <v-btn color="secondary" class="mr-1" text @click="add.dialog = false">Cancel</v-btn>
-                <v-btn color="primary" text @click="finishItemAdd()">Save</v-btn>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
+      <v-card class="pa-5">
+        <v-row>
+          <v-expand-transition>
+            <v-col v-show="add.error!=''" cols="12">
+              <v-alert text color="primary">{{add.error}}</v-alert>
+            </v-col>
+          </v-expand-transition>
+          <v-col cols="12">
+            <v-text-field outlined hide-details v-model="add.title" label="Title" required></v-text-field>
+          </v-col>
+          <v-col cols="12">
+            <v-text-field
+              outlined
+              hide-details
+              v-model="add.description"
+              label="Description"
+              required
+            ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row no-gutters justify="center" align="center">
+          <v-col cols="12" align="right">
+            <v-btn color="secondary" class="mr-1" text @click="add.dialog = false">Cancel</v-btn>
+            <v-btn
+              color="primary"
+              :loading="add.loading"
+              :disabled="add.loading"
+              text
+              @click="finishItemAdd()"
+            >Create</v-btn>
+          </v-col>
+        </v-row>
       </v-card>
     </v-dialog>
     <v-dialog v-model="edit.dialog" max-width="600px">
@@ -120,7 +127,9 @@ export default {
     add: {
       dialog: null,
       title: null,
-      description: null
+      description: null,
+      loading: false,
+      error: ""
     }
   }),
   methods: {
@@ -140,14 +149,20 @@ export default {
     },
     finishItemAdd: function() {
       let main = this;
-      main.add.dialog = false;
+      main.add.loading = true;
       main.section
         .createCategory(main.add.title, main.add.description)
         .then(function() {
+          main.add.dialog = false;
+          main.add.loading = false;
+          main.add.title = "";
+          main.add.description = "";
+          main.add.error = "";
           main.getCategories();
         })
         .catch(function(error) {
-          alert(error.message);
+          main.add.loading = false;
+          main.add.error = error.message;
         });
     }
   },
