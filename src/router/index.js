@@ -74,6 +74,11 @@ const routes = [
     component: () => import('../views/donations/Transactions.vue')
   },
   {
+    path: '/donations/gateways',
+    name: 'Transactions',
+    component: () => import('../views/donations/Gateways.vue')
+  },
+  {
     path: '/donations/packages',
     name: 'Packages',
     component: () => import('../views/donations/Packages.vue')

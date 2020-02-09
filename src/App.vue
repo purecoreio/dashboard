@@ -486,7 +486,8 @@ export default {
           icon: "store",
           items: [
             { title: "Transactions", path: "/donations/transactions" },
-            { title: "Packages", path: "/donations/packages" }
+            { title: "Packages", path: "/donations/packages" },
+            { title: "Gateways", path: "/donations/gateways" }
           ]
         },
         {
