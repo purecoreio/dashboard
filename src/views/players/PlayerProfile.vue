@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card class="mx-auto" outlined>
+    <v-card outlined>
       <v-card-text>
         <v-list-item>
           <v-list-item-content>
@@ -17,34 +17,37 @@
           </v-list-item-avatar>
         </v-list-item>
         <v-divider style="margin-bottom: 8px; margin-top: 8px" />
-        <v-tabs>
-          <v-tab>
-            <v-icon left>payment</v-icon>Payments
-          </v-tab>
-          <v-tab>
-            <v-icon left>gavel</v-icon>Punishments
-          </v-tab>
-          <v-tab>
-            <v-icon left>sync_alt</v-icon>Connections
-          </v-tab>
-
-          <v-tab-item>
-            <div v-for="payment in payments" :key="payment.uuid">
-              <PaymentRow :payment="payment"></PaymentRow>
-            </div>
-          </v-tab-item>
-          <v-tab-item>
-            <div v-for="punishment in punishments" :key="punishment.uuid">
-              <Punishment :punishment="punishment"></Punishment>
-            </div>
-          </v-tab-item>
-          <v-tab-item>
-            <div v-for="connection in connections" :key="connection.uuid">
-              <ConnectionRow :connection="connection"></ConnectionRow>
-            </div>
-          </v-tab-item>
-        </v-tabs>
       </v-card-text>
+      <v-tabs :fixed-tabs="$vuetify.breakpoint.smAndDown" class="ma-0">
+        <v-tab>
+          <v-icon :left="$vuetify.breakpoint.mdAndUp">payment</v-icon>
+          <span v-if="$vuetify.breakpoint.mdAndUp">Payments</span>
+        </v-tab>
+        <v-tab>
+          <v-icon :left="$vuetify.breakpoint.mdAndUp">gavel</v-icon>
+          <span v-if="$vuetify.breakpoint.mdAndUp">Punishments</span>
+        </v-tab>
+        <v-tab>
+          <v-icon :left="$vuetify.breakpoint.mdAndUp">sync_alt</v-icon>
+          <span v-if="$vuetify.breakpoint.mdAndUp">Connections</span>
+        </v-tab>
+
+        <v-tab-item>
+          <div v-for="payment in payments" :key="payment.uuid">
+            <PaymentRow :no-shadow="true" :payment="payment"></PaymentRow>
+          </div>
+        </v-tab-item>
+        <v-tab-item>
+          <div v-for="punishment in punishments" :key="punishment.uuid">
+            <Punishment :no-shadow="true" :punishment="punishment"></Punishment>
+          </div>
+        </v-tab-item>
+        <v-tab-item>
+          <div v-for="connection in connections" :key="connection.uuid">
+            <ConnectionRow :no-shadow="true" :connection="connection"></ConnectionRow>
+          </div>
+        </v-tab-item>
+      </v-tabs>
     </v-card>
   </div>
 </template>

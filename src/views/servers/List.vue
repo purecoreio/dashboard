@@ -30,7 +30,7 @@
 
     <v-dialog v-model="setup.active" persistent max-width="600px">
       <template v-slot:activator="{ on }">
-        <v-btn color="primary" dark v-on="on">Add Server</v-btn>
+        <v-btn style="float: right" color="primary" dark v-on="on">Add Server</v-btn>
       </template>
       <v-stepper v-model="e1">
         <v-stepper-header>

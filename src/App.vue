@@ -66,11 +66,13 @@
       </v-list>
 
       <template v-slot:append>
-        <v-fade-transition>
-          <div v-show="drawer.model" class="d-flex justify-center">
-            <v-switch v-model="dark" label="Dark Mode"></v-switch>
+        <v-scroll-x-transition>
+          <div>
+            <div class="d-flex justify-center">
+              <v-switch prepend-icon="wb_sunny" v-model="dark"></v-switch>
+            </div>
           </div>
-        </v-fade-transition>
+        </v-scroll-x-transition>
       </template>
     </v-navigation-drawer>
 
@@ -83,7 +85,6 @@
       />
       <v-toolbar-title>purecore</v-toolbar-title>
       <v-spacer />
-
       <v-dialog
         :value="((selectedNetwork==undefined || selectedNetwork == null || switchingNetworks) && (session != null && session != undefined))&&!networkDialog"
         persistent
@@ -385,15 +386,23 @@
       <v-container fluid class="mb-5">
         <v-row align="center" justify="center">
           <v-col cols="12" xs="12" sm="12" md="10" lg="8" xl="6">
-            <router-view></router-view>
+            <transition
+              mode="out-in"
+              @beforeLeave="beforeLeave"
+              @enter="enter"
+              @afterEnter="afterEnter"
+              name="fade"
+            >
+              <router-view class="mb-5" />
+            </transition>
           </v-col>
         </v-row>
       </v-container>
       <v-footer inset absolute>
         <center style="width: 100%">
-          <router-link :to="{ name: 'About' }">
-            <span class="px-4">&copy; 2019-{{ new Date().getFullYear() }} quiquelhappy</span>
-          </router-link>
+          <v-btn style="text-transform: none" text :to="{ name: 'About' }">
+            <span class="px-4">&copy; 2019 / {{ new Date().getFullYear() }} quiquelhappy</span>
+          </v-btn>
         </center>
       </v-footer>
     </v-content>
@@ -406,6 +415,8 @@ import core from "purecore";
 export default {
   name: "App",
   data: () => ({
+    showDarkSelector: false,
+    prevHeight: 0,
     dark: false,
     networkDialog: false,
     setup: {
@@ -584,6 +595,21 @@ export default {
     }
   },
   methods: {
+    beforeLeave(element) {
+      this.prevHeight = getComputedStyle(element).height;
+    },
+    enter(element) {
+      const { height } = getComputedStyle(element);
+
+      element.style.height = this.prevHeight;
+
+      setTimeout(() => {
+        element.style.height = height;
+      });
+    },
+    afterEnter(element) {
+      element.style.height = "auto";
+    },
     createNetwork() {
       var mainObj = this;
       var coreInstance = new core(JSON.parse(localStorage.session));
@@ -685,3 +711,22 @@ export default {
   }
 };
 </script>
+
+
+<style>
+@import url("https://fonts.googleapis.com/css?family=Barlow&display=swap");
+* {
+  font-family: "Barlow", sans-serif;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition-duration: 0.3s;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
+}
+</style>

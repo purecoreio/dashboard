@@ -8,15 +8,17 @@
       <v-card v-show="!deleted" style="margin-bottom: 10px">
         <v-container fluid>
           <v-row dense align="center">
-            <v-col cols="6" xl="10" lg="9" md="9" sm="6" xs="6">
-              {{ name }}
-              <v-chip
-                style="margin-left: 7px"
-                v-if="name=='Proxy Instance'"
-                color="primary"
-              >Automatically Created</v-chip>
+            <v-col cols="7" xl="10" lg="9" md="9" sm="6">
+              <p class="ma-0">
+                {{ name }}
+                <v-chip
+                  style="margin-left: 7px"
+                  v-if="name=='Proxy Instance'&&$vuetify.breakpoint.mdAndUp"
+                  color="primary"
+                >Automatically Created</v-chip>
+              </p>
             </v-col>
-            <v-col class="text-right" cols="6" xl="2" lg="3" md="3" sm="6" xs="6">
+            <v-col class="text-right" cols="5" xl="2" lg="3" md="3" sm="6" xs="6">
               <v-dialog v-model="deleting" width="500">
                 <template v-slot:activator="{ on }">
                   <v-btn v-on="on" v-if="name!='Proxy Instance'" fill-height text>
@@ -54,8 +56,14 @@
                   </v-card-actions>
                 </v-card>
               </v-dialog>
-              <v-btn :to="{ name: 'Instance' , params: { uuid: uuid } }" fill-height depressed>
-                <v-icon left>dns</v-icon>Panel
+              <v-btn
+                :icon="$vuetify.breakpoint.smAndDown"
+                :color="$vuetify.breakpoint.smAndDown ? 'primary' : ''"
+                :to="{ name: 'Instance' , params: { uuid: uuid } }"
+                depressed
+              >
+                <v-icon :left="$vuetify.breakpoint.mdAndUp">dns</v-icon>
+                <span v-if="$vuetify.breakpoint.mdAndUp">Panel</span>
               </v-btn>
             </v-col>
           </v-row>

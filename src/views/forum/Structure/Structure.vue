@@ -46,7 +46,7 @@
     </div>
     <div v-if="sections!=null">
       <Section :section="section" v-for="section in sections" :key="section.uuid" />
-      <div class="d-flex justify-end">
+      <div class="d-flex justify-end mb-5">
         <v-btn @click="create.dialog=true" color="primary" depressed>
           create
           <v-icon class="ml-2">add</v-icon>

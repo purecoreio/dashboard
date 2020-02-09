@@ -6,13 +6,18 @@
       </template>
     </v-breadcrumbs>
     <v-alert color="primary" text>This feature is still under development.</v-alert>
+    <ExampleAnalytics />
   </div>
 </template>
 
 
 <script>
+import ExampleAnalytics from "../../components/Analytics/ExampleAnalytics";
 export default {
   name: "AnalyticsGame",
+  components: {
+    ExampleAnalytics
+  },
   data: () => ({
     location: [
       {

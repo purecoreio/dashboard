@@ -1,5 +1,5 @@
 <template>
-  <v-card style="margin-bottom: 10px">
+  <v-card :elevation="noShadow==true ? 0 : 1" style="margin-bottom: 10px">
     <v-container fluid>
       <v-row dense align="center">
         <v-col cols="3">
@@ -20,8 +20,9 @@
           </v-list-item-content>
         </v-col>
         <v-col class="text-right" cols="3">
-          <v-btn fill-height depressed>
-            <v-icon left>edit</v-icon>Context
+          <v-btn :icon="$vuetify.breakpoint.smAndDown" depressed>
+            <v-icon :left="$vuetify.breakpoint.mdAndUp">edit</v-icon>
+            <span v-if="$vuetify.breakpoint.mdAndUp">Context</span>
           </v-btn>
         </v-col>
       </v-row>
@@ -33,7 +34,7 @@
 <script>
 export default {
   name: "Punishment",
-  props: ["punishment"],
+  props: ["punishment", "noShadow"],
   data: () => ({})
 };
 </script>
