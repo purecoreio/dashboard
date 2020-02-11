@@ -14,6 +14,7 @@
             <v-card
               :to="{ name: 'Package' , params: { uuid: item.uuid } }"
               v-ripple
+              :outlined="$vuetify.theme.dark"
               :elevation="hover ? 12 : 2"
               class="mx-auto"
               height="200px"
