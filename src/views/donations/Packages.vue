@@ -27,6 +27,10 @@
     <div v-for="nestedItem in nestedItems" :key="nestedItem.uuid">
       <PackageCategory :category="nestedItem.getCategory()" :items="nestedItem.getItems()"></PackageCategory>
     </div>
+    <v-btn color="primary" class="float-right mb-5" v-if="nestedItems.length>0">create category</v-btn>
+    <center>
+      <v-btn color="primary" class="mb-5" v-if="nestedItems.length<=0">create category</v-btn>
+    </center>
   </div>
 </template>
 
@@ -70,7 +74,7 @@ export default {
           nestedItemsResult.forEach(nestedItem => {
             mainObj.nestedItems.push(nestedItem);
           });
-          mainObj.loading=false
+          mainObj.loading = false;
         });
     }
   }

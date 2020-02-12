@@ -1,10 +1,10 @@
 <template>
   <v-card outlined style="margin-bottom: 10px">
     <v-container fluid>
-      <v-list-item-content style="padding: 0px">
-        <v-list-item-title class="headline">{{ category.name }}</v-list-item-title>
-        <v-list-item-subtitle>{{ category.description }}</v-list-item-subtitle>
-      </v-list-item-content>
+      <div>
+        <h1>{{ category.name }}</h1>
+        <h3>{{ category.description }}</h3>
+      </div>
 
       <v-divider style="margin-bottom: 10px; margin-top: 10px"></v-divider>
 
@@ -27,7 +27,6 @@
                   <v-list-item-subtitle>{{ item.description }}</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider></v-divider>
               <v-card-actions style="position: absolute; bottom: 0px; left: 0px;">
                 <v-list-item-title class="display-2">{{ item.price }}</v-list-item-title>
               </v-card-actions>
@@ -39,6 +38,26 @@
                   <v-icon>edit</v-icon>
                 </v-btn>
               </v-card-actions>
+            </v-card>
+          </v-hover>
+        </v-col>
+        <v-col cols="12" lg="4" md="4" sm="4">
+          <v-hover v-slot:default="{ hover }">
+            <v-card
+              v-ripple
+              :outlined="$vuetify.theme.dark"
+              :elevation="hover ? 12 : 2"
+              class="mx-auto"
+              height="200px"
+              :class="{ 'on-hover': hover }"
+            >
+              <v-row align="center" style="height: 100%">
+                <v-col cols="12">
+                  <center>
+                    <v-icon x-large>add</v-icon>
+                  </center>
+                </v-col>
+              </v-row>
             </v-card>
           </v-hover>
         </v-col>
