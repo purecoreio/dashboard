@@ -518,7 +518,10 @@ export default {
           action: "billing",
           title: "Billing",
           icon: "attach_money",
-          items: [{ title: "Invoices", path: "/billing/invoices" }]
+          items: [
+            { title: "Invoices", path: "/billing/invoices" },
+            { title: "Plan & Services", path: "/billing/plan" }
+          ]
         },
         {
           action: "website",

@@ -160,6 +160,11 @@ const routes = [
     component: () => import('../views/billing/Invoices.vue')
   },
   {
+    path: '/billing/plan',
+    name: 'Plan',
+    component: () => import('../views/billing/Services.vue')
+  },
+  {
     path: '/website/domain',
     name: 'Domain',
     component: () => import('../views/website/Domain.vue')

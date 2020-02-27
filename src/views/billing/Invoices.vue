@@ -16,7 +16,7 @@ export default {
   data: () => ({
     location: [
       {
-        text: "Analytics",
+        text: "Billing",
         disabled: true,
         href: ""
       },
