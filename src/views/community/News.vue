@@ -12,16 +12,16 @@
 
 <script>
 export default {
-  name: "ForumThreads",
+  name: "ForumNews",
   data: () => ({
     location: [
       {
-        text: "Forum",
+        text: "Community",
         disabled: true,
         href: ""
       },
       {
-        text: "Threads",
+        text: "News",
         disabled: false,
         href: "#"
       }

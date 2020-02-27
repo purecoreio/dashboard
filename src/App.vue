@@ -492,14 +492,12 @@ export default {
         },
         {
           action: "forum",
-          title: "Forum",
+          title: "Community",
           icon: "chat_bubble",
           items: [
-            { title: "News", path: "/forum/news" },
-            { title: "Structure", path: "/forum/structure" },
-            { title: "Threads", path: "/forum/threads" },
-            { title: "Badges", path: "/forum/badges" },
-            { title: "Reactions", path: "/forum/reactions" }
+            { title: "Discord", path: "/community/discord" },
+            { title: "News", path: "/community/news" },
+            { title: "Forum", path: "/community/forum" },
           ]
         },
         {

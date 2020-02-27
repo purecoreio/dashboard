@@ -74,12 +74,12 @@ export default {
     },
     location: [
       {
-        text: "Forum",
+        text: "Community",
         disabled: true,
         href: ""
       },
       {
-        text: "Structure",
+        text: "Forum",
         disabled: false,
         href: "#"
       }

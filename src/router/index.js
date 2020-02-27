@@ -105,29 +105,19 @@ const routes = [
     component: () => import('../views/donations/Refunds.vue')
   },
   {
-    path: '/forum/news',
+    path: '/community/news',
     name: 'News',
-    component: () => import('../views/forum/News.vue')
+    component: () => import('../views/community/News.vue')
   },
   {
-    path: '/forum/structure',
-    name: 'Structure',
-    component: () => import('../views/forum/Structure/Structure.vue')
+    path: '/community/forum',
+    name: 'Forum',
+    component: () => import('../views/community/Structure/Structure.vue')
   },
   {
-    path: '/forum/threads',
-    name: 'Threads',
-    component: () => import('../views/forum/Threads.vue')
-  },
-  {
-    path: '/forum/actions',
-    name: 'Actions',
-    component: () => import('../views/forum/Actions.vue')
-  },
-  {
-    path: '/forum/badges',
-    name: 'Badges',
-    component: () => import('../views/forum/Badges.vue')
+    path: '/community/discord',
+    name: 'Discord',
+    component: () => import('../views/community/Discord.vue')
   },
   {
     path: '/punishments/offences',
