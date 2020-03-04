@@ -55,7 +55,7 @@
 
 <script>
 import core from "purecore";
-import PlayerRow from "../../components/Player/PlayerRow.vue";
+import PlayerRow from "../../../components/Player/PlayerRow.vue";
 
 export default {
   name: "PlayersLookup",
@@ -129,11 +129,10 @@ export default {
       this.network
         .searchPlayers(val)
         .then(res => {
-          console.log(res);
           this.items = res;
         })
-        .catch(err => {
-          console.log(err);
+        .catch(function(){
+          // ignore
         })
         .finally(() => (this.isSearchLoading = false));
     }

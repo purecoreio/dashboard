@@ -55,9 +55,9 @@
 
 <script>
 import core from "purecore";
-import Punishment from "../../components/Offence/Punishment.vue";
-import PaymentRow from "../../components/Payment/PaymentRow.vue";
-import ConnectionRow from "../../components/Connection/ConnectionRow.vue";
+import Punishment from "../../../components/Offence/Punishment.vue";
+import PaymentRow from "../../../components/Payment/PaymentRow.vue";
+import ConnectionRow from "../../../components/Connection/ConnectionRow.vue";
 
 export default {
   name: "PlayerProfile",

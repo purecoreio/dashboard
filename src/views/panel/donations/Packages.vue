@@ -37,7 +37,7 @@
 
 <script>
 import core from "purecore";
-import PackageCategory from "../../components/Package/Category";
+import PackageCategory from "../../../components/Package/Category";
 
 export default {
   name: "DonationsPackages",

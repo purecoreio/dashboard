@@ -12,7 +12,7 @@
 
 
 <script>
-import ExampleAnalytics from "../../components/Analytics/ExampleAnalytics";
+import ExampleAnalytics from "../../../components/Analytics/ExampleAnalytics";
 export default {
   name: "AnalyticsGame",
   components: {

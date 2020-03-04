@@ -43,7 +43,7 @@
 
 <script>
 import core from "purecore";
-import OffenceAction from "../../components/Offence/Action";
+import OffenceAction from "../../../components/Offence/Action";
 
 export default {
   name: "PunishmentsActions",

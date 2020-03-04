@@ -1,5 +1,5 @@
 <template>
-  <v-row v-blur="hoverAnalytics">
+  <v-row>
     <v-col cols="12">
       <v-alert
         text

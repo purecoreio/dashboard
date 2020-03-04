@@ -21,7 +21,7 @@
 
 <script>
 import core from "purecore";
-import plan from "../../components/Billing/Plan";
+import plan from "../../../components/Billing/Plan";
 
 export default {
   name: "AnalyticsInvoices",

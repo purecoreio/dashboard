@@ -34,7 +34,7 @@ export default {
     machines: [],
     location: [
       {
-        text: "Servers",
+        text: "Supervisor",
         disabled: true,
         href: ""
       },

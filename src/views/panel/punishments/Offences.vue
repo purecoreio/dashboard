@@ -52,7 +52,7 @@
 
 <script>
 import core from "purecore";
-import Offence from "../../components/Offence/Offence";
+import Offence from "../../../components/Offence/Offence";
 
 export default {
   name: "PunishmentsOffences",

@@ -1,173 +1,54 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import GeneralSummary from '../views/summary/General.vue'
+import Panel from '../views/panel/Panel'
+import Account from '../views/account/Account'
 
 Vue.use(VueRouter)
 
 const routes = [
+  { path: '/', redirect: '/summary/general' },
+  { path: '/account/', redirect: '/account/plan' },
   {
-    path: '/summary/general',
-    name: 'General Summary',
-    component: GeneralSummary
+    path: "*",
+    name: '404',
+    component: () => import('../views/error/404.vue')
   },
   {
-    path: '/instance/:uuid',
-    name: 'Instance',
-    props: true,
-    component: () => import('../views/instance/Instance.vue')
-  },
-  {
-    path: '/summary/instance',
-    name: 'Instance Summary',
-    component: () => import('../views/summary/Instance.vue')
-  },
-  {
-    path: '/players/lookup',
-    name: 'Player Lookup',
-    component: () => import('../views/players/Lookup.vue')
-  },
-  {
-    path: '/players/profile/:coreid',
-    props: true,
-    name: 'PlayerProfile',
-    component: () => import('../views/players/PlayerProfile.vue')
-  },
-  {
-    path: '/players/filtered',
-    name: 'Filtered Players',
-    component: () => import('../views/players/Filtered.vue')
-  },
-  {
-    path: '/analytics/general',
-    name: 'General Analytics',
-    component: () => import('../views/analytics/General.vue')
-  },
-  {
-    path: '/analytics/growth',
-    name: 'Growth Analytics',
-    component: () => import('../views/analytics/Growth.vue')
-  },
-  {
-    path: '/analytics/game',
-    name: 'Game Analytics',
-    component: () => import('../views/analytics/Game.vue')
-  },
-  {
-    path: '/analytics/feedback',
-    name: 'Feedback',
-    component: () => import('../views/analytics/Feedback.vue')
-  },
-  {
-    path: '/servers/list/:mode',
-    name: 'ServerList',
-    props: true,
-    component: () => import('../views/servers/List.vue')
-  },
-  {
-    path: '/servers/machines',
-    name: 'Machine List',
-    component: () => import('../views/servers/Machines.vue')
-  },
-  {
-    path: '/donations/transactions',
-    name: 'Transactions',
-    component: () => import('../views/donations/Transactions.vue')
-  },
-  {
-    path: '/donations/gateways',
-    name: 'Transactions',
-    component: () => import('../views/donations/Gateways.vue')
-  },
-  {
-    path: '/donations/packages',
-    name: 'Packages',
-    component: () => import('../views/donations/Packages.vue')
-  },
-  {
-    path: '/donations/package/:uuid',
-    name: 'Package',
-    props: true,
-    component: () => import('../views/donations/Package.vue')
-  },
-  {
-    path: '/donations/perks',
-    name: 'Perks',
-    component: () => import('../views/donations/Perks.vue')
-  },
-  {
-    path: '/donations/interested',
-    name: 'Interested',
-    component: () => import('../views/donations/Interested.vue')
-  },
-  {
-    path: '/donations/refunds',
-    name: 'Refunds',
-    component: () => import('../views/donations/Refunds.vue')
-  },
-  {
-    path: '/community/news',
-    name: 'News',
-    component: () => import('../views/community/News.vue')
-  },
-  {
-    path: '/community/forum',
-    name: 'Forum',
-    component: () => import('../views/community/Structure/Structure.vue')
-  },
-  {
-    path: '/community/discord',
-    name: 'Discord',
-    component: () => import('../views/community/Discord.vue')
-  },
-  {
-    path: '/punishments/offences',
-    name: 'Offences',
-    component: () => import('../views/punishments/Offences.vue')
-  },
-  {
-    path: '/punishments/actions',
-    name: 'Actions',
-    component: () => import('../views/punishments/Actions.vue')
-  },
-  {
-    path: '/punishments/history',
-    name: 'History',
-    component: () => import('../views/punishments/History.vue')
-  },
-  {
-    path: '/punishments/appeals',
-    name: 'Appeals',
-    component: () => import('../views/punishments/Appeals.vue')
-  },
-  {
-    path: '/punishments/reports',
-    name: 'Reports',
-    component: () => import('../views/punishments/Reports.vue')
-  },
-  {
-    path: '/billing/invoices',
-    name: 'Invoices',
-    component: () => import('../views/billing/Invoices.vue')
-  },
-  {
-    path: '/billing/plan',
-    name: 'Plan',
-    component: () => import('../views/billing/Services.vue')
-  },
-  {
-    path: '/website/domain',
-    name: 'Domain',
-    component: () => import('../views/website/Domain.vue')
-  },
-  {
-    path: '/website/themes',
-    name: 'Themes',
-    component: () => import('../views/website/Themes.vue')
-  },
-  {
-    path: '/website/pages',
-    name: 'Pages',
-    component: () => import('../views/website/Pages.vue')
+    path: '/account/',
+    name: 'Account',
+    component: Account,
+    children: [
+      {
+        path: '/account/session',
+        name: 'Session',
+        component: () => import('../views/account/Session.vue')
+      },
+      {
+        path: '/account/theme',
+        name: 'Theme',
+        component: () => import('../views/account/Theme.vue')
+      },
+      {
+        path: '/account/notifications',
+        name: 'Notifications',
+        component: () => import('../views/account/Notifications.vue')
+      },
+      {
+        path: '/account/invoices',
+        name: 'Invoices',
+        component: () => import('../views/account/billing/Invoices.vue')
+      },
+      {
+        path: '/account/plan',
+        name: 'Plan',
+        component: () => import('../views/account/billing/Services.vue')
+      },
+      {
+        path: '/account/machines',
+        name: 'Machine List',
+        component: () => import('../views/account/Machines.vue')
+      },
+    ]
   },
   {
     path: '/about/',
@@ -175,11 +56,162 @@ const routes = [
     component: () => import('../views/about/About.vue')
   },
   {
-    path: '*',
-    name: 'catchAll',
-    component: GeneralSummary
-  },
-  { path: '/servers/list/', redirect: { path: '/servers/list/view' } }
+    path: '',
+    name: 'Panel',
+    component: Panel,
+    children: [
+      {
+        path: '/summary/general',
+        name: 'General Summary',
+        component: () => import('../views/panel/summary/General.vue')
+      },
+      {
+        path: '/instance/:uuid',
+        name: 'Instance',
+        props: true,
+        component: () => import('../views/panel/instance/Instance.vue')
+      },
+      {
+        path: '/summary/instance',
+        name: 'Instance Summary',
+        component: () => import('../views/panel/summary/Instance.vue')
+      },
+      {
+        path: '/players/lookup',
+        name: 'Player Lookup',
+        component: () => import('../views/panel/players/Lookup.vue')
+      },
+      {
+        path: '/players/profile/:coreid',
+        props: true,
+        name: 'PlayerProfile',
+        component: () => import('../views/panel/players/PlayerProfile.vue')
+      },
+      {
+        path: '/players/filtered',
+        name: 'Filtered Players',
+        component: () => import('../views/panel/players/Filtered.vue')
+      },
+      {
+        path: '/analytics/general',
+        name: 'General Analytics',
+        component: () => import('../views/panel/analytics/General.vue')
+      },
+      {
+        path: '/analytics/growth',
+        name: 'Growth Analytics',
+        component: () => import('../views/panel/analytics/Growth.vue')
+      },
+      {
+        path: '/analytics/game',
+        name: 'Game Analytics',
+        component: () => import('../views/panel/analytics/Game.vue')
+      },
+      {
+        path: '/analytics/feedback',
+        name: 'Feedback',
+        component: () => import('../views/panel/analytics/Feedback.vue')
+      },
+      {
+        path: '/servers/list/:mode',
+        name: 'ServerList',
+        props: true,
+        component: () => import('../views/panel/servers/List.vue')
+      },
+      {
+        path: '/donations/transactions',
+        name: 'Transactions',
+        component: () => import('../views/panel/donations/Transactions.vue')
+      },
+      {
+        path: '/donations/gateways',
+        name: 'Gateways',
+        component: () => import('../views/panel/donations/Gateways.vue')
+      },
+      {
+        path: '/donations/packages',
+        name: 'Packages',
+        component: () => import('../views/panel/donations/Packages.vue')
+      },
+      {
+        path: '/donations/package/:uuid',
+        name: 'Package',
+        props: true,
+        component: () => import('../views/panel/donations/Package.vue')
+      },
+      {
+        path: '/donations/perks',
+        name: 'Perks',
+        component: () => import('../views/panel/donations/Perks.vue')
+      },
+      {
+        path: '/donations/interested',
+        name: 'Interested',
+        component: () => import('../views/panel/donations/Interested.vue')
+      },
+      {
+        path: '/donations/refunds',
+        name: 'Refunds',
+        component: () => import('../views/panel/donations/Refunds.vue')
+      },
+      {
+        path: '/community/news',
+        name: 'News',
+        component: () => import('../views/panel/community/News.vue')
+      },
+      {
+        path: '/community/forum',
+        name: 'Forum',
+        component: () => import('../views/panel/community/Structure/Structure.vue')
+      },
+      {
+        path: '/community/discord',
+        name: 'Discord',
+        component: () => import('../views/panel/community/Discord.vue')
+      },
+      {
+        path: '/punishments/offences',
+        name: 'Offences',
+        component: () => import('../views/panel/punishments/Offences.vue')
+      },
+      {
+        path: '/punishments/actions',
+        name: 'Actions',
+        component: () => import('../views/panel/punishments/Actions.vue')
+      },
+      {
+        path: '/punishments/history',
+        name: 'History',
+        component: () => import('../views/panel/punishments/History.vue')
+      },
+      {
+        path: '/punishments/appeals',
+        name: 'Appeals',
+        component: () => import('../views/panel/punishments/Appeals.vue')
+      },
+      {
+        path: '/punishments/reports',
+        name: 'Reports',
+        component: () => import('../views/panel/punishments/Reports.vue')
+      },
+      {
+        path: '/website/domain',
+        name: 'Domain',
+        component: () => import('../views/panel/website/Domain.vue')
+      },
+      {
+        path: '/website/themes',
+        name: 'Themes',
+        component: () => import('../views/panel/website/Themes.vue')
+      },
+      {
+        path: '/website/pages',
+        name: 'Pages',
+        component: () => import('../views/panel/website/Pages.vue')
+      },
+      { path: '/servers/list/', redirect: { path: '/servers/list/view' } }
+    ]
+  }
 ]
 
 const router = new VueRouter({

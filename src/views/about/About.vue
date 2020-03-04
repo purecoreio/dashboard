@@ -1,6 +1,20 @@
 <template>
   <div>
     <v-snackbar v-model="snackbar">Cover by EchoNotGecko</v-snackbar>
+    <v-alert class="white--text" color="primary">
+      <v-row align="center" no-gutters>
+        <v-col cols="8">
+          <h4>Wrong place?</h4>
+          <p style="margin-bottom: 0px">go back to the panel by clicking here</p>
+        </v-col>
+        <v-col align="right">
+          <v-btn :fab="!$vuetify.breakpoint.mdAndUp" to="/" depressed color="primary">
+            <v-icon style="color: white" :left="$vuetify.breakpoint.mdAndUp">keyboard_backspace</v-icon>
+            <span v-if="$vuetify.breakpoint.mdAndUp">go back to the panel</span>
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-alert>
     <v-breadcrumbs :items="location" large>
       <template v-slot:divider>
         <v-icon>mdi-chevron-right</v-icon>
@@ -158,6 +172,7 @@ export default {
     }
   },
   mounted() {
+    this.$emit("setDrawer", false);
     if (localStorage.session && localStorage.network) {
       var coreInstance = new core(JSON.parse(localStorage.session));
       this.session = coreInstance.getCoreSession();

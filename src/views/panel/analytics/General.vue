@@ -6,15 +6,15 @@
       </template>
     </v-breadcrumbs>
     <v-alert color="primary" text>This feature is still under development.</v-alert>
-    <ExampleAnalytics />
+    <ExampleAnalytics/>
   </div>
 </template>
 
 
 <script>
-import ExampleAnalytics from '../../components/Analytics/ExampleAnalytics'
+import ExampleAnalytics from '../../../components/Analytics/ExampleAnalytics'
 export default {
-  name: "AnalyticsGrowth",
+  name: "AnalyticsGeneral",
   components: {
     ExampleAnalytics
   },
@@ -26,7 +26,7 @@ export default {
         href: ""
       },
       {
-        text: "Growth",
+        text: "General",
         disabled: false,
         href: "#"
       }

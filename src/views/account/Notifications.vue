@@ -6,27 +6,21 @@
       </template>
     </v-breadcrumbs>
     <v-alert color="primary" text>This feature is still under development.</v-alert>
-    <ExampleAnalytics />
   </div>
 </template>
 
 
 <script>
-import ExampleAnalytics from "../../components/Analytics/ExampleAnalytics";
 export default {
-  name: "AnalyticsFeedback",
-  components: {
-    ExampleAnalytics
-  },
   data: () => ({
     location: [
       {
-        text: "Analytics",
+        text: "Settings",
         disabled: true,
         href: ""
       },
       {
-        text: "Feedback",
+        text: "Notifications",
         disabled: false,
         href: "#"
       }

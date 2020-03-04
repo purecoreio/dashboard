@@ -6,12 +6,22 @@
       </template>
     </v-breadcrumbs>
     <v-alert color="primary" text>This feature is still under development.</v-alert>
-    <div v-for="payment in payments" :key="payment.uuid">
-      <PaymentRow :payment="payment"></PaymentRow>
+    <div>
+      <Punishment
+        v-for="punishment in punishments"
+        :key="punishment.uuid"
+        :punishment="punishment"
+      />
     </div>
     <div v-intersect="loadContent"></div>
     <div v-if="loadingNew">
-      <v-skeleton-loader v-for="index in 20" :key="index" style="margin-bottom: 10px" height="68" type="list-item-two-line"></v-skeleton-loader>
+      <v-skeleton-loader
+        v-for="index in 20"
+        :key="index"
+        style="margin-bottom: 10px"
+        height="68"
+        type="list-item-two-line"
+      ></v-skeleton-loader>
     </div>
   </div>
 </template>
@@ -19,29 +29,29 @@
 
 <script>
 import core from "purecore";
-import PaymentRow from "../../components/Payment/PaymentRow";
+import Punishment from "../../../components/Offence/Punishment";
 
 export default {
-  name: "DonationsTransactions",
+  name: "PunishmentsHistory",
   components: {
-    PaymentRow: PaymentRow
+    Punishment: Punishment
   },
   data: () => ({
     location: [
       {
-        text: "Donations",
+        text: "Punishments",
         disabled: true,
         href: ""
       },
       {
-        text: "Transactions",
+        text: "History",
         disabled: false,
         href: "#"
       }
     ],
-    payments: [],
-    page: 0,
-    loadingNew: false
+    punishments: [],
+    loadingNew: false,
+    page: 0
   }),
   methods: {
     loadContent() {
@@ -54,20 +64,16 @@ export default {
           .asNetwork();
         var mainObj = this;
 
-        network
-          .getStore()
-          .getPayments(mainObj.page)
-          .then(function(payments) {
-            payments.forEach(payment => {
-              mainObj.payments.push(payment);
-            });
-
-            mainObj.loadingNew = false;
-            mainObj.page++;
+        network.getPunishments(mainObj.page).then(function(punishments) {
+          punishments.forEach(punishment => {
+            mainObj.punishments.push(punishment);
           });
+
+          mainObj.loadingNew = false;
+          mainObj.page++;
+        });
       }
     }
-  },
-  mounted() {}
+  }
 };
 </script>

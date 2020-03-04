@@ -1,115 +1,41 @@
 <template>
-  <v-app id="sandbox">
-    <v-navigation-drawer
-      v-model="drawer.model"
-      clipped
-      :permanent="$vuetify.breakpoint.mdAndUp"
-      :expand-on-hover="$vuetify.breakpoint.mdAndUp"
-      app
-    >
-      <v-list-item style="height: 120px">
-        <v-list-item-content
-          fill-height
-          justify="center"
-          align="center"
-          v-if="selectedNetwork!=null&&selectedNetworkName!=null"
-        >
-          <center>
-            <v-list-item-title class="title">
-              {{ selectedNetworkName }}
-              <v-btn @click="switchingNetworks=true" small color="primary" outlined text icon>
-                <v-icon>compare_arrows</v-icon>
-              </v-btn>
-            </v-list-item-title>
-            <v-list-item-subtitle>{{ selectedNetwork }}</v-list-item-subtitle>
-          </center>
-        </v-list-item-content>
-        <v-list-item-content
-          fill-height
-          justify="center"
-          align="center"
-          v-if="selectedNetwork==null||selectedNetworkName==null"
-        >
-          <center>
-            <v-list-item-title class="title">
-              <v-skeleton-loader class="mx-auto" type="text"></v-skeleton-loader>
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              <v-skeleton-loader class="mx-auto" type="text"></v-skeleton-loader>
-            </v-list-item-subtitle>
-          </center>
-        </v-list-item-content>
-      </v-list-item>
-
-      <v-divider></v-divider>
-
-      <v-list shaped>
-        <v-list-group
-          v-for="item in drawer.items"
-          :key="item.action"
-          v-model="item.active"
-          :prepend-icon="item.icon"
-          no-action
-        >
-          <template v-slot:activator>
-            <v-list-item-content>
-              <v-list-item-title v-text="item.title"></v-list-item-title>
-            </v-list-item-content>
-          </template>
-
-          <v-list-item link :to="subItem.path" v-for="subItem in item.items" :key="subItem.title">
-            <v-list-item-content>
-              <v-list-item-title v-text="subItem.title"></v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-group>
-      </v-list>
-
-      <template v-slot:append>
-        <v-scroll-x-transition>
-          <div>
-            <div class="d-flex justify-center">
-              <v-switch prepend-icon="wb_sunny" v-model="dark"></v-switch>
-            </div>
-          </div>
-        </v-scroll-x-transition>
-      </template>
-    </v-navigation-drawer>
-
+  <v-app id="app">
     <!-- login form -->
 
     <v-app-bar app clipped-left>
-      <v-app-bar-nav-icon
-        v-if="$vuetify.breakpoint.smAndDown"
-        @click.stop="drawer.model = !drawer.model"
-      />
+      <v-app-bar-nav-icon @click="openDrawer()" v-if="$vuetify.breakpoint.smAndDown && drawer" />
       <v-toolbar-title>purecore</v-toolbar-title>
       <v-spacer />
-      <v-dialog
-        :value="((selectedNetwork==undefined || selectedNetwork == null || switchingNetworks) && (session != null && session != undefined))&&!networkDialog"
-        persistent
-        max-width="500px"
-      >
+      <v-btn to="/account/" icon>
+        <v-icon>account_circle</v-icon>
+      </v-btn>
+      <v-dialog v-model="network.dialog" persistent max-width="500px">
         <template v-slot:activator="{ on }">
-          <v-btn v-on="on" icon @click="switchingNetworks=true">
+          <v-btn v-on="on" icon>
             <v-icon>compare_arrows</v-icon>
           </v-btn>
         </template>
         <v-card max-width="500">
           <v-list v-if="availableNetworks.length > 0">
-            <v-list-item-group v-model="model" color="primary">
+            <v-list-item-group v-model="network.switchId" color="primary">
               <v-list-item
-                @click="selectedNetwork=i.uuid; switchingNetworks=false"
-                v-for="i in availableNetworks"
+                v-for="(network, i) in availableNetworks"
                 :key="i"
+                @click="selectNetwork(network)"
               >
                 <v-list-item-icon>
                   <v-icon>arrow_forward</v-icon>
                 </v-list-item-icon>
 
                 <v-list-item-content>
-                  <v-list-item-title v-text="i.name"></v-list-item-title>
+                  <v-list-item-title v-text="network.name"></v-list-item-title>
                 </v-list-item-content>
+                <!-- 
+                <v-list-item-action>
+                  <v-btn icon>
+                    <v-icon>delete_outline</v-icon>
+                  </v-btn>
+                </v-list-item-action>-->
               </v-list-item>
             </v-list-item-group>
           </v-list>
@@ -120,7 +46,7 @@
                 <v-flex shrink>
                   <v-btn
                     @click="disableNetworkSwitcher"
-                    :disabled="selectedNetwork == null || selectedNetwork == undefined"
+                    :disabled="network.selectedId==null"
                     class="ma-2"
                     outlined
                     color="secondary"
@@ -131,21 +57,21 @@
             <v-col cols="6">
               <v-layout row wrap justify-end>
                 <v-flex shrink>
-                  <v-dialog v-model="networkDialog" persistent max-width="600px">
+                  <v-dialog v-model="setup.dialog" persistent max-width="600px">
                     <template v-slot:activator="{ on }">
                       <v-btn class="ma-2" v-on="on" outlined color="primary">CREATE NETWORK</v-btn>
                     </template>
-                    <v-stepper v-model="e1">
+                    <v-stepper v-model="setup.stepper">
                       <v-stepper-header>
-                        <v-stepper-step :complete="e1 > 1" step="1">Game</v-stepper-step>
+                        <v-stepper-step :complete="setup.stepper > 1" step="1">Game</v-stepper-step>
 
                         <v-divider></v-divider>
 
-                        <v-stepper-step :complete="e1 > 2" step="2">ID</v-stepper-step>
+                        <v-stepper-step :complete="setup.stepper > 2" step="2">ID</v-stepper-step>
 
                         <v-divider></v-divider>
 
-                        <v-stepper-step :complete="e1 > 3" step="3">Setup</v-stepper-step>
+                        <v-stepper-step :complete="setup.stepper > 3" step="3">Setup</v-stepper-step>
                       </v-stepper-header>
 
                       <v-stepper-items>
@@ -161,14 +87,14 @@
                               >Select the game your network is running</p>
                               <v-divider class="mt-4" />
                               <v-btn
-                                @click="setup.game='minecraft', e1=2"
+                                @click="setup.game='minecraft', setup.stepper=2"
                                 depressed
                                 block
                                 color="secondary"
                                 class="mt-4"
                               >Minecraft: Java Edition</v-btn>
                               <v-btn
-                                @click="setup.game='minecraft_bedrock', e1=2"
+                                @click="setup.game='minecraft_bedrock', setup.stepper=2"
                                 depressed
                                 block
                                 color="secondary"
@@ -184,7 +110,7 @@
                                     outlined
                                     v-if="!setup.mandatory"
                                     color="secondary"
-                                    @click="networkDialog=false;e1=1"
+                                    @click="setup.dialog=false;setup.stepper=1"
                                   >CANCEL</v-btn>
                                 </v-flex>
                               </v-layout>
@@ -253,7 +179,7 @@
                                     outlined
                                     v-if="!setup.mandatory"
                                     color="secondary"
-                                    @click="networkDialog=false;e1=1"
+                                    @click="setup.dialog=false;setup.stepper=1"
                                   >CANCEL</v-btn>
                                 </v-flex>
                               </v-layout>
@@ -264,7 +190,7 @@
                                   <v-btn
                                     depressed
                                     color="primary"
-                                    @click="e1=3; createNetwork()"
+                                    @click="setup.stepper=3; createNetwork()"
                                   >NEXT</v-btn>
                                 </v-flex>
                               </v-layout>
@@ -281,55 +207,57 @@
                             </div>
                           </v-expand-transition>
                           <v-expand-transition>
-                            <v-row v-show="setup.created">
-                              <v-col cols="12">
-                                <p class="heading" style="font-size: 150%; margin: 0px;">
-                                  <strong>Installation</strong>
-                                </p>
-                                <p
-                                  class="heading"
-                                  style="margin: 0px;"
-                                >Install the plugins on your network</p>
-                                <v-divider class="mt-4" />
+                            <div>
+                              <v-row v-show="setup.created">
+                                <v-col cols="12">
+                                  <p class="heading" style="font-size: 150%; margin: 0px;">
+                                    <strong>Installation</strong>
+                                  </p>
+                                  <p
+                                    class="heading"
+                                    style="margin: 0px;"
+                                  >Install the plugins on your network</p>
+                                  <v-divider class="mt-4" />
 
-                                <router-link
-                                  :to="{ name: 'ServerList' , params: { mode: 'proxy' } }"
-                                >
-                                  <v-btn
-                                    @click="networkDialog=false;e1=1;switchingNetworks=false"
-                                    depressed
-                                    block
-                                    color="secondary"
-                                    class="mt-4"
-                                  >Multiple Server Setup (Waterfall, Bungeecord, etc)</v-btn>
-                                </router-link>
-
-                                <router-link
-                                  :to="{ name: 'ServerList' , params: { mode: 'single' } }"
-                                >
-                                  <v-btn
-                                    @click="networkDialog=false;e1=1;switchingNetworks=false"
-                                    depressed
-                                    block
-                                    color="secondary"
-                                    class="mt-1"
-                                  >Single Server Setup (Spigot, Bukkit, etc)</v-btn>
-                                </router-link>
-                              </v-col>
-                            </v-row>
-                            <v-row no-gutters class="px-3">
-                              <v-col cols="6">
-                                <v-layout row wrap justify-start>
-                                  <v-flex shrink>
+                                  <router-link
+                                    :to="{ name: 'ServerList' , params: { mode: 'proxy' } }"
+                                  >
                                     <v-btn
-                                      outlined
+                                      @click="network.dialog=false;setup.stepper=1;switchingNetworks=false"
+                                      depressed
+                                      block
                                       color="secondary"
-                                      @click="networkDialog=false;e1=1"
-                                    >SKIP</v-btn>
-                                  </v-flex>
-                                </v-layout>
-                              </v-col>
-                            </v-row>
+                                      class="mt-4"
+                                    >Multiple Server Setup (Waterfall, Bungeecord, etc)</v-btn>
+                                  </router-link>
+
+                                  <router-link
+                                    :to="{ name: 'ServerList' , params: { mode: 'single' } }"
+                                  >
+                                    <v-btn
+                                      @click="network.dialog=false;setup.stepper=1;switchingNetworks=false"
+                                      depressed
+                                      block
+                                      color="secondary"
+                                      class="mt-1"
+                                    >Single Server Setup (Spigot, Bukkit, etc)</v-btn>
+                                  </router-link>
+                                </v-col>
+                              </v-row>
+                              <v-row no-gutters class="px-3">
+                                <v-col cols="6">
+                                  <v-layout row wrap justify-start>
+                                    <v-flex shrink>
+                                      <v-btn
+                                        outlined
+                                        color="secondary"
+                                        @click="network.dialog=false;setup.stepper=1"
+                                      >SKIP</v-btn>
+                                    </v-flex>
+                                  </v-layout>
+                                </v-col>
+                              </v-row>
+                            </div>
                           </v-expand-transition>
                         </v-stepper-content>
                       </v-stepper-items>
@@ -349,9 +277,9 @@
         <v-icon>exit_to_app</v-icon>
       </v-btn>
 
-      <v-dialog :value="!(session != null && session != undefined)" persistent max-width="500px">
+      <v-dialog :value="account.showLogin" persistent max-width="500px">
         <template v-slot:activator="{ on }">
-          <v-btn v-if="!(session != null && session != undefined)" rounded text v-on="on">
+          <v-btn v-if="account.showLogin" rounded text v-on="on">
             LOGIN
             <v-avatar right size="25px" style="margin-left: 10px">
               <v-img src="./assets/glogo.svg" alt="Login" />
@@ -366,7 +294,6 @@
               v-if="!(session != null && session != undefined)"
               rounded
               outlined
-              v-on="on"
               :loading="loginLoading"
               style="margin-bottom: 30px"
             >
@@ -393,7 +320,13 @@
               @afterEnter="afterEnter"
               name="fade"
             >
-              <router-view class="mb-5" />
+              <router-view
+                @setDrawer="setDrawer"
+                :drawer="drawer"
+                :key="session + network.selectedId"
+                ref="childComponent"
+                class="mb-5"
+              />
             </transition>
           </v-col>
         </v-row>
@@ -415,11 +348,20 @@ import core from "purecore";
 export default {
   name: "App",
   data: () => ({
-    showDarkSelector: false,
+    drawer: false,
+    selectorModel: false,
     prevHeight: 0,
-    dark: false,
-    networkDialog: false,
+    account: {
+      showLogin: false
+    },
+    network: {
+      selectedId: null,
+      dialog: false,
+      switchId: null
+    },
     setup: {
+      dialog: false,
+      stepper: 1,
       ipmode: true,
       name: "",
       ip: "",
@@ -430,109 +372,12 @@ export default {
       error: null,
       mandatory: false
     },
-    e1: 1,
     availableNetworks: [],
     session: null,
-    loginString: "LOGIN WITH GOOGLE",
     loginLoading: false,
     selectedNetwork: null,
     selectedNetworkName: null,
-    switchingNetworks: false,
-    drawer: {
-      model: null,
-      items: [
-        {
-          action: "summary",
-          title: "Summary",
-          icon: "dashboard",
-          active: true,
-          items: [
-            {
-              title: "General View",
-              path: "/summary/general"
-            },
-            { title: "Instance View", path: "/summary/instance" }
-          ]
-        },
-        {
-          action: "players",
-          title: "Players",
-          icon: "supervisor_account",
-          items: [{ title: "Lookup", path: "/players/lookup" }]
-        },
-        {
-          action: "analytics",
-          title: "Analytics",
-          icon: "bar_chart",
-          items: [
-            { title: "General Stats", path: "/analytics/general" },
-            { title: "Instance Growth", path: "/analytics/growth" },
-            { title: "Game Stats", path: "/analytics/game" },
-            { title: "Feedback", path: "/analytics/feedback" }
-          ]
-        },
-        {
-          action: "servers",
-          title: "Servers",
-          icon: "view_list",
-          items: [
-            { title: "List", path: "/servers/list" },
-            { title: "Machines", path: "/servers/machines" }
-          ]
-        },
-        {
-          action: "donations",
-          title: "Donations",
-          icon: "store",
-          items: [
-            { title: "Transactions", path: "/donations/transactions" },
-            { title: "Packages", path: "/donations/packages" },
-            { title: "Gateways", path: "/donations/gateways" }
-          ]
-        },
-        {
-          action: "forum",
-          title: "Community",
-          icon: "chat_bubble",
-          items: [
-            { title: "Discord", path: "/community/discord" },
-            { title: "News", path: "/community/news" },
-            { title: "Forum", path: "/community/forum" },
-          ]
-        },
-        {
-          action: "punishments",
-          title: "Punishments",
-          icon: "gavel",
-          items: [
-            { title: "Offences", path: "/punishments/offences" },
-            { title: "Actions", path: "/punishments/actions" },
-            { title: "History", path: "/punishments/history" },
-            { title: "Appeals", path: "/punishments/appeals" },
-            { title: "Reports", path: "/punishments/reports" }
-          ]
-        },
-        {
-          action: "billing",
-          title: "Billing",
-          icon: "attach_money",
-          items: [
-            { title: "Invoices", path: "/billing/invoices" },
-            { title: "Plan & Services", path: "/billing/plan" }
-          ]
-        },
-        {
-          action: "website",
-          title: "Website",
-          icon: "dvr",
-          items: [
-            { title: "Domain", path: "/website/domain" },
-            { title: "Themes", path: "/website/themes" },
-            { title: "Pages", path: "/website/pages" }
-          ]
-        }
-      ]
-    }
+    switchingNetworks: false
   }),
   mounted() {
     if (localStorage.getItem("dark", null) != null) {
@@ -544,16 +389,6 @@ export default {
       }
     }
 
-    if (localStorage.session) {
-      var coreInstance = new core(JSON.parse(localStorage.session));
-      this.session = coreInstance.getCoreSession();
-      if (localStorage.network != null && localStorage.network != undefined) {
-        this.selectedNetwork = localStorage.network;
-      } else {
-        this.getAvailableNetworks();
-      }
-    }
-
     if (
       this.$router.currentRoute == "/" ||
       this.$router.currentRoute == null ||
@@ -561,35 +396,52 @@ export default {
     ) {
       this.$router.replace({ path: "/summary/general" });
     }
+
+    this.checkSession();
   },
   watch: {
-    dark: function() {
-      if (this.dark) {
-        this.$vuetify.theme.dark = true;
-        localStorage.setItem("dark", true);
+    network: {
+      handler: function(newData) {
+        if (newData.selectedId != localStorage.getItem("network")) {
+          localStorage.setItem("network", newData.selectedId);
+        }
+      },
+      deep: true
+    },
+
+    session(newSession) {
+      if (
+        newSession != null &&
+        newSession != undefined &&
+        newSession != "null" &&
+        newSession != ""
+      ) {
+        localStorage.setItem("session", JSON.stringify(newSession));
       } else {
-        this.$vuetify.theme.dark = false;
-        localStorage.setItem("dark", false);
+        localStorage.removeItem("session");
+        this.checkSession();
       }
     },
-    session(newSession) {
-      localStorage.session = JSON.stringify(newSession);
-    },
+
     selectedNetwork(newNetwork) {
-      localStorage.network = newNetwork;
-
       var mainObj = this;
-
       var coreInstance = new core(JSON.parse(localStorage.session));
-      mainObj.selectedNetworkName = null;
 
       coreInstance
         .getInstance(newNetwork, null, "NTW")
         .update()
-        .then(function(instance) {
-          mainObj.selectedNetworkName = instance.getName();
+        .then(function() {
+          localStorage.network = newNetwork;
+          mainObj.selectedNetwork = newNetwork;
+          mainObj.selectorModel = newNetwork;
+        })
+        .catch(function() {
+          localStorage.removeItem("network");
+          mainObj.selectedNetwork = null;
+          mainObj.getAvailableNetworks();
         });
     },
+
     switchingNetworks(newValue) {
       if (newValue) {
         this.getAvailableNetworks();
@@ -597,6 +449,12 @@ export default {
     }
   },
   methods: {
+    setDrawer(e) {
+      this.drawer = e;
+    },
+    openDrawer() {
+      this.$refs.childComponent.openDrawer();
+    },
     beforeLeave(element) {
       this.prevHeight = getComputedStyle(element).height;
     },
@@ -611,6 +469,29 @@ export default {
     },
     afterEnter(element) {
       element.style.height = "auto";
+    },
+    checkSession() {
+      if (localStorage.session) {
+        try {
+          var coreInstance = new core(JSON.parse(localStorage.session));
+          this.session = coreInstance.getCoreSession();
+          if (
+            localStorage.network != null &&
+            localStorage.network != undefined &&
+            localStorage.network != "null"
+          ) {
+            this.network.selectedId = localStorage.network;
+          } else {
+            this.network.selectedId = null;
+          }
+          this.getAvailableNetworks();
+        } catch (error) {
+          localStorage.removeItem("session");
+          this.account.showLogin = true;
+        }
+      } else {
+        this.account.showLogin = true;
+      }
     },
     createNetwork() {
       var mainObj = this;
@@ -655,43 +536,58 @@ export default {
           mainObj.setup.created = true;
           mainObj.getAvailableNetworks();
           mainObj.selectedNetwork = network.getId();
-          mainObj.networkDialog = true;
+          mainObj.network.dialog = true;
         })
         .catch(function(error) {
           mainObj.setup.created = false;
-          mainObj.e1 = 2;
+          mainObj.setup.stepper = 2;
           mainObj.setup.error = error.message;
         });
     },
     disableNetworkSwitcher() {
-      if (this.selectedNetwork != null && this.selectedNetwork != undefined) {
-        this.switchingNetworks = false;
+      if (this.network.selectedId != null) {
+        this.network.dialog = false;
       }
     },
     getAvailableNetworks() {
       if (this.session != undefined && this.session != null) {
-        var mainObj = this;
-
-        this.session.getNetworks().then(function(networks) {
-          mainObj.availableNetworks = networks;
-          if (networks.length <= 0) {
-            mainObj.networkDialog = true;
-            mainObj.setup.mandatory = true;
-          } else {
-            if (mainObj.networkDialog) {
-              setTimeout(() => {
-                mainObj.networkDialog = true;
-              }, 1);
+        let main = this;
+        this.session
+          .getNetworks()
+          .then(function(networks) {
+            main.availableNetworks = networks;
+            if (networks.length <= 0) {
+              main.network.dialog = true;
+              main.setup.mandatory = true;
+            } else {
+              if (main.network.selectedId == null) {
+                main.network.dialog = true;
+              } else {
+                for (const key in networks) {
+                  if (networks.hasOwnProperty(key)) {
+                    const network = networks[key];
+                    if (network.uuid == main.network.selectedId) {
+                      main.network.switchId = parseInt(key);
+                    }
+                  }
+                }
+              }
+              main.setup.mandatory = false;
             }
-            mainObj.setup.mandatory = false;
-          }
-        });
+          })
+          .catch(function() {
+            localStorage.removeItem("session");
+            main.checkSession();
+          });
       }
+    },
+    selectNetwork(network) {
+      this.network.selectedId = network.uuid;
+      this.network.dialog = false;
     },
     GoogleLoginHandle() {
       this.loginLoading = true;
       var mainObj = this;
-
       this.$gAuth
         .signIn()
         .then(GoogleUser => {
@@ -713,22 +609,3 @@ export default {
   }
 };
 </script>
-
-
-<style>
-@import url("https://fonts.googleapis.com/css?family=Barlow&display=swap");
-* {
-  font-family: "Barlow", sans-serif;
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition-duration: 0.3s;
-  transition-property: opacity;
-  transition-timing-function: ease;
-}
-
-.fade-enter,
-.fade-leave-active {
-  opacity: 0;
-}
-</style>

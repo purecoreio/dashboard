@@ -200,7 +200,7 @@
 
 
 <script>
-import ServerRow from "../../components/Instance/ServerRow";
+import ServerRow from "../../../components/Instance/ServerRow";
 import core from "purecore";
 
 export default {
