@@ -416,8 +416,10 @@ export default {
         newSession != "null" &&
         newSession != ""
       ) {
+        this.account.showLogin = false;
         localStorage.setItem("session", JSON.stringify(newSession));
       } else {
+        this.account.showLogin = true;
         localStorage.removeItem("session");
         this.checkSession();
       }

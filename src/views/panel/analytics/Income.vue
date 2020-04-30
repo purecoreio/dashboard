@@ -18,18 +18,7 @@
                 :round="0"
                 :duration="2000"
               />
-              <span :style="'color:'+getColor(number.percent)">
-                <span v-if="number.percent>0">+</span>
-                <span v-if="number.percent<0">-</span>
-                <span v-if="number.percent==0">—</span>
-                <animated-number
-                  :value="Math.abs(number.percent)"
-                  easing="easeOutSine"
-                  :formatValue="formatToDecimal"
-                  :round="0"
-                  :duration="2000"
-                />%
-              </span>
+              <span v-if="number.name=='Revenue'">€</span>
             </h1>
             <p>{{number.name}}</p>
           </center>
@@ -37,10 +26,7 @@
       </v-col>
     </v-row>
     <v-card class="mt-4 mb-4" style="overflow:hidden" outlined height="400px">
-      <apexchart height="400" type="line" :options="optionsSmall" :series="seriesGrowth" />
-    </v-card>
-    <v-card class="mb-4" style="overflow:hidden" outlined height="200px">
-      <apexchart height="200" type="line" :options="optionsSmall2" :series="seriesVotes" />
+      <apexchart height="400" type="line" :options="optionsSmall" :series="seriesIncome" />
     </v-card>
   </div>
 </template>
@@ -82,14 +68,28 @@ export default {
     let main = this;
 
     network
-      .asInstance()
-      .getGrowthAnalytics(3600 * 24)
+      .getStore()
+      .getIncomeAnalytics(3600 * 24)
       .then(function(data) {
-        main.seriesGrowth = purecore
+        main.seriesIncome = purecore
           .getWorkbench()
-          .toApexSeries(purecore.getWorkbench().arrayToLegacy(data), true);
+          .toApexSeries(purecore.getWorkbench().arrayToLegacy(data), false);
 
-        main.numbers[0].value = data[data.length - 1].inactivePlayers;
+        var potential = 0;
+        var income = 0;
+        var payments = 0;
+
+        data.forEach(element => {
+          potential += element.paymentRequests;
+          income += element.finalIncome;
+          payments += element.payments;
+        });
+
+        main.numbers[0].value = income;
+        main.numbers[1].value = payments;
+        main.numbers[2].value = potential;
+
+        /*
         main.numbers[0].percent =
           data[data.length - 1].inactivePlayersRelative * 100;
 
@@ -99,36 +99,10 @@ export default {
 
         main.numbers[2].value = data[data.length - 1].newPlayers;
         main.numbers[2].percent =
-          data[data.length - 1].newPlayersRelative * 100;
+          data[data.length - 1].newPlayersRelative * 100;*/
       });
-
-    network.getVotingAnalytics(3600 * 24).then(function(data) {
-      main.seriesVotes = purecore
-        .getWorkbench()
-        .toApexSeries(purecore.getWorkbench().arrayToLegacy(data), false);
-    });
   },
   data: () => ({
-    numbers: [
-      {
-        value: 0,
-        percent: 0,
-        name: "Inactive Players"
-      },
-      {
-        value: 0,
-        percent: 0,
-        name: "Returning Players"
-      },
-      {
-        value: 0,
-        percent: 0,
-        name: "New Players"
-      }
-    ],
-    inactivePercent: 0,
-    activePercent: 0,
-    newPercent: 0,
     location: [
       {
         text: "Analytics",
@@ -136,45 +110,25 @@ export default {
         href: ""
       },
       {
-        text: "Growth",
+        text: "Revenue",
         disabled: false,
         href: "#"
       }
     ],
-    optionsSmall2: {
-      tooltip: {
-        enabled: true,
-        followCursor: false,
-        fillSeriesColor: true,
-        theme: false,
-        style: {
-          fontSize: "12px"
-        },
-        x: {
-          show: true,
-          format: "dd MMM"
-        }
+    numbers: [
+      {
+        value: 0,
+        name: "Revenue"
       },
-      chart: {
-        id: "1",
-        group: "data",
-        sparkline: {
-          enabled: true
-        }
+      {
+        value: 0,
+        name: "Payments"
       },
-      stroke: {
-        curve: "straight"
-      },
-      fill: {
-        opacity: 1
-      },
-      yaxis: {
-        tickAmount: 6,
-        labels: {
-          minWidth: 40
-        }
+      {
+        value: 0,
+        name: "Potential Payments"
       }
-    },
+    ],
     optionsSmall: {
       tooltip: {
         enabled: true,
@@ -204,15 +158,13 @@ export default {
       },
       yaxis: {
         tickAmount: 6,
-        min: -1,
-        max: 1,
+        min: 0,
         labels: {
           minWidth: 40
         }
       }
     },
-    seriesGrowth: [],
-    seriesVotes: []
+    seriesIncome: []
   })
 };
 </script>

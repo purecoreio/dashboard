@@ -116,6 +116,14 @@ export default {
           ]
         },
         {
+          action: "voting",
+          title: "Voting Sites",
+          icon: "how_to_vote",
+          items: [
+            { title: "Your Voting Sites", path: "/account/votingsites" },
+          ]
+        },
+        {
           action: "billing",
           title: "Billing",
           icon: "attach_money",

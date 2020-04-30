@@ -29,7 +29,6 @@
 <script>
 export default {
   name: "PlayerRow",
-  props: ["player"],
-  data: () => ({})
+  props: ["player"]
 };
 </script>

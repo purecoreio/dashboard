@@ -85,15 +85,13 @@ export default {
       model: null,
       items: [
         {
-          action: "summary",
-          title: "Summary",
-          icon: "dashboard",
-          active: true,
+          action: "analytics",
+          title: "Analytics",
+          icon: "bar_chart",
           items: [
-            {
-              title: "General View",
-              path: "/summary/general"
-            }
+            { title: "Growth", path: "/analytics/growth" },
+            { title: "Voting Sites", path: "/analytics/voting" },
+            { title: "Revenue", path: "/analytics/revenue" }
           ]
         },
         {
@@ -101,17 +99,6 @@ export default {
           title: "Players",
           icon: "supervisor_account",
           items: [{ title: "Lookup", path: "/players/lookup" }]
-        },
-        {
-          action: "analytics",
-          title: "Analytics",
-          icon: "bar_chart",
-          items: [
-            { title: "General Stats", path: "/analytics/general" },
-            { title: "Instance Growth", path: "/analytics/growth" },
-            { title: "Game Stats", path: "/analytics/game" },
-            { title: "Feedback", path: "/analytics/feedback" }
-          ]
         },
         {
           action: "servers",

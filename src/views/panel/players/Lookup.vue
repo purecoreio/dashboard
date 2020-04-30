@@ -84,7 +84,8 @@ export default {
     model: null,
     search: "",
     tab: null,
-    stopLoading: false
+    stopLoading: false,
+    queryID: 0,
   }),
   mounted: function() {
     this.$nextTick(function() {
@@ -95,7 +96,12 @@ export default {
   },
   methods: {
     loadContent() {
-      if (!this.loadingNew && localStorage.session && localStorage.network && !this.stopLoading) {
+      if (
+        !this.loadingNew &&
+        localStorage.session &&
+        localStorage.network &&
+        !this.stopLoading
+      ) {
         this.loadingNew = true;
         network = localStorage.network;
         var coreInstance = new core(JSON.parse(localStorage.session));
@@ -112,15 +118,34 @@ export default {
           mainObj.loadingNew = false;
           mainObj.page++;
 
-          if(players.length<20){
-            mainObj.stopLoading=true;
+          if (players.length < 20) {
+            mainObj.stopLoading = true;
           }
-
         });
       }
     }
   },
   watch: {
+    search(val) {
+
+      this.items = [];
+      this.isSearchLoading = true;
+
+      this.queryID++;
+      const lastID = this.queryID;
+
+      // Lazily load input items
+      this.network
+        .searchPlayers(val)
+        .then(res => {
+          //only allow the latest fetched query to be shown
+          if (this.queryID == lastID) this.items = res;
+
+          this.isSearchLoading = false;
+        })
+        .catch();
+    }
+    /*
     search(val) {
       this.items = [];
       this.isSearchLoading = true;
@@ -135,7 +160,7 @@ export default {
           // ignore
         })
         .finally(() => (this.isSearchLoading = false));
-    }
+    }*/
   }
 };
 </script>

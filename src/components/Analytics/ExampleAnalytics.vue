@@ -2,6 +2,7 @@
   <v-row>
     <v-col cols="12">
       <v-alert
+        class="mb-0"
         text
         color="primary"
       >This example is not a true representation of your data, this feature is still being coded</v-alert>

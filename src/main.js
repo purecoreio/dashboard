@@ -5,6 +5,23 @@ import store from './store'
 import vuetify from './plugins/vuetify';
 import GAuth from 'vue-google-oauth2'
 import VueGtag from "vue-gtag";
+import VueCodemirror from 'vue-codemirror';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/base16-dark.css'
+
+import 'codemirror/mode/javascript/javascript'
+import 'codemirror/mode/xml/xml'
+import 'codemirror/mode/css/css'
+
+Vue.use(VueCodemirror, {
+  options: {
+    theme: 'base16-dark',
+    tabSize: 5,
+    styleActiveLine: true,
+    lineNumbers: true,
+    line: true,
+  }
+})
 
 Vue.config.productionTip = false
 new Vue({

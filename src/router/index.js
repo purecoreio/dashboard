@@ -6,7 +6,7 @@ import Account from '../views/account/Account'
 Vue.use(VueRouter)
 
 const routes = [
-  { path: '/', redirect: '/summary/general' },
+  { path: '/', redirect: '/analytics/growth' },
   { path: '/account/', redirect: '/account/plan' },
   {
     path: "*",
@@ -18,6 +18,11 @@ const routes = [
     name: 'Account',
     component: Account,
     children: [
+      {
+        path: '/account/votingsites',
+        name: 'AddVotingSite',
+        component: () => import('../views/account/VotingSites.vue')
+      },
       {
         path: '/account/session',
         name: 'Session',
@@ -61,20 +66,10 @@ const routes = [
     component: Panel,
     children: [
       {
-        path: '/summary/general',
-        name: 'General Summary',
-        component: () => import('../views/panel/summary/General.vue')
-      },
-      {
         path: '/instance/:uuid',
         name: 'Instance',
         props: true,
         component: () => import('../views/panel/instance/Instance.vue')
-      },
-      {
-        path: '/summary/instance',
-        name: 'Instance Summary',
-        component: () => import('../views/panel/summary/Instance.vue')
       },
       {
         path: '/players/lookup',
@@ -93,14 +88,19 @@ const routes = [
         component: () => import('../views/panel/players/Filtered.vue')
       },
       {
-        path: '/analytics/general',
-        name: 'General Analytics',
-        component: () => import('../views/panel/analytics/General.vue')
+        path: '/analytics/voting',
+        name: 'Voting Analytics',
+        component: () => import('../views/panel/analytics/Voting.vue')
       },
       {
         path: '/analytics/growth',
         name: 'Growth Analytics',
         component: () => import('../views/panel/analytics/Growth.vue')
+      },
+      {
+        path: '/analytics/revenue',
+        name: 'Revenue Analytics',
+        component: () => import('../views/panel/analytics/Income.vue')
       },
       {
         path: '/analytics/game',
@@ -111,6 +111,12 @@ const routes = [
         path: '/analytics/feedback',
         name: 'Feedback',
         component: () => import('../views/panel/analytics/Feedback.vue')
+      },
+      {
+        path: '/setup/voting/:siteid',
+        name: 'VotingSiteSetup',
+        props: true,
+        component: () => import('../views/panel/voting/Setup.vue')
       },
       {
         path: '/servers/list/:mode',
