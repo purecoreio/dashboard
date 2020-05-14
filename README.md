@@ -1,3 +1,8 @@
+# discord guild
+622819380958461984 https://purecore.io/community
+authorized: quiquelhappy@gmail.com
+Hello, Mike!
+
 # frontend
 
 ## Project setup
