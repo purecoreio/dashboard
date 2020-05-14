@@ -1,5 +1,48 @@
 <template>
   <div>
+    <v-dialog v-model="create" width="500">
+      <v-card style="overflow-x:hidden">
+        <v-card-title class="headline" primary-title>Create a new category</v-card-title>
+
+        <v-row class="pr-2 pl-2">
+          <v-col v-if="creationError!=''" cols="12">
+            <v-expand-transition>
+              <v-alert
+                v-show="creationError!=''"
+                text
+                color="warning"
+              >{{creationError}}</v-alert>
+            </v-expand-transition>
+          </v-col>
+          <v-col cols="12">
+            <v-text-field
+              :disabled="creating"
+              outlined
+              autofocus
+              hide-details
+              label="Name"
+              v-model="newTitle"
+            />
+          </v-col>
+          <v-col cols="12">
+            <v-text-field
+              :disabled="creating"
+              outlined
+              hide-details
+              label="Description"
+              v-model="newDescription"
+            />
+          </v-col>
+        </v-row>
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-btn color="primary" text @click="create=false;newTitle='';newDescription=''">Cancel</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" :loading="creating" depressed @click="registerNew()">Create</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-breadcrumbs :items="location" large>
       <template v-slot:divider>
         <v-icon>mdi-chevron-right</v-icon>
@@ -27,10 +70,13 @@
     <div v-for="nestedItem in nestedItems" :key="nestedItem.uuid">
       <PackageCategory :category="nestedItem.getCategory()" :items="nestedItem.getItems()"></PackageCategory>
     </div>
-    <v-btn color="primary" class="float-right mb-5" v-if="nestedItems.length>0">create category</v-btn>
-    <center>
-      <v-btn color="primary" class="mb-5" v-if="nestedItems.length<=0">create category</v-btn>
-    </center>
+    <v-btn @click="create=true" color="primary" class="float-right mb-5" v-if="nestedItems.length>0">create category</v-btn>
+    <div v-if="nestedItems.length<=0 && !loading">
+      <center>
+        <h1 class="mb-4" style="margin-top: 200px">Create your first category!</h1>
+        <v-btn @click="create=true" large color="primary">create category</v-btn>
+      </center>
+    </div>
   </div>
 </template>
 
@@ -45,6 +91,12 @@ export default {
     PackageCategory: PackageCategory
   },
   data: () => ({
+    create: false,
+    newTitle: "",
+    newDescription: "",
+    creating: false,
+    network: null,
+    creationError: "",
     location: [
       {
         text: "Donations",
@@ -58,24 +110,46 @@ export default {
       }
     ],
     nestedItems: [],
-    loading: true
+    loading: false
   }),
-  mounted() {
-    if (localStorage.session && localStorage.network) {
-      network = localStorage.network;
-      var coreInstance = new core(JSON.parse(localStorage.session));
-      var network = coreInstance.getInstance(localStorage.network).asNetwork();
-      var mainObj = this;
-
-      network
+  methods: {
+    registerNew: function() {
+      var store = this.network.getStore();
+      let main = this;
+      main.creating = true;
+      store
+        .createCategory(this.newTitle, this.newDescription)
+        .then(function() {
+          main.creating = false;
+          main.create = false;
+          main.newTitle = "";
+          main.newDescription = "";
+          main.creationError = "";
+          main.loadContent();
+        })
+        .catch(function(err) {
+          main.creationError = err.message;
+        });
+    },
+    loadContent: function() {
+      let main = this;
+      main.loading = true;
+      main.network
         .getStore()
         .getPackages()
         .then(function(nestedItemsResult) {
           nestedItemsResult.forEach(nestedItem => {
-            mainObj.nestedItems.push(nestedItem);
+            main.nestedItems.push(nestedItem);
           });
-          mainObj.loading = false;
+          main.loading = false;
         });
+    }
+  },
+  mounted() {
+    if (localStorage.session && localStorage.network) {
+      var coreInstance = new core(JSON.parse(localStorage.session));
+      this.network = coreInstance.getInstance(localStorage.network).asNetwork();
+      this.loadContent();
     }
   }
 };

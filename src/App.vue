@@ -120,9 +120,10 @@
 
                         <v-stepper-content step="2">
                           <v-row class="mb-0 pb-0">
-                            <v-col cols="12" sm="12">
+                            <v-col v-if="setup.error!=null" cols="12" sm="12">
                               <v-expand-transition>
                                 <v-alert
+                                  class="mb-0"
                                   text
                                   color="primary"
                                   v-show="setup.error!=null"
@@ -131,6 +132,7 @@
                             </v-col>
                             <v-col cols="12" sm="12">
                               <v-text-field
+                                hide-details
                                 v-model="setup.name"
                                 label="Network Name"
                                 required
@@ -139,6 +141,7 @@
                             </v-col>
                             <v-col cols="6" sm="6">
                               <v-text-field
+                                hide-details
                                 v-model="setup.cname"
                                 label="Subdomain"
                                 required
@@ -146,10 +149,11 @@
                               ></v-text-field>
                             </v-col>
                             <v-col cols="6" sm="6">
-                              <v-text-field label="purecore.io" outlined disabled></v-text-field>
+                              <v-text-field hide-details label="purecore.io" outlined disabled></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="12">
                               <v-checkbox
+                                hide-details
                                 v-model="setup.ipmode"
                                 color="primary"
                                 label="My network is already being hosted"
@@ -159,10 +163,17 @@
                           <v-expand-transition>
                             <v-row v-show="setup.ipmode">
                               <v-col cols="12" md="10" sm="8">
-                                <v-text-field v-model="setup.ip" class="ma-0" label="IP" outlined></v-text-field>
+                                <v-text-field
+                                  hide-details
+                                  v-model="setup.ip"
+                                  class="ma-0"
+                                  label="IP"
+                                  outlined
+                                ></v-text-field>
                               </v-col>
                               <v-col cols="12" md="2" sm="4">
                                 <v-text-field
+                                  hide-details
                                   v-model="setup.port"
                                   class="ma-0"
                                   label="Port"
@@ -611,3 +622,10 @@ export default {
   }
 };
 </script>
+
+<style>
+@import url("https://fonts.googleapis.com/css?family=Barlow&display=swap");
+* {
+  font-family: "Barlow", sans-serif;
+}
+</style>

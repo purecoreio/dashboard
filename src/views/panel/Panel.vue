@@ -227,10 +227,6 @@ export default {
 
 
 <style>
-@import url("https://fonts.googleapis.com/css?family=Barlow&display=swap");
-* {
-  font-family: "Barlow", sans-serif;
-}
 .fade-enter-active,
 .fade-leave-active {
   transition-duration: 0.3s;

@@ -74,6 +74,7 @@
             <v-hover v-slot:default="{ hover }">
               <v-card
                 v-ripple
+                :to="{ name: 'Package' , params: { uuid: 'new' } }"
                 :outlined="$vuetify.theme.dark"
                 :elevation="hover ? 12 : 2"
                 class="mx-auto"
@@ -147,7 +148,6 @@ export default {
         this.upgradable != this.category.upgradable;
     },
     saveChanges: function() {
-
       // TO-DO LOGIC
 
       this.saving = true;

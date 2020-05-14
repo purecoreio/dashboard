@@ -3,12 +3,19 @@
     <v-card class="mb-4" outlined>
       <v-card-text>
         <v-row no-gutters>
+          <v-col cols="12" v-if="creationError!=''">
+            <v-expand-transition>
+              <v-alert text color="warning" v-show="creationError!=''">{{creationError}}</v-alert>
+            </v-expand-transition>
+          </v-col>
           <v-col class="mb-4" cols="12">
             <v-select
+              :error="categoryError"
               v-model="itemEdit.category"
               :loading="loadingCategories"
               hide-details
               outlined
+              return-object
               :items="availableCategories"
               item-text="name"
               item-value="uuid"
@@ -26,6 +33,7 @@
               v-model="itemEdit.name"
               hide-details
               :loading="itemEdit.name==null"
+              autocomplete="off"
               label="Package Name"
               outlined
               rows="1"
@@ -36,6 +44,7 @@
             <v-text-field
               v-model="itemEdit.price"
               hide-details
+              type="number"
               :loading="itemEdit.price==null"
               label="Price"
               outlined
@@ -68,34 +77,25 @@
             cols="12"
             md="3"
             sm="0"
-            class="hidden-sm-and-down flex-grow-0 flex-shrink-1"
+            class="hidden-sm-and-down flex-grow-0 flex-shrink-1 pt-4"
           >{{ uuid }}</v-col>
           <v-col cols="12" md="9" sm="12" class="text-right flex-grow-1 flex-shrink-0 mt-4">
-            <v-btn text>Duplicate package</v-btn>
-            <v-btn outlined color="primary">Save</v-btn>
+            <v-btn v-if="creatingItem" @click="createItem()" outlined color="primary">Create</v-btn>
+            <v-btn v-if="!creatingItem" outlined color="primary">Save</v-btn>
           </v-col>
         </v-row>
       </v-card-text>
     </v-card>
-    <v-card class="mb-4" outlined>
+    <v-card v-if="!creatingItem" class="mb-4" outlined>
       <v-card-text>
         <div v-if="itemEdit.perks!=null">
-          <div v-for="item in itemEdit.perks" :key="item.perk.uuid">
-            <v-row align="center">
-              <v-col cols="2">
-                <v-text-field
-                  hide-details
-                  outlined
-                  :disabled="item.perk.type!='QUANTITY'"
-                  label="Amount"
-                  placeholder="Uncountable"
-                  :value="item.quantity!=null ? item.quantity : ''"
-                ></v-text-field>
-              </v-col>
-              <v-col>{{item.perk.name}}</v-col>
-            </v-row>
-            <v-divider />
-          </div>
+          <itemPerk
+            v-for="perk in itemEdit.perks"
+            :key="perk.perk.uuid"
+            :item="item"
+            :perk="perk"
+            :instances="availableInstances"
+          />
         </div>
         <div v-if="itemEdit.perks==null">
           <v-skeleton-loader v-for="i in 5" :key="i" type="list-item" />
@@ -103,8 +103,15 @@
 
         <v-row class="mt-4" align="center">
           <v-slide-x-transition>
-            <v-col cols="2" v-show="newPerkCountable">
-              <v-text-field hide-details outlined label="Amount" v-model="newPerkAmount"></v-text-field>
+            <v-col cols="auto" v-show="newPerkCountable">
+              <v-text-field
+                @keyup="actionDescCalc()"
+                hide-details
+                style="width:100px"
+                outlined
+                label="Amount"
+                v-model="newPerkAmount"
+              ></v-text-field>
             </v-col>
           </v-slide-x-transition>
           <v-col>
@@ -128,25 +135,62 @@
               label="Perk"
               outlined
               @keyup.enter="perkAdd"
+              @blur="perkAdd"
             ></v-autocomplete>
           </v-col>
-          <v-col cols="auto">
-            <v-btn class="pt-5 pb-9" :disabled="newPerkEditing" color="primary" @click="perkAdd">{{newPerkObj == null ? 'create' : 'add'}}</v-btn>
+          <v-col v-if="newPerkObj == null" cols="auto">
+            <v-btn
+              :class="$vuetify.breakpoint.smAndUp ? 'pt-5 pb-9':''"
+              :disabled="newPerkEditing"
+              color="primary"
+              :icon="!$vuetify.breakpoint.smAndUp"
+              @click="perkAdd"
+            >
+              {{$vuetify.breakpoint.smAndUp ? 'Create' : ''}}
+              <v-icon v-if="!$vuetify.breakpoint.smAndUp">add</v-icon>
+            </v-btn>
           </v-col>
           <v-col cols="12" v-if="newPerkEditing">
             <v-text-field
               autofocus
               outlined
               v-model="newPerkDesc"
+              @keyup="actionDescCalc()"
               hide-details
               label="Description"
             />
+            <v-switch class="shrink" hide-details v-model="newPerkCountable">
+              <template v-slot:label>
+                <v-tooltip right>
+                  <template v-slot:activator="{ on }">
+                    Set new perk as countable
+                    <v-icon class="ml-2" v-on="on">info</v-icon>
+                  </template>
+                  <p
+                    style="width:200px;"
+                  >purecore packages are based on perk objects. Perk objects can be countable or uncountable. This allows you to create a huge amount of display options for your store as well as create differential actions based on the perk properties</p>
+                </v-tooltip>
+              </template>
+            </v-switch>
+            <v-divider class="mt-5" />
           </v-col>
-          <v-col cols="12" v-if="newPerkEditing">
+          <v-col v-if="newPerkEditing">
+            <v-text-field
+              outlined
+              v-if="perkCategoryCreation"
+              v-model="newPerkCategoryStr"
+              hide-details
+              label="New Perk Category"
+            />
             <v-autocomplete
-              :loading="loadingPerks"
-              :disabled="availablePerks==null"
-              :items="availablePerks"
+              v-if="!perkCategoryCreation"
+              v-model="newPerkCategoryId"
+              :loading="loadingPerkCategories"
+              :disabled="availablePerkCategories==null"
+              :items="availablePerkCategories"
+              :search-input.sync="newPerkCategory"
+              @keyup.enter="perkCategoryTryCreation"
+              @blur="perkCategoryTryCreation"
               hide-details
               item-value="uuid"
               item-text="name"
@@ -154,53 +198,39 @@
               outlined
             ></v-autocomplete>
           </v-col>
+          <v-slide-x-reverse-transition v-if="newPerkEditing">
+            <v-col cols="auto" v-show="newPerkCategoryCreationAvailable">
+              <v-btn
+                class="pt-5 pb-9"
+                :disabled="perkCategoryCreation"
+                color="primary"
+                @click="perkCategoryTryCreation"
+              >CREATE</v-btn>
+            </v-col>
+          </v-slide-x-reverse-transition>
         </v-row>
-
-        <!--
-        <v-text-field
-          hide-details
-          v-model="newPerk"
-          label="Write perk and hit [enter ↵]"
-          outlined
-          @keyup="preview()"
-          v-on:keyup.enter="addPerk"
-        ></v-text-field>
-        -->
-
-        <v-scroll-y-transition>
-          <v-alert
-            color="primary"
-            text
-            class="mb-0 pa-0 mt-3"
-            v-show="this.newPerkRes.amount!=null||this.newPerkRes.text"
-          >
-            <v-list-item>
-              <v-list-item-content>
-                <p class="mb-0 mt-0">
-                  Will create
-                  <span
-                    v-if="this.newPerkRes.amount!=null"
-                  >a countable ({{this.newPerkRes.amount}})</span>
-                  <span v-if="this.newPerkRes.amount==null">an uncountable</span>
-                  perk called '{{this.newPerkRes.text}}'
-                </p>
-              </v-list-item-content>
-
-              <!-- TO-DO: DROPDOWN FOR EXISTING PERKS IN THE DB, AUTOCOMPLETE, AUTO-PERK CATEGORY CREATION POPUP IF NO MATCHING DATA -->
-
-              <v-list-item-action>
-                <v-tooltip left>
-                  <template v-slot:activator="{ on }">
-                    <v-icon v-on="on">info</v-icon>
-                  </template>
-                  <p
-                    style="width:200px;"
-                  >purecore packages are based on perk objects. Perk objects can be countable or uncountable. This allows you to create a huge amount of display options for your store as well as create differential actions based on the perk properties</p>
-                </v-tooltip>
-              </v-list-item-action>
-            </v-list-item>
-          </v-alert>
-        </v-scroll-y-transition>
+        <v-expand-transition>
+          <v-row align="center" v-show="showActionDesc">
+            <v-col>
+              <v-alert :color="allowAction ? 'primary' : 'warning'" class="mb-0 pa-0">
+                <v-list-item>
+                  <v-list-item-content>
+                    <p class="mb-0 mt-0">{{actionDesc}}</p>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-alert>
+            </v-col>
+            <v-col v-if="allowAction" cols="auto">
+              <v-btn
+                :loading="addingPerk"
+                @click="handleCreation()"
+                x-large
+                depressed
+                color="primary"
+              >add</v-btn>
+            </v-col>
+          </v-row>
+        </v-expand-transition>
       </v-card-text>
     </v-card>
   </div>
@@ -209,24 +239,20 @@
 
 <script>
 import core from "purecore";
+import itemPerk from "../../../components/Package/ItemPerk";
 
 export default {
   name: "DonationsPackage",
   props: ["uuid"],
+  components: {
+    itemPerk
+  },
   data: () => ({
     network: null,
-    items: [
-      {
-        title: "Claim Blocks",
-        subtitle: "Example Category",
-        amount: null
-      },
-      {
-        title: "Spawn Egg",
-        subtitle: "Vote Rewards",
-        amount: null
-      }
-    ],
+    networkInstance: null,
+    /* new item creation */
+    categoryError: false,
+    creationError: "",
     /* perk editing */
     newPerk: "",
     newPerkStr: "",
@@ -237,6 +263,17 @@ export default {
     newPerkId: null,
     newPerkObj: null,
     newPerkEditing: false,
+    addingPerk: false,
+    newPerkCategoryId: null,
+    newPerkCategoryStr: "",
+    newPerkCategoryObj: null,
+    newPerkCategory: null,
+    perkCategoryCreation: false,
+    newPerkCategoryCreationAvailable: false,
+    allowAction: false,
+    actionDesc: "Awaiting information",
+    showActionDesc: false,
+    availableInstances: null,
     newPerkRes: {
       amount: null,
       text: null
@@ -249,19 +286,52 @@ export default {
       category: null,
       perks: null
     },
+    creatingItem: false,
     availablePerks: null,
     loadingPerks: false,
     availableCategories: [],
-    loadingCategories: false
+    loadingCategories: false,
+    availablePerkCategories: [],
+    loadingPerkCategories: false
   }),
   mounted() {
     var coreInstance = new core(JSON.parse(localStorage.session));
     this.network = coreInstance.getInstance(localStorage.network).asNetwork();
-    this.pullData();
+    this.networkInstance = coreInstance.getInstance(localStorage.network);
+    if (this.uuid != "new") {
+      this.pullData();
+    } else {
+      this.itemEdit.name = "";
+      this.itemEdit.description = "";
+      this.itemEdit.price = "";
+      this.itemEdit.perks = [];
+      this.creatingItem = true;
+    }
     this.loadAvailableCategories();
     this.loadAvailablePerks();
+    this.loadAvailablePerkCategories();
+    this.loadAvailableInstances();
   },
   watch: {
+    uuid: function(value) {
+      if (value != "new") {
+        this.creatingItem = false;
+        this.creationError = "";
+        this.pullData();
+        this.loadAvailableCategories();
+        this.loadAvailablePerks();
+        this.loadAvailablePerkCategories();
+      }
+    },
+    newPerkCategoryId: function(data) {
+      var perkRes = null;
+      this.availablePerkCategories.forEach(perk => {
+        if (perk.uuid == data) {
+          perkRes = perk;
+        }
+      });
+      this.newPerkCategoryObj = perkRes;
+    },
     newPerkId: function(data) {
       var perkRes = null;
       this.availablePerks.forEach(perk => {
@@ -287,13 +357,13 @@ export default {
     },
     newPerk: function(val, prev) {
       if (!this.newPerkJustChangedType) {
-        if (prev.length > 0 && val.length == 0) {
+        if (prev != null && prev.length > 0 && val.length == 0) {
           this.newPerkCountable = false;
           this.newPerkObj = null;
           this.newPerkId = null;
           this.newPerkAmount = null;
         }
-        if (val.length > 0 && val.includes(" ")) {
+        if (val != null && val.length > 0 && val.includes(" ")) {
           var parts = val.split(" ");
           try {
             if (!isNaN(parseInt(parts[0]))) {
@@ -309,6 +379,19 @@ export default {
       } else {
         this.newPerkJustChangedType = false;
       }
+      this.actionDescCalc();
+    },
+    newPerkCategory: function(val) {
+      if (val.length == 0) {
+        this.newPerkCategoryId = null;
+        this.newPerkCategoryCreationAvailable = false;
+      }
+      if (this.newPerkCategoryId == null) {
+        this.newPerkCategoryCreationAvailable = true;
+      } else {
+        this.newPerkCategoryCreationAvailable = false;
+      }
+      this.actionDescCalc();
     },
     newPerkStr: function(val, prev) {
       if (prev.length > 0 && val.length == 0) {
@@ -318,16 +401,301 @@ export default {
         this.newPerkAmount = null;
         this.newPerkEditing = false;
       }
+      this.actionDescCalc();
+    },
+    newPerkCategoryStr: function(val, prev) {
+      if (prev.length > 0 && val.length == 0) {
+        this.perkCategoryCreation = false;
+        this.newPerkCategoryId = null;
+      }
+      this.actionDescCalc();
     }
   },
   methods: {
-    perkAdd() {
+    handleCreation() {
+      let main = this;
       if (this.newPerkObj != null) {
-        alert("added existing perk");
+        if (
+          this.newPerkCountable &&
+          this.newPerkAmount != null &&
+          this.newPerkAmount != 0 &&
+          this.newPerkAmount != ""
+        ) {
+          // add existing countable perk
+          main.addingPerk = true;
+          main.item
+            .addPerk(main.newPerkObj, main.newPerkAmount)
+            .then(function() {
+              main.loadAvailablePerks();
+              main.loadAvailablePerkCategories();
+              main.pullData();
+              main.addingPerk = false;
+              main.newPerkEditing = false;
+              main.perkCategoryCreation = false;
+              main.newPerkObj = null;
+              main.newPerkCategoryId = null;
+              main.newPerkCategoryStr = "";
+              main.newPerkStr = "";
+              main.newPerkDesc = "";
+            })
+            .catch(function(err) {
+              main.creationError = err.message;
+              main.addingPerk = false;
+            });
+        } else if (!this.newPerkCountable) {
+          // add existing uncountable perk
+          main.addingPerk = true;
+          main.item
+            .addPerk(main.newPerkObj)
+            .then(function() {
+              main.loadAvailablePerks();
+              main.loadAvailablePerkCategories();
+              main.pullData();
+              main.addingPerk = false;
+              main.newPerkEditing = false;
+              main.perkCategoryCreation = false;
+              main.newPerkObj = null;
+              main.newPerkCategoryId = null;
+              main.newPerkCategoryStr = "";
+              main.newPerkStr = "";
+              main.newPerkDesc = "";
+            })
+            .catch(function(err) {
+              main.creationError = err.message;
+              main.addingPerk = false;
+            });
+        }
       } else {
-        this.newPerkStr = this.newPerk;
-        this.newPerkEditing = true;
+        if (this.newPerkEditing) {
+          if (this.newPerkStr != null && this.newPerkStr != "") {
+            if (
+              this.perkCategoryCreation &&
+              this.newPerkCategoryStr != null &&
+              this.newPerkCategoryStr != ""
+            ) {
+              if (this.newPerkCountable) {
+                // new countable perk, new perk category
+                main.addingPerk = true;
+                this.network
+                  .getStore()
+                  .createPerkCategory(this.newPerkCategoryStr)
+                  .then(function(perkcat) {
+                    perkcat
+                      .createPerk(main.newPerkStr, main.newPerkDesc, "QUANTITY")
+                      .then(function(perk) {
+                        main.item
+                          .addPerk(perk, main.newPerkAmount)
+                          .then(function() {
+                            main.loadAvailablePerks();
+                            main.loadAvailablePerkCategories();
+                            main.pullData();
+                            main.addingPerk = false;
+                            main.newPerkEditing = false;
+                            main.perkCategoryCreation = false;
+                            main.newPerkObj = null;
+                            main.newPerkCategoryId = null;
+                            main.newPerkCategoryStr = "";
+                            main.newPerkStr = "";
+                            main.newPerkDesc = "";
+                          })
+                          .catch(function(err) {
+                            main.creationError = err.message;
+                            main.addingPerk = false;
+                          });
+                      })
+                      .catch(function(err) {
+                        main.creationError = err.message;
+                        main.addingPerk = false;
+                      });
+                  })
+                  .catch(function(err) {
+                    main.creationError = err.message;
+                    main.addingPerk = false;
+                  });
+              } else {
+                // new uncountable perk, new perk category
+                main.addingPerk = true;
+                this.network
+                  .getStore()
+                  .createPerkCategory(this.newPerkCategoryStr)
+                  .then(function(perkcat) {
+                    perkcat
+                      .createPerk(main.newPerkStr, main.newPerkDesc, "GENERAL")
+                      .then(function(perk) {
+                        main.item
+                          .addPerk(perk)
+                          .then(function() {
+                            main.loadAvailablePerks();
+                            main.loadAvailablePerkCategories();
+                            main.pullData();
+                            main.addingPerk = false;
+                            main.newPerkEditing = false;
+                            main.perkCategoryCreation = false;
+                            main.newPerkObj = null;
+                            main.newPerkCategoryId = null;
+                            main.newPerkCategoryStr = "";
+                            main.newPerkStr = "";
+                            main.newPerkDesc = "";
+                          })
+                          .catch(function(err) {
+                            main.creationError = err.message;
+                            main.addingPerk = false;
+                          });
+                      })
+                      .catch(function(err) {
+                        main.creationError = err.message;
+                        main.addingPerk = false;
+                      });
+                  })
+                  .catch(function(err) {
+                    main.creationError = err.message;
+                    main.addingPerk = false;
+                  });
+              }
+            } else if (this.newPerkCategoryId != null) {
+              if (this.newPerkCountable) {
+                // new countable perk, existing perk category
+
+                main.addingPerk = true;
+                main.newPerkCategoryObj
+                  .createPerk(main.newPerkStr, main.newPerkDesc, "QUANTITY")
+                  .then(function(perk) {
+                    main.item
+                      .addPerk(perk, main.newPerkAmount)
+                      .then(function() {
+                        main.loadAvailablePerks();
+                        main.loadAvailablePerkCategories();
+                        main.pullData();
+                        main.addingPerk = false;
+                        main.newPerkEditing = false;
+                        main.perkCategoryCreation = false;
+                        main.newPerkObj = null;
+                        main.newPerkCategoryId = null;
+                        main.newPerkCategoryStr = "";
+                        main.newPerkStr = "";
+                        main.newPerkDesc = "";
+                      })
+                      .catch(function(err) {
+                        main.creationError = err.message;
+                        main.addingPerk = false;
+                      });
+                  })
+                  .catch(function(err) {
+                    main.creationError = err.message;
+                    main.addingPerk = false;
+                  });
+              } else {
+                // new uncountable perk, existing perk category
+                main.addingPerk = true;
+                main.newPerkCategoryObj
+                  .createPerk(main.newPerkStr, main.newPerkDesc, "GENERAL")
+                  .then(function(perk) {
+                    main.item
+                      .addPerk(perk)
+                      .then(function() {
+                        main.loadAvailablePerks();
+                        main.loadAvailablePerkCategories();
+                        main.pullData();
+                        main.addingPerk = false;
+                        main.newPerkEditing = false;
+                        main.perkCategoryCreation = false;
+                        main.newPerkObj = null;
+                        main.newPerkCategoryId = null;
+                        main.newPerkCategoryStr = "";
+                        main.newPerkStr = "";
+                        main.newPerkDesc = "";
+                      })
+                      .catch(function(err) {
+                        main.creationError = err.message;
+                        main.addingPerk = false;
+                      });
+                  })
+                  .catch(function(err) {
+                    main.creationError = err.message;
+                    main.addingPerk = false;
+                  });
+              }
+            }
+          }
+        }
       }
+    },
+    createItem() {
+      let main = this;
+      if (this.itemEdit.category == null) {
+        this.categoryError = true;
+        setTimeout(() => {
+          this.categoryError = false;
+        }, 1000);
+      } else {
+        main.creationError = "";
+        this.itemEdit.category
+          .createItem(
+            this.itemEdit.name,
+            this.itemEdit.description,
+            this.itemEdit.price
+          )
+          .then(function(item) {
+            main.$router.replace({
+              name: "Package",
+              params: { uuid: item.uuid }
+            });
+          })
+          .catch(function(err) {
+            main.creationError = err.message;
+          });
+      }
+    },
+    perkCategoryTryCreation() {
+      if (this.newPerkCategoryId == null) {
+        this.newPerkCategoryStr = this.newPerkCategory;
+        this.perkCategoryCreation = true;
+      } else {
+        this.perkCategoryCreation = false;
+      }
+      this.actionDescCalc();
+    },
+    perkAdd() {
+      if (
+        this.newPerkObj == null &&
+        this.newPerk != null &&
+        this.newPerk.length > 0
+      ) {
+        var match = false;
+        this.availablePerks.forEach(perk => {
+          if (perk.name == this.newPerk) {
+            match = true;
+            this.newPerkId = perk.uuid;
+            this.newPerkObj = perk;
+          }
+        });
+        if (!match) {
+          this.newPerkStr = this.newPerk;
+          this.newPerkEditing = true;
+        }
+      }
+      this.actionDescCalc();
+    },
+    loadAvailableInstances() {
+      let main = this;
+      main.loadingPerkCategories = true;
+      this.network.getServers().then(function(servers) {
+        var serverArray = servers;
+        main.networkInstance.name="Proxy"
+        serverArray.push(main.networkInstance);
+        main.availableInstances = serverArray;
+      });
+    },
+    loadAvailablePerkCategories() {
+      let main = this;
+      main.loadingPerkCategories = true;
+      this.network
+        .getStore()
+        .getPerkCategories()
+        .then(function(perks) {
+          main.availablePerkCategories = perks;
+          main.loadingPerkCategories = false;
+        });
     },
     loadAvailablePerks() {
       let main = this;
@@ -372,6 +740,63 @@ export default {
       });
       this.newPerk = "";
       this.preview();
+    },
+    actionDescCalc() {
+      this.showActionDesc = true;
+      this.allowAction = false;
+      if (this.newPerkObj != null) {
+        if (
+          this.newPerkCountable &&
+          (this.newPerkAmount == null ||
+            this.newPerkAmount == 0 ||
+            this.newPerkAmount == "")
+        ) {
+          this.actionDesc = "Missing amount";
+        } else {
+          this.actionDesc =
+            "Will modify existing matching perk or add it if missing";
+          this.allowAction = true;
+        }
+      } else {
+        if (this.newPerkEditing) {
+          if (this.newPerkStr == null || this.newPerkStr == "") {
+            this.actionDesc = "Missing new perk name";
+          } else if (this.newPerkDesc == null || this.newPerkDesc == "") {
+            this.actionDesc = "Missing new perk description";
+          } else {
+            if (this.perkCategoryCreation) {
+              if (
+                this.newPerkCategoryStr == null ||
+                this.newPerkCategoryStr == ""
+              ) {
+                this.actionDesc = "Missing new perk category title";
+              } else {
+                if (this.newPerkCountable) {
+                  this.actionDesc =
+                    "Will create a new countable perk along a new perk category and add it to the package";
+                } else {
+                  this.actionDesc =
+                    "Will create a new perk along a new perk category and add it to the package";
+                }
+                this.allowAction = true;
+              }
+            } else {
+              if (this.newPerkCategoryId == null) {
+                this.actionDesc = "Missing new perk category";
+              } else {
+                if (this.newPerkCountable) {
+                  this.actionDesc =
+                    "Will create a new countable perk inside an existing perk category and add it to the package";
+                } else {
+                  this.actionDesc =
+                    "Will create a new perk inside an existing perk category and add it to the package";
+                }
+                this.allowAction = true;
+              }
+            }
+          }
+        }
+      }
     },
     preview: function() {
       /* show preview with automatic amount and 
