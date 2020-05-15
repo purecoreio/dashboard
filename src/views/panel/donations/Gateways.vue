@@ -1,5 +1,22 @@
 <template>
   <div>
+    <v-dialog v-model="dialog" persistent max-width="300">
+      <v-card v-if="selectedGateway!=null">
+        <v-card-title class="headline">Unlink {{selectedGateway.name}}</v-card-title>
+        <v-card-text>Are you sure about this?</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text @click="selectedGateway=null;dialog=false;">Cancel</v-btn>
+          <v-btn
+            :loading="deletingGateway"
+            depressed
+            color="primary"
+            text
+            @click="unlinkGateway(selectedGateway.name)"
+          >Yes</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-overlay :value="overlay">
       <v-btn icon @click="overlay = false">
         <v-icon>mdi-close</v-icon>
@@ -34,7 +51,7 @@
     <div>
       <v-row align="center">
         <v-col v-for="gateway in gateways" :key="gateway.name" cols="6" sm="4" xl="3">
-          <v-card @click="handleAction(gateway)" ripple hover>
+          <v-card hover>
             <v-responsive :aspect-ratio="2.5/1">
               <v-list-item class="mt-4" style="height: 100%">
                 <v-list-item-content v-if="$vuetify.breakpoint.smAndUp">
@@ -90,6 +107,7 @@
                 sm="10"
               >
                 <v-btn
+                  @click="handleAction(gateway)"
                   :block="$vuetify.breakpoint.xsOnly"
                   :loading="gateway.linked==null"
                   depressed
@@ -167,18 +185,36 @@ export default {
           });
         });
     },
+    unlinkGateway(name) {
+      let main = this;
+      main.deletingGateway = true;
+      this.network
+        .getStore()
+        .unlinkGateway(name)
+        .then(function() {
+          main.deletingGateway = false;
+          main.dialog = false;
+          main.updateGateways();
+        })
+        .catch(function() {
+          main.deletingGateway = false;
+          main.updateGateways();
+        });
+    },
     handleAction: function(gateway) {
       if (gateway.name == "Stripe") {
         if (gateway.linked == null || gateway.linked == false) {
           this.openWindow(this.network.getStore().getStripeWalletLink());
         } else {
-          alert("unlinking to be implemented");
+          this.selectedGateway = gateway;
+          this.dialog = true;
         }
       } else if (gateway.name == "PayPal") {
         if (gateway.linked == null || gateway.linked == false) {
           this.openWindow(this.network.getStore().getPayPalWalletLink());
         } else {
-          alert("unlinking to be implemented");
+          this.selectedGateway = gateway;
+          this.dialog = true;
         }
       }
     },
@@ -221,6 +257,9 @@ export default {
   data: () => ({
     overlay: null,
     network: null,
+    dialog: false,
+    selectedGateway: null,
+    deletingGateway: false,
     gateways: [
       {
         name: "Stripe",
@@ -243,34 +282,15 @@ export default {
         }
       },
       {
-        name: "Paysafe",
-        website: "paysafe.com",
+        name: "Paymentwall",
+        website: "paymentwall.com",
         available: false,
         linked: null,
         logo: {
-          light: "https://purecore.io/dashboard/assets/gateways/paysafe.svg",
-          dark: "https://purecore.io/dashboard/assets/gateways/paysafeDark.svg"
-        }
-      },
-      {
-        name: "BitPay",
-        website: "bitpay.com",
-        available: false,
-        linked: null,
-        logo: {
-          light: "https://purecore.io/dashboard/assets/gateways/bitpay.svg",
-          dark: "https://purecore.io/dashboard/assets/gateways/bitpayDark.svg"
-        }
-      },
-      {
-        name: "Amazon Pay",
-        website: "pay.amazon.com",
-        available: false,
-        linked: null,
-        logo: {
-          light: "https://purecore.io/dashboard/assets/gateways/amazonPay.svg",
+          light:
+            "https://purecore.io/dashboard/assets/gateways/paymentwall.svg",
           dark:
-            "https://purecore.io/dashboard/assets/gateways/amazonPayDark.svg"
+            "https://purecore.io/dashboard/assets/gateways/paymentwallDark.svg"
         }
       }
     ],
