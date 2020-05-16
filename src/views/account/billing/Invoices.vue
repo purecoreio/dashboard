@@ -1,11 +1,15 @@
 <template>
   <div>
+    <v-snackbar v-model="errorShow">
+      {{ errorStr }}
+      <v-btn text @click="errorShow = false">Close</v-btn>
+    </v-snackbar>
     <v-breadcrumbs :items="location" large>
       <template v-slot:divider>
         <v-icon>mdi-chevron-right</v-icon>
       </template>
     </v-breadcrumbs>
-    <v-card flat>
+    <v-card v-if="plan!=null" flat>
       <v-row no-gutters align="center">
         <v-col cols="12" md="6">
           <v-stepper v-model="e1">
@@ -17,10 +21,10 @@
               <v-stepper-step step="3">Success</v-stepper-step>
             </v-stepper-header>
 
-            <v-stepper-items>
+            <v-stepper-items ref="container">
               <v-expand-transition>
                 <v-progress-linear
-                  v-show="loading || loadingPaymentMethods || addingCard"
+                  v-show="loading || loadingPaymentMethods || addingCard || subscribing || fetchingBilling"
                   class="ma-0"
                   indeterminate
                 />
@@ -47,12 +51,12 @@
                     :color="$vuetify.theme.dark ? 'white' : 'primary'"
                     text
                   >
-                    <v-list-item @click="fakeLoad()">
+                    <v-list-item @click="pmid=pm.id;e1=2">
                       <v-list-item-content class="pa-0 numberFont">**** **** **** {{pm.card.last4}}</v-list-item-content>
                       <v-list-item-avatar tile>
                         <v-img
                           contain
-                          :src="i==2 ? 'https://logos-marcas.com/wp-content/uploads/2020/04/Visa-Logo.png' : 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png'"
+                          :src="pm.card.brand=='americanExpress' ? '/assets/pm/American Express.png' : '/assets/pm/'+pm.card.brand+'.svg'"
                         />
                       </v-list-item-avatar>
                       <v-list-item-action>
@@ -64,7 +68,11 @@
                   </v-alert>
                 </v-list>
                 <v-divider class="mt-4 mb-4" />
-                <v-alert class="mb-0 pa-0" color="grey lighten-1" :text="!$vuetify.theme.dark">
+                <v-alert
+                  class="mb-0 pa-0"
+                  :color="$vuetify.theme.dark ? 'white':'grey lighten-1'"
+                  :text="!$vuetify.theme.dark"
+                >
                   <div
                     style="padding-top: 20px; padding-bottom: 20px; padding-left: 10px; padding-right: 10px;"
                     id="card-element"
@@ -90,48 +98,119 @@
                       <v-img contain src="../../../assets/c.png" />
                     </v-list-item-avatar>
                     <v-list-item-content>
-                      <b>purecore+ subscription</b>
-                      <i>7-day trial, then billed monthly</i>
+                      <b v-if="plan=='premium_plus_v'">premium+ (unlimited connections)</b>
+                      <b v-if="plan=='premium_plus'">premium+</b>
+                      <b v-if="plan=='premium'">premium</b>
+                      <i v-if="plan=='premium_plus_v'">billed monthly</i>
+                      <i v-if="plan=='premium_plus'">7-day trial, then billed monthly</i>
+                      <i v-if="plan=='premium'">billed monthly</i>
                     </v-list-item-content>
                     <v-list-item-action-text>
-                      <span style="font-size: 14px">14.99€/MO</span>
+                      <span
+                        v-if="plan=='premium_plus_v'"
+                        style="font-size: 14px"
+                      >14.99€/MO + 2€/200k Ss.</span>
+                      <span v-if="plan=='premium_plus'" style="font-size: 14px">9.99€/MO</span>
+                      <span v-if="plan=='premium'" style="font-size: 14px">9.99€/MO</span>
                     </v-list-item-action-text>
                   </v-list-item>
                 </v-alert>
                 <div class="pa-2">
                   <v-row class="mb-0" no-gutters>
                     <v-col cols="12" class="mb-2">
-                      <v-text-field hide-details outlined label="Full Name" />
+                      <v-text-field
+                        :disabled="fetchingBilling || subscribing"
+                        v-model="billing.email"
+                        hide-details
+                        outlined
+                        label="Email"
+                      />
                     </v-col>
                     <v-col cols="12" class="mb-2">
-                      <v-autocomplete hide-details outlined label="Country" />
+                      <v-text-field
+                        :disabled="fetchingBilling || subscribing"
+                        v-model="billing.name"
+                        hide-details
+                        outlined
+                        label="Full Name"
+                      />
                     </v-col>
                     <v-col cols="12" class="mb-2">
-                      <v-autocomplete hide-details outlined label="Province, Region, State" />
+                      <v-select
+                        :disabled="fetchingBilling || subscribing"
+                        v-model="billing.country"
+                        :items="billing.possible"
+                        item-text="countryName"
+                        item-value="countryShortCode"
+                        hide-details
+                        @change="updateRegions"
+                        outlined
+                        label="Country"
+                      />
+                    </v-col>
+                    <v-col cols="12" class="mb-2">
+                      <v-select
+                        :items="billing.availableRegions"
+                        :disabled="billing.country==null || fetchingBilling || subscribing"
+                        v-model="billing.state"
+                        item-text="name"
+                        item-value="name"
+                        hide-details
+                        outlined
+                        label="Province, Region, State"
+                      />
                     </v-col>
                     <v-col cols="8" class="mb-2 pr-2">
-                      <v-text-field hide-details outlined label="City" />
+                      <v-text-field
+                        :disabled="fetchingBilling || subscribing"
+                        v-model="billing.city"
+                        hide-details
+                        outlined
+                        label="City"
+                      />
                     </v-col>
                     <v-col cols="4" class="mb-2">
-                      <v-text-field hide-details outlined label="ZIP/Postal Code" />
+                      <v-text-field
+                        :disabled="fetchingBilling || subscribing"
+                        v-model="billing.postalcode"
+                        hide-details
+                        outlined
+                        label="ZIP/Postal Code"
+                      />
                     </v-col>
                     <v-col cols="12" class="mb-2">
-                      <v-text-field hide-details outlined label="Line 1" />
+                      <v-text-field
+                        :disabled="fetchingBilling || subscribing"
+                        v-model="billing.line1"
+                        hide-details
+                        outlined
+                        label="Line 1"
+                      />
                     </v-col>
                     <v-col cols="12">
-                      <v-text-field hide-details outlined label="Line 2 (optional)" />
+                      <v-text-field
+                        :disabled="fetchingBilling || subscribing"
+                        v-model="billing.line2"
+                        hide-details
+                        outlined
+                        label="Line 2 (optional)"
+                      />
                     </v-col>
                   </v-row>
                 </div>
 
                 <v-btn
-                  @click="fakeLoad()"
+                  :loading="subscribing"
+                  @click="subscribe()"
                   tile
                   color="primary"
                   depressed
                   large
                   block
-                >start subscription</v-btn>
+                >
+                  <span v-if="pmid!=null">subscribe</span>
+                  <span v-if="pmid==null">subscribe with PayPal</span>
+                </v-btn>
               </v-stepper-content>
 
               <v-stepper-content step="3">
@@ -145,7 +224,7 @@
             </v-stepper-items>
           </v-stepper>
         </v-col>
-        <v-col cols="6" v-if="$vuetify.breakpoint.mdAndUp" align="center">
+        <v-col class="pa-0 ma-0" cols="6" v-if="$vuetify.breakpoint.mdAndUp" align="center">
           <v-img max-width="200px" contain src="../../../assets/bongo.png" />
           <v-divider class="mt-4 mb-4" style="max-width: 100px" />
           <i style="opacity:0.5">
@@ -162,8 +241,11 @@
 import confetti from "canvas-confetti";
 import { loadStripe } from "@stripe/stripe-js";
 import Core from "purecore";
+import data from "country-region-data";
+import smoothHeight from "vue-smooth-height";
 
 export default {
+  mixins: [smoothHeight],
   name: "AnalyticsInvoices",
   props: ["plan"],
   data: () => ({
@@ -188,24 +270,24 @@ export default {
       }
     ],
     complete: false,
-    stripeOptions: {
-      elements: {
-        fonts: [
-          {
-            cssSrc:
-              "https://fonts.googleapis.com/css?family=Barlow&display=swap"
-          }
-        ]
-      },
-      style: {
-        base: {
-          color: "black",
-          fontSmoothing: "antialiased",
-          fontSize: "16px",
-          fontFamily: "Barlow"
-        }
-      }
-    }
+    country: null,
+    pmid: null,
+    billing: {
+      possible: data,
+      availableRegions: [],
+      country: null, // Two-letter country code (ISO 3166-1 alpha-2).
+      state: "", // State, county, province, or region.
+      city: "", // City, district, suburb, town, or village.
+      line1: "", // Address line 1 (e.g., street, PO Box, or company name).
+      line2: "", // Address line 2 (e.g., apartment, suite, unit, or building).
+      postalcode: "", // ZIP or postal code.
+      name: "",
+      email: ""
+    },
+    errorShow: false,
+    errorStr: "",
+    subscribing: false,
+    fetchingBilling: false
   }),
   watch: {
     e1: function(val) {
@@ -226,10 +308,16 @@ export default {
         setTimeout(() => {
           clearInterval(interval);
         }, 1000);
+      } else if (val == 2) {
+        this.autofillBilling();
       }
     }
   },
   mounted() {
+    this.$smoothElement({
+      el: this.$refs.container
+    });
+
     let main = this;
     var purecoreInstance = new Core(
       JSON.parse(localStorage.getItem("session"))
@@ -245,6 +333,36 @@ export default {
     this.loadPaymentMethods();
   },
   methods: {
+    autofillBilling: function() {
+      let main = this;
+      main.fetchingBilling = true;
+      this.owner
+        .getBillingAddress()
+        .then(function(billing) {
+          main.billing.country = billing.country;
+          main.updateRegions();
+          main.billing.state = billing.state;
+          main.billing.name = billing.name;
+          main.billing.email = billing.email;
+          main.billing.line1 = billing.line1;
+          main.billing.line2 = billing.line2;
+          main.billing.postalcode = billing.postalcode;
+          main.billing.city = billing.city;
+          main.fetchingBilling = false;
+        })
+        .catch(function(err) {
+          main.error = err.message;
+          main.fetchingBilling = false;
+        });
+    },
+    updateRegions: function() {
+      this.billing.availableRegions = [];
+      this.billing.possible.forEach(element => {
+        if (element.countryShortCode == this.billing.country) {
+          this.billing.availableRegions = element.regions;
+        }
+      });
+    },
     loadPaymentMethods() {
       this.loadingPaymentMethods = true;
       let main = this;
@@ -266,13 +384,17 @@ export default {
           .then(d => {
             main.owner
               .addPaymentMethod(d)
-              .then(function() {
+              .then(function(pm) {
+                main.pmid = pm.id;
                 main.e1 = 2;
                 main.addingCard = false;
+                main.loadPaymentMethods();
               })
               .catch(function(err) {
                 main.addingCard = false;
-                main.showError(err.message);
+                if (!err.message.includes("undefined")) {
+                  main.showError(err.message);
+                }
               });
           })
           .catch(e => {
@@ -281,7 +403,26 @@ export default {
           });
       } catch (error) {
         main.showError(error.message);
-        main.addingCard = true;
+        main.addingCard = false;
+      }
+    },
+    subscribe() {
+      this.subscribing = true;
+      if (this.pmid != null) {
+        let main = this;
+        this.owner
+          .stripeSubscribe(
+            this.plan,
+            this.owner.core.asBillingAddress(main.billing)
+          )
+          .then(function() {
+            main.subscribing = false;
+            main.e1 = 3;
+          })
+          .catch(function(err) {
+            main.subscribing = false;
+            main.showError(err.message);
+          });
       }
     },
     fakeLoad(skip = true) {
@@ -296,7 +437,11 @@ export default {
       }, 300);
     },
     showError(err) {
-      alert(err);
+      this.errorShow = true;
+      this.errorStr = err;
+      setTimeout(() => {
+        this.errorShow = false;
+      }, 5000);
     }
   }
 };

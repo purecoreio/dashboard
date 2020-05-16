@@ -30,14 +30,22 @@
           </v-col>
         </v-row>
         <center>
-          <v-btn color="primary" class="mt-4" depressed rounded x-large>subscribe 9.99€/m</v-btn>
+          <v-btn
+            :to="{ name: 'Invoices' , params: { plan: 'premium_plus'} }"
+            color="primary"
+            class="mt-4"
+            depressed
+            rounded
+            x-large
+          >subscribe 9.99€/m</v-btn>
           <div>
             <v-btn
+              :to="{ name: 'Invoices' , params: { plan: 'premium_plus_v'} }"
               class="mt-4 mb-2"
               small
               depressed
               rounded
-            >or 14.99€/m + 2€/500,000 extra connections</v-btn>
+            >or 14.99€/m + 2€/200,000 extra connections</v-btn>
           </div>
           <p class="pb-0" style="opacity:0.5">
             <small>billed automatically using Stripe or PayPal</small>
@@ -64,7 +72,14 @@
           </v-col>
         </v-row>
         <center>
-          <v-btn color="primary" class="mt-4" depressed rounded x-large>subscribe 4.99€/m</v-btn>
+          <v-btn
+            :to="{ name: 'Invoices' , params: { plan: 'premium'} }"
+            color="primary"
+            class="mt-4"
+            depressed
+            rounded
+            x-large
+          >subscribe 4.99€/m</v-btn>
           <p class="pb-0" style="opacity:0.5">
             <small>billed automatically using Stripe or PayPal</small>
           </p>

@@ -39,8 +39,9 @@ const routes = [
         component: () => import('../views/account/Notifications.vue')
       },
       {
-        path: '/account/invoices',
+        path: '/account/invoices/:plan',
         name: 'Invoices',
+        props: true,
         component: () => import('../views/account/billing/Invoices.vue')
       },
       {
