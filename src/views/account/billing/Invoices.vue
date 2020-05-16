@@ -235,7 +235,7 @@ export default {
       JSON.parse(localStorage.getItem("session"))
     );
     this.owner = purecoreInstance.getCoreSession().getUser();
-    loadStripe("sk_live_MF5uSdt8rQXxWsmz7VGOJ25s00ClOZNdIF").then(function(
+    loadStripe("pk_live_EApGv1EQo2QX4zp4E543Na5Q00JGPBZESa").then(function(
       Stripe
     ) {
       main.stripe = Stripe;
