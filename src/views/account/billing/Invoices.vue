@@ -7,7 +7,7 @@
     </v-breadcrumbs>
     <v-card flat>
       <v-row no-gutters align="center">
-        <v-col cols="6">
+        <v-col cols="12" md="6">
           <v-stepper v-model="e1">
             <v-stepper-header style="overflow:hidden">
               <v-stepper-step :editable="e1!=3" :complete="e1 > 1" step="1">Payment Method</v-stepper-step>
@@ -19,19 +19,36 @@
 
             <v-stepper-items>
               <v-expand-transition>
-                <v-progress-linear v-show="loading" class="ma-0" indeterminate />
+                <v-progress-linear
+                  v-show="loading || loadingPaymentMethods || addingCard"
+                  class="ma-0"
+                  indeterminate
+                />
               </v-expand-transition>
               <v-stepper-content class="pa-2" step="1">
-                <v-list color="transparent" class="mb-0 pb-0">
+                <div v-if="this.paymentMethods==null">
+                  <v-skeleton-loader class="mx-auto" type="list-item" />
+                </div>
+                <div v-if="this.paymentMethods!=null && this.paymentMethods.length==0">
+                  <center>
+                    <h3 class="mt-4">No previously used cards</h3>
+                    <p>You have not previously used a card in purecore</p>
+                  </center>
+                </div>
+                <v-list
+                  v-if="this.paymentMethods!=null && this.paymentMethods.length>0"
+                  color="transparent"
+                  class="mb-0 pb-0"
+                >
                   <v-alert
-                    v-for="i in 3"
-                    :key="i"
+                    v-for="pm in paymentMethods"
+                    :key="pm.id"
                     class="pa-0 mb-2"
                     :color="$vuetify.theme.dark ? 'white' : 'primary'"
                     text
                   >
                     <v-list-item @click="fakeLoad()">
-                      <v-list-item-content class="pa-0 numberFont">**** **** **** 424{{i}}</v-list-item-content>
+                      <v-list-item-content class="pa-0 numberFont">**** **** **** {{pm.card.last4}}</v-list-item-content>
                       <v-list-item-avatar tile>
                         <v-img
                           contain
@@ -47,17 +64,23 @@
                   </v-alert>
                 </v-list>
                 <v-divider class="mt-4 mb-4" />
-                <v-alert class="mb-0 pa-0" color="primary" :text="!$vuetify.theme.dark">
-                  <card
-                    class="pa-4 pt-6 pb-6"
-                    :options="options"
-                    stripe="pk_test_6yVRLazy6P5ywQLIwoGZ1JJq00J5zfs2CE"
-                    @change="complete = $event.complete"
-                  />
-
-                  <v-btn color="primary" depressed large block>save and use</v-btn>
+                <v-alert class="mb-0 pa-0" color="grey lighten-1" :text="!$vuetify.theme.dark">
+                  <div
+                    style="padding-top: 20px; padding-bottom: 20px; padding-left: 10px; padding-right: 10px;"
+                    id="card-element"
+                  >
+                    <!-- A Stripe Element will be inserted here. -->
+                  </div>
+                  <v-btn
+                    :loading="addingCard"
+                    @click="addCard()"
+                    color="primary"
+                    depressed
+                    large
+                    block
+                  >save and use</v-btn>
                 </v-alert>
-                <v-btn class="mt-3" color="primary" text block>continue with PayPal</v-btn>
+                <v-btn class="mt-3" color="primary" text block>I don't own a credit card</v-btn>
               </v-stepper-content>
 
               <v-stepper-content class="pa-0" step="2">
@@ -122,7 +145,7 @@
             </v-stepper-items>
           </v-stepper>
         </v-col>
-        <v-col cols="6" align="center">
+        <v-col cols="6" v-if="$vuetify.breakpoint.mdAndUp" align="center">
           <v-img max-width="200px" contain src="../../../assets/bongo.png" />
           <v-divider class="mt-4 mb-4" style="max-width: 100px" />
           <i style="opacity:0.5">
@@ -136,18 +159,22 @@
 
 
 <script>
-import { Card, createPaymentMethod } from "vue-stripe-elements-plus";
 import confetti from "canvas-confetti";
+import { loadStripe } from "@stripe/stripe-js";
+import Core from "purecore";
 
 export default {
   name: "AnalyticsInvoices",
   props: ["plan"],
-  components: {
-    Card
-  },
   data: () => ({
     loading: false,
+    stripe: null,
+    card: null,
+    paymentMethods: null,
+    addingCard: false,
     e1: 1,
+    loadingPaymentMethods: false,
+    owner: null,
     location: [
       {
         text: "Billing",
@@ -161,8 +188,7 @@ export default {
       }
     ],
     complete: false,
-    plan: null,
-    options: {
+    stripeOptions: {
       elements: {
         fonts: [
           {
@@ -204,11 +230,59 @@ export default {
     }
   },
   mounted() {
-    this.fakeLoad(false);
+    let main = this;
+    var purecoreInstance = new Core(
+      JSON.parse(localStorage.getItem("session"))
+    );
+    this.owner = purecoreInstance.getCoreSession().getUser();
+    loadStripe("sk_live_MF5uSdt8rQXxWsmz7VGOJ25s00ClOZNdIF").then(function(
+      Stripe
+    ) {
+      main.stripe = Stripe;
+      main.card = main.stripe.elements().create("card");
+      main.card.mount("#card-element");
+    });
+    this.loadPaymentMethods();
   },
   methods: {
-    pay() {
-      createPaymentMethod();
+    loadPaymentMethods() {
+      this.loadingPaymentMethods = true;
+      let main = this;
+      main.paymentMethods = null;
+      main.owner.getPaymentMethods().then(function(pm) {
+        main.loadingPaymentMethods = false;
+        main.paymentMethods = pm;
+      });
+    },
+    addCard() {
+      let main = this;
+      main.addingCard = true;
+      try {
+        this.stripe
+          .createPaymentMethod({
+            type: "card",
+            card: main.card
+          })
+          .then(d => {
+            main.owner
+              .addPaymentMethod(d)
+              .then(function() {
+                main.e1 = 2;
+                main.addingCard = false;
+              })
+              .catch(function(err) {
+                main.addingCard = false;
+                main.showError(err.message);
+              });
+          })
+          .catch(e => {
+            main.addingCard = false;
+            main.showError(e.message);
+          });
+      } catch (error) {
+        main.showError(error.message);
+        main.addingCard = true;
+      }
     },
     fakeLoad(skip = true) {
       this.loading = true;
@@ -220,6 +294,9 @@ export default {
           main.e1 = newN;
         }
       }, 300);
+    },
+    showError(err) {
+      alert(err);
     }
   }
 };
