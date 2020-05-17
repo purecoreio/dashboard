@@ -55,8 +55,39 @@
                       <v-list-item-content class="pa-0 numberFont">**** **** **** {{pm.card.last4}}</v-list-item-content>
                       <v-list-item-avatar tile>
                         <v-img
+                          v-if="pm.card.brand.toLowerCase().replace(' ','') =='americanexpress'"
                           contain
-                          :src="pm.card.brand=='americanExpress' ? '/assets/pm/American Express.png' : '/assets/pm/'+pm.card.brand+'.svg'"
+                          src="../../../assets/pm/American Express.png"
+                        />
+                        <v-img
+                          v-if="pm.card.brand.toLowerCase().replace(' ','')=='dinersclub'"
+                          contain
+                          src="../../../assets/pm/Diners Club.svg"
+                        />
+                        <v-img
+                          v-if="pm.card.brand.toLowerCase().replace(' ','')=='discover'"
+                          contain
+                          src="../../../assets/pm/Discover.svg"
+                        />
+                        <v-img
+                          v-if="pm.card.brand.toLowerCase().replace(' ','')=='jcb'"
+                          contain
+                          src="../../../assets/pm/JCB.svg"
+                        />
+                        <v-img
+                          v-if="pm.card.brand.toLowerCase().replace(' ','')=='mastercard'"
+                          contain
+                          src="../../../assets/pm/MasterCard.svg"
+                        />
+                        <v-img
+                          v-if="pm.card.brand.toLowerCase().replace(' ','')=='unionpay'"
+                          contain
+                          src="../../../assets/pm/UnionPay.svg"
+                        />
+                        <v-img
+                          v-if="pm.card.brand.toLowerCase().replace(' ','')=='visa'"
+                          contain
+                          src="../../../assets/pm/Visa.svg"
                         />
                       </v-list-item-avatar>
                       <v-list-item-action>
@@ -413,7 +444,8 @@ export default {
         this.owner
           .stripeSubscribe(
             this.plan,
-            this.owner.core.asBillingAddress(main.billing)
+            this.owner.core.asBillingAddress(main.billing),
+            this.pmid
           )
           .then(function() {
             main.subscribing = false;

@@ -18,7 +18,7 @@
     "core-js": "^3.6.5",
     "country-region-data": "^1.6.0",
     "mapbox-gl": "^1.10.1",
-    "purecore": "^1.12.14",
+    "purecore": "^1.12.15",
     "vue": "^2.6.11",
     "vue-apexcharts": "^1.5.3",
     "vue-codemirror": "^4.0.6",
