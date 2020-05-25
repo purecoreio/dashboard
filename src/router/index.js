@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Panel from '../views/panel/Panel'
 import Account from '../views/account/Account'
+import Login from '../views/login/Login'
 
 Vue.use(VueRouter)
 
@@ -12,6 +13,11 @@ const routes = [
     path: "*",
     name: '404',
     component: () => import('../views/error/404.vue')
+  },
+  {
+    path: '/login/',
+    name: 'Login',
+    component: Login
   },
   {
     path: '/account/',

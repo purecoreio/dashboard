@@ -12,10 +12,12 @@
           fill-height
           justify="center"
           align="center"
-          v-if="selectedNetwork!=null&&selectedNetworkName!=null"
+          v-if="selectedNetwork != null && selectedNetworkName != null"
         >
           <center>
-            <v-list-item-title class="title">{{ selectedNetworkName }}</v-list-item-title>
+            <v-list-item-title class="title">{{
+              selectedNetworkName
+            }}</v-list-item-title>
             <v-list-item-subtitle>{{ selectedNetwork }}</v-list-item-subtitle>
           </center>
         </v-list-item-content>
@@ -23,14 +25,20 @@
           fill-height
           justify="center"
           align="center"
-          v-if="selectedNetwork==null||selectedNetworkName==null"
+          v-if="selectedNetwork == null || selectedNetworkName == null"
         >
           <center>
             <v-list-item-title class="title">
-              <v-skeleton-loader class="mx-auto" type="text"></v-skeleton-loader>
+              <v-skeleton-loader
+                class="mx-auto"
+                type="text"
+              ></v-skeleton-loader>
             </v-list-item-title>
             <v-list-item-subtitle>
-              <v-skeleton-loader class="mx-auto" type="text"></v-skeleton-loader>
+              <v-skeleton-loader
+                class="mx-auto"
+                type="text"
+              ></v-skeleton-loader>
             </v-list-item-subtitle>
           </center>
         </v-list-item-content>
@@ -52,7 +60,12 @@
             </v-list-item-content>
           </template>
 
-          <v-list-item link :to="subItem.path" v-for="subItem in item.items" :key="subItem.title">
+          <v-list-item
+            link
+            :to="subItem.path"
+            v-for="subItem in item.items"
+            :key="subItem.title"
+          >
             <v-list-item-content>
               <v-list-item-title v-text="subItem.title"></v-list-item-title>
             </v-list-item-content>
@@ -91,20 +104,20 @@ export default {
           items: [
             { title: "Growth", path: "/analytics/growth" },
             { title: "Voting Sites", path: "/analytics/voting" },
-            { title: "Revenue", path: "/analytics/revenue" }
-          ]
+            { title: "Revenue", path: "/analytics/revenue" },
+          ],
         },
         {
           action: "players",
           title: "Players",
           icon: "supervisor_account",
-          items: [{ title: "Lookup", path: "/players/lookup" }]
+          items: [{ title: "Lookup", path: "/players/lookup" }],
         },
         {
           action: "servers",
           title: "Servers",
           icon: "view_list",
-          items: [{ title: "List", path: "/servers/list" }]
+          items: [{ title: "List", path: "/servers/list" }],
         },
         {
           action: "donations",
@@ -113,8 +126,8 @@ export default {
           items: [
             { title: "Transactions", path: "/donations/transactions" },
             { title: "Packages", path: "/donations/packages" },
-            { title: "Gateways", path: "/donations/gateways" }
-          ]
+            { title: "Gateways", path: "/donations/gateways" },
+          ],
         },
         {
           action: "community",
@@ -123,8 +136,8 @@ export default {
           items: [
             { title: "Discord", path: "/community/discord" },
             { title: "News", path: "/community/news" },
-            { title: "Forum", path: "/community/forum" }
-          ]
+            { title: "Forum", path: "/community/forum" },
+          ],
         },
         {
           action: "punishments",
@@ -135,8 +148,8 @@ export default {
             { title: "Actions", path: "/punishments/actions" },
             { title: "History", path: "/punishments/history" },
             { title: "Appeals", path: "/punishments/appeals" },
-            { title: "Reports", path: "/punishments/reports" }
-          ]
+            { title: "Reports", path: "/punishments/reports" },
+          ],
         },
         {
           action: "website",
@@ -145,11 +158,11 @@ export default {
           items: [
             { title: "Domain", path: "/website/domain" },
             { title: "Themes", path: "/website/themes" },
-            { title: "Pages", path: "/website/pages" }
-          ]
-        }
-      ]
-    }
+            { title: "Pages", path: "/website/pages" },
+          ],
+        },
+      ],
+    },
   }),
   mounted() {
     this.$emit("setDrawer", true);
@@ -200,7 +213,7 @@ export default {
         this.$vuetify.theme.dark = false;
         localStorage.setItem("dark", false);
       }
-    }
+    },
   },
   methods: {
     openDrawer: function() {
@@ -220,11 +233,10 @@ export default {
     },
     afterEnter(element) {
       element.style.height = "auto";
-    }
-  }
+    },
+  },
 };
 </script>
-
 
 <style>
 .fade-enter-active,

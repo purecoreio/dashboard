@@ -2,8 +2,11 @@
   <v-app id="app">
     <!-- login form -->
 
-    <v-app-bar app clipped-left>
-      <v-app-bar-nav-icon @click="openDrawer()" v-if="$vuetify.breakpoint.smAndDown && drawer" />
+    <v-app-bar app clipped-left v-if="$router.currentRoute.name != 'Login'">
+      <v-app-bar-nav-icon
+        @click="openDrawer()"
+        v-if="$vuetify.breakpoint.smAndDown && drawer"
+      />
       <v-toolbar-title>purecore</v-toolbar-title>
       <v-spacer />
       <v-btn to="/account/" icon>
@@ -46,11 +49,12 @@
                 <v-flex shrink>
                   <v-btn
                     @click="disableNetworkSwitcher"
-                    :disabled="network.selectedId==null"
+                    :disabled="network.selectedId == null"
                     class="ma-2"
                     outlined
                     color="secondary"
-                  >CLOSE</v-btn>
+                    >CLOSE</v-btn
+                  >
                 </v-flex>
               </v-layout>
             </v-col>
@@ -59,47 +63,65 @@
                 <v-flex shrink>
                   <v-dialog v-model="setup.dialog" persistent max-width="600px">
                     <template v-slot:activator="{ on }">
-                      <v-btn class="ma-2" v-on="on" outlined color="primary">CREATE NETWORK</v-btn>
+                      <v-btn class="ma-2" v-on="on" outlined color="primary"
+                        >CREATE NETWORK</v-btn
+                      >
                     </template>
                     <v-stepper v-model="setup.stepper">
                       <v-stepper-header>
-                        <v-stepper-step :complete="setup.stepper > 1" step="1">Game</v-stepper-step>
+                        <v-stepper-step :complete="setup.stepper > 1" step="1"
+                          >Game</v-stepper-step
+                        >
 
                         <v-divider></v-divider>
 
-                        <v-stepper-step :complete="setup.stepper > 2" step="2">ID</v-stepper-step>
+                        <v-stepper-step :complete="setup.stepper > 2" step="2"
+                          >ID</v-stepper-step
+                        >
 
                         <v-divider></v-divider>
 
-                        <v-stepper-step :complete="setup.stepper > 3" step="3">Setup</v-stepper-step>
+                        <v-stepper-step :complete="setup.stepper > 3" step="3"
+                          >Setup</v-stepper-step
+                        >
                       </v-stepper-header>
 
                       <v-stepper-items>
                         <v-stepper-content step="1">
                           <v-row>
                             <v-col cols="12">
-                              <p class="heading" style="font-size: 150%; margin: 0px;">
-                                <strong>Game</strong>
-                              </p>
                               <p
                                 class="heading"
-                                style="margin: 0px;"
-                              >Select the game your network is running</p>
+                                style="font-size: 150%; margin: 0px;"
+                              >
+                                <strong>Game</strong>
+                              </p>
+                              <p class="heading" style="margin: 0px;">
+                                Select the game your network is running
+                              </p>
                               <v-divider class="mt-4" />
                               <v-btn
-                                @click="setup.game='minecraft', setup.stepper=2"
+                                @click="
+                                  (setup.game = 'minecraft'),
+                                    (setup.stepper = 2)
+                                "
                                 depressed
                                 block
                                 color="secondary"
                                 class="mt-4"
-                              >Minecraft: Java Edition</v-btn>
+                                >Minecraft: Java Edition</v-btn
+                              >
                               <v-btn
-                                @click="setup.game='minecraft_bedrock', setup.stepper=2"
+                                @click="
+                                  (setup.game = 'minecraft_bedrock'),
+                                    (setup.stepper = 2)
+                                "
                                 depressed
                                 block
                                 color="secondary"
                                 class="mt-1"
-                              >Minecraft: Bedrock Edition</v-btn>
+                                >Minecraft: Bedrock Edition</v-btn
+                              >
                             </v-col>
                           </v-row>
                           <v-row no-gutters class="px-3">
@@ -110,8 +132,12 @@
                                     outlined
                                     v-if="!setup.mandatory"
                                     color="secondary"
-                                    @click="setup.dialog=false;setup.stepper=1"
-                                  >CANCEL</v-btn>
+                                    @click="
+                                      setup.dialog = false;
+                                      setup.stepper = 1;
+                                    "
+                                    >CANCEL</v-btn
+                                  >
                                 </v-flex>
                               </v-layout>
                             </v-col>
@@ -120,14 +146,15 @@
 
                         <v-stepper-content step="2">
                           <v-row class="mb-0 pb-0">
-                            <v-col v-if="setup.error!=null" cols="12" sm="12">
+                            <v-col v-if="setup.error != null" cols="12" sm="12">
                               <v-expand-transition>
                                 <v-alert
                                   class="mb-0"
                                   text
                                   color="primary"
-                                  v-show="setup.error!=null"
-                                >{{setup.error}}</v-alert>
+                                  v-show="setup.error != null"
+                                  >{{ setup.error }}</v-alert
+                                >
                               </v-expand-transition>
                             </v-col>
                             <v-col cols="12" sm="12">
@@ -149,7 +176,12 @@
                               ></v-text-field>
                             </v-col>
                             <v-col cols="6" sm="6">
-                              <v-text-field hide-details label="purecore.io" outlined disabled></v-text-field>
+                              <v-text-field
+                                hide-details
+                                label="purecore.io"
+                                outlined
+                                disabled
+                              ></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="12">
                               <v-checkbox
@@ -190,8 +222,12 @@
                                     outlined
                                     v-if="!setup.mandatory"
                                     color="secondary"
-                                    @click="setup.dialog=false;setup.stepper=1"
-                                  >CANCEL</v-btn>
+                                    @click="
+                                      setup.dialog = false;
+                                      setup.stepper = 1;
+                                    "
+                                    >CANCEL</v-btn
+                                  >
                                 </v-flex>
                               </v-layout>
                             </v-col>
@@ -201,8 +237,12 @@
                                   <v-btn
                                     depressed
                                     color="primary"
-                                    @click="setup.stepper=3; createNetwork()"
-                                  >NEXT</v-btn>
+                                    @click="
+                                      setup.stepper = 3;
+                                      createNetwork();
+                                    "
+                                    >NEXT</v-btn
+                                  >
                                 </v-flex>
                               </v-layout>
                             </v-col>
@@ -212,8 +252,13 @@
                         <v-stepper-content step="3">
                           <v-expand-transition>
                             <div v-show="!setup.created">
-                              <center style="padding-top: 50px; padding-bottom: 50px">
-                                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                              <center
+                                style="padding-top: 50px; padding-bottom: 50px"
+                              >
+                                <v-progress-circular
+                                  indeterminate
+                                  color="primary"
+                                ></v-progress-circular>
                               </center>
                             </div>
                           </v-expand-transition>
@@ -221,37 +266,57 @@
                             <div>
                               <v-row v-show="setup.created">
                                 <v-col cols="12">
-                                  <p class="heading" style="font-size: 150%; margin: 0px;">
-                                    <strong>Installation</strong>
-                                  </p>
                                   <p
                                     class="heading"
-                                    style="margin: 0px;"
-                                  >Install the plugins on your network</p>
+                                    style="font-size: 150%; margin: 0px;"
+                                  >
+                                    <strong>Installation</strong>
+                                  </p>
+                                  <p class="heading" style="margin: 0px;">
+                                    Install the plugins on your network
+                                  </p>
                                   <v-divider class="mt-4" />
 
                                   <router-link
-                                    :to="{ name: 'ServerList' , params: { mode: 'proxy' } }"
+                                    :to="{
+                                      name: 'ServerList',
+                                      params: { mode: 'proxy' },
+                                    }"
                                   >
                                     <v-btn
-                                      @click="network.dialog=false;setup.stepper=1;switchingNetworks=false"
+                                      @click="
+                                        network.dialog = false;
+                                        setup.stepper = 1;
+                                        switchingNetworks = false;
+                                      "
                                       depressed
                                       block
                                       color="secondary"
                                       class="mt-4"
-                                    >Multiple Server Setup (Waterfall, Bungeecord, etc)</v-btn>
+                                      >Multiple Server Setup (Waterfall,
+                                      Bungeecord, etc)</v-btn
+                                    >
                                   </router-link>
 
                                   <router-link
-                                    :to="{ name: 'ServerList' , params: { mode: 'single' } }"
+                                    :to="{
+                                      name: 'ServerList',
+                                      params: { mode: 'single' },
+                                    }"
                                   >
                                     <v-btn
-                                      @click="network.dialog=false;setup.stepper=1;switchingNetworks=false"
+                                      @click="
+                                        network.dialog = false;
+                                        setup.stepper = 1;
+                                        switchingNetworks = false;
+                                      "
                                       depressed
                                       block
                                       color="secondary"
                                       class="mt-1"
-                                    >Single Server Setup (Spigot, Bukkit, etc)</v-btn>
+                                      >Single Server Setup (Spigot, Bukkit,
+                                      etc)</v-btn
+                                    >
                                   </router-link>
                                 </v-col>
                               </v-row>
@@ -262,8 +327,12 @@
                                       <v-btn
                                         outlined
                                         color="secondary"
-                                        @click="network.dialog=false;setup.stepper=1"
-                                      >SKIP</v-btn>
+                                        @click="
+                                          network.dialog = false;
+                                          setup.stepper = 1;
+                                        "
+                                        >SKIP</v-btn
+                                      >
                                     </v-flex>
                                   </v-layout>
                                 </v-col>
@@ -281,46 +350,19 @@
         </v-card>
       </v-dialog>
       <v-btn
-        @click="session=null; selectedNetwork=null"
-        v-if="(session != null && session != undefined)"
+        @click="
+          session = null;
+          selectedNetwork = null;
+        "
+        v-if="session != null && session != undefined"
         icon
       >
         <v-icon>exit_to_app</v-icon>
       </v-btn>
-
-      <v-dialog :value="account.showLogin" persistent max-width="500px">
-        <template v-slot:activator="{ on }">
-          <v-btn v-if="account.showLogin" rounded text v-on="on">
-            LOGIN
-            <v-avatar right size="25px" style="margin-left: 10px">
-              <v-img src="./assets/glogo.svg" alt="Login" />
-            </v-avatar>
-          </v-btn>
-        </template>
-        <v-card class="mx-auto" max-width="500">
-          <v-img src="./assets/piston.png" height="300px"></v-img>
-          <center>
-            <v-btn
-              @click="GoogleLoginHandle"
-              v-if="!(session != null && session != undefined)"
-              rounded
-              outlined
-              :loading="loginLoading"
-              style="margin-bottom: 30px"
-            >
-              LOGIN WITH GOOGLE
-              <v-avatar right size="25px" style="margin-left: 10px">
-                <v-img src="./assets/glogo.svg" alt="Login" />
-              </v-avatar>
-            </v-btn>
-          </center>
-        </v-card>
-      </v-dialog>
-
       <!-- login form -->
     </v-app-bar>
 
-    <v-content>
+    <v-content v-if="$router.currentRoute.name != 'Login'">
       <v-container fluid class="mb-5">
         <v-row align="center" justify="center">
           <v-col cols="12" xs="12" sm="12" md="10" lg="8" xl="6">
@@ -345,11 +387,22 @@
       <v-footer inset absolute>
         <center style="width: 100%">
           <v-btn style="text-transform: none" text :to="{ name: 'About' }">
-            <span class="px-4">&copy; 2019 / {{ new Date().getFullYear() }} quiquelhappy</span>
+            <span class="px-4"
+              >&copy; 2019 / {{ new Date().getFullYear() }} quiquelhappy</span
+            >
           </v-btn>
         </center>
       </v-footer>
     </v-content>
+    <router-view
+      @setDrawer="setDrawer"
+      @initialCheck="initialCheck"
+      v-if="$router.currentRoute.name == 'Login'"
+      :drawer="drawer"
+      :key="session + network.selectedId"
+      ref="childComponent"
+      class="mb-5"
+    />
   </v-app>
 </template>
 
@@ -362,13 +415,10 @@ export default {
     drawer: false,
     selectorModel: false,
     prevHeight: 0,
-    account: {
-      showLogin: false
-    },
     network: {
       selectedId: null,
       dialog: false,
-      switchId: null
+      switchId: null,
     },
     setup: {
       dialog: false,
@@ -381,34 +431,17 @@ export default {
       cname: "",
       created: false,
       error: null,
-      mandatory: false
+      mandatory: false,
     },
     availableNetworks: [],
     session: null,
     loginLoading: false,
     selectedNetwork: null,
     selectedNetworkName: null,
-    switchingNetworks: false
+    switchingNetworks: false,
   }),
   mounted() {
-    if (localStorage.getItem("dark", null) != null) {
-      var info = localStorage.getItem("dark") == "true";
-      if (info) {
-        this.dark = true;
-      } else {
-        this.dark = false;
-      }
-    }
-
-    if (
-      this.$router.currentRoute == "/" ||
-      this.$router.currentRoute == null ||
-      this.$router.currentRoute == undefined
-    ) {
-      this.$router.replace({ path: "/summary/general" });
-    }
-
-    this.checkSession();
+    this.initialCheck();
   },
   watch: {
     network: {
@@ -417,7 +450,7 @@ export default {
           localStorage.setItem("network", newData.selectedId);
         }
       },
-      deep: true
+      deep: true,
     },
 
     session(newSession) {
@@ -427,10 +460,8 @@ export default {
         newSession != "null" &&
         newSession != ""
       ) {
-        this.account.showLogin = false;
         localStorage.setItem("session", JSON.stringify(newSession));
       } else {
-        this.account.showLogin = true;
         localStorage.removeItem("session");
         this.checkSession();
       }
@@ -459,9 +490,30 @@ export default {
       if (newValue) {
         this.getAvailableNetworks();
       }
-    }
+    },
   },
   methods: {
+    initialCheck() {
+      if (localStorage.getItem("dark", null) != null) {
+        var info = localStorage.getItem("dark") == "true";
+        if (info) {
+          this.dark = true;
+        } else {
+          this.dark = false;
+        }
+      }
+
+      if (
+        this.$router.currentRoute == "/" ||
+        this.$router.currentRoute == "/login/" ||
+        this.$router.currentRoute == null ||
+        this.$router.currentRoute == undefined
+      ) {
+        this.$router.replace({ path: "/summary/general" });
+      }
+
+      this.checkSession();
+    },
     setDrawer(e) {
       this.drawer = e;
     },
@@ -483,6 +535,9 @@ export default {
     afterEnter(element) {
       element.style.height = "auto";
     },
+    toLogin() {
+      this.$router.push({ path: "/login/" });
+    },
     checkSession() {
       if (localStorage.session) {
         try {
@@ -500,10 +555,10 @@ export default {
           this.getAvailableNetworks();
         } catch (error) {
           localStorage.removeItem("session");
-          this.account.showLogin = true;
+          this.toLogin();
         }
       } else {
-        this.account.showLogin = true;
+        this.toLogin();
       }
     },
     createNetwork() {
@@ -598,28 +653,7 @@ export default {
       this.network.selectedId = network.uuid;
       this.network.dialog = false;
     },
-    GoogleLoginHandle() {
-      this.loginLoading = true;
-      var mainObj = this;
-      this.$gAuth
-        .signIn()
-        .then(GoogleUser => {
-          new core()
-            .fromToken(GoogleUser.getAuthResponse().id_token)
-            .then(function(core) {
-              // to-do save core session
-
-              mainObj.loginLoading = false;
-              mainObj.session = core.getCoreSession();
-
-              mainObj.getAvailableNetworks();
-            });
-        })
-        .catch(function() {
-          mainObj.loginLoading = false;
-        });
-    }
-  }
+  },
 };
 </script>
 
