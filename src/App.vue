@@ -374,6 +374,7 @@
               name="fade"
             >
               <router-view
+                @selectNetwork="deselectAndShow"
                 @setDrawer="setDrawer"
                 :drawer="drawer"
                 :key="session + network.selectedId"
@@ -493,6 +494,12 @@ export default {
     },
   },
   methods: {
+    deselectAndShow() {
+      this.network.selectedId = null;
+      this.network.switchId = null;
+      localStorage.removeItem("network");
+      this.getAvailableNetworks();
+    },
     initialCheck() {
       if (localStorage.getItem("dark", null) != null) {
         var info = localStorage.getItem("dark") == "true";

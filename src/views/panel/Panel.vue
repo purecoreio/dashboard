@@ -80,7 +80,7 @@
       @afterEnter="afterEnter"
       name="fade"
     >
-      <router-view />
+      <router-view @changeNetwork="selectNetwork" />
     </transition>
   </div>
 </template>
@@ -161,6 +161,12 @@ export default {
             { title: "Pages", path: "/website/pages" },
           ],
         },
+        {
+          action: "settings",
+          title: "Settings",
+          icon: "settings",
+          items: [{ title: "Danger Zone", path: "/settings/dangerZone" }],
+        },
       ],
     },
   }),
@@ -216,6 +222,9 @@ export default {
     },
   },
   methods: {
+    selectNetwork: function() {
+      this.$emit("selectNetwork");
+    },
     openDrawer: function() {
       this.drawer.model = true;
     },
