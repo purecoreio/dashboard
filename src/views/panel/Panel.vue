@@ -204,7 +204,9 @@ export default {
           .then(function(instance) {
             mainObj.selectedNetworkName = instance.getName();
           })
-          .catch(function() {});
+          .catch(function(err) {
+            alert(err.message);
+          });
       } catch (error) {
         setTimeout(() => {
           mainObj.selectedNetwork = localStorage.network;
