@@ -158,14 +158,17 @@ export default {
         .then((GoogleUser) => {
           new core()
             .fromToken(GoogleUser.getAuthResponse().id_token)
-            .then(function(core) {
-              // to-do save core session
-
+            .then(function(session) {
               mainObj.loginLoading = false;
-              mainObj.session = core.getCoreSession();
+              mainObj.session = session;
+            })
+            .catch((err) => {
+              mainObj.loginLoading = false;
+              console.log(err);
             });
         })
-        .catch(function() {
+        .catch(function(err) {
+          console.log(err);
           mainObj.loginLoading = false;
         });
     },

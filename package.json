@@ -16,7 +16,7 @@
     "country-region-data": "^1.6.0",
     "lottie-vuejs": "^0.3.7",
     "mapbox-gl": "^1.11.1",
-    "purecore": "^1.15.7",
+    "purecore": "^1.15.8",
     "vue": "^2.6.11",
     "vue-and-devices-mocks": "^1.0.0",
     "vue-apexcharts": "^1.6.0",

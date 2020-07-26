@@ -305,6 +305,7 @@ export default {
           }
           this.getAvailableNetworks();
         } catch (error) {
+          console.log(error)
           localStorage.removeItem("session");
           this.toLogin();
         }
@@ -393,7 +394,9 @@ export default {
               main.setup.mandatory = false;
             }
           })
-          .catch(function() {
+          .catch(function(err) {
+            console.log("network list err")
+            console.log(err)
             localStorage.removeItem("session");
             main.checkSession();
           });
