@@ -1,8 +1,7 @@
 <template>
   <div>
-    <v-snackbar :value="error!=''">
+    <v-snackbar :value="error != ''">
       {{ error }}
-      <v-btn color="primary" text @click="error=''">Close</v-btn>
     </v-snackbar>
     <v-expand-transition>
       <v-card v-show="!deleted" style="margin-bottom: 10px">
@@ -13,53 +12,78 @@
                 {{ name }}
                 <v-chip
                   style="margin-left: 7px"
-                  v-if="name=='Proxy Instance'&&$vuetify.breakpoint.mdAndUp"
+                  v-if="name == 'Proxy Instance' && $vuetify.breakpoint.mdAndUp"
                   color="primary"
-                >Automatically Created</v-chip>
+                  >Automatically Created</v-chip
+                >
               </p>
             </v-col>
-            <v-col class="text-right" cols="5" xl="2" lg="3" md="3" sm="6" xs="6">
+            <v-col
+              class="text-right"
+              cols="5"
+              xl="2"
+              lg="3"
+              md="3"
+              sm="6"
+              xs="6"
+            >
               <v-dialog v-model="deleting" width="500">
                 <template v-slot:activator="{ on }">
-                  <v-btn v-on="on" v-if="name!='Proxy Instance'" fill-height text>
+                  <v-btn
+                    v-on="on"
+                    v-if="name != 'Proxy Instance'"
+                    fill-height
+                    text
+                  >
                     <v-icon>delete</v-icon>
                   </v-btn>
                 </template>
 
                 <v-card>
-                  <v-card-title class="headline" primary-title>Delete {{name}}</v-card-title>
+                  <v-card-title class="headline" primary-title
+                    >Delete {{ name }}</v-card-title
+                  >
 
                   <div class="pa-3">
-                    <v-alert
-                      text
-                      color="primary"
-                    >In order to confirm the deletion of your server, please, write down the exact name of the instance. Billing wont be affected by this action.</v-alert>
+                    <v-alert text color="primary"
+                      >In order to confirm the deletion of your server, please,
+                      write down the exact name of the instance. Billing wont be
+                      affected by this action.</v-alert
+                    >
 
-                    <v-text-field outlined v-model="delName" label="Instance Name" required></v-text-field>
+                    <v-text-field
+                      outlined
+                      v-model="delName"
+                      label="Instance Name"
+                      required
+                    ></v-text-field>
                   </div>
 
                   <v-divider></v-divider>
 
                   <v-card-actions>
                     <v-expand-x-transition>
-                      <div v-show="(name==delName)">
+                      <div v-show="name == delName">
                         <v-btn
                           color="secondary"
-                          :disabled="!(name==delName)"
+                          :disabled="!(name == delName)"
                           outlined
                           @click="deleteServer()"
-                        >Delete</v-btn>
+                          >Delete</v-btn
+                        >
                       </div>
                     </v-expand-x-transition>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" outlined @click="deleting = false">Cancel</v-btn>
+                    <v-btn color="primary" outlined @click="deleting = false"
+                      >Cancel</v-btn
+                    >
                   </v-card-actions>
                 </v-card>
               </v-dialog>
               <v-btn
                 :icon="$vuetify.breakpoint.smAndDown"
                 :color="$vuetify.breakpoint.smAndDown ? 'primary' : ''"
-                :to="{ name: 'Instance' , params: { uuid: uuid } }"
+                :to="{ name: 'Instance', params: { uuid: uuid } }"
                 depressed
               >
                 <v-icon :left="$vuetify.breakpoint.mdAndUp">dns</v-icon>
@@ -73,7 +97,6 @@
   </div>
 </template>
 
-
 <script>
 import core from "purecore";
 
@@ -84,7 +107,7 @@ export default {
     deleting: false,
     delName: "",
     error: "",
-    deleted: false
+    deleted: false,
   }),
   methods: {
     deleteServer: function() {
@@ -108,7 +131,7 @@ export default {
         .catch(function(err) {
           mainObj.error = err.message;
         });
-    }
+    },
   },
   watch: {
     error: function(val) {
@@ -117,7 +140,7 @@ export default {
           this.error = "";
         }, 5000);
       }
-    }
-  }
+    },
+  },
 };
 </script>

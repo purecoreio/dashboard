@@ -13,13 +13,6 @@
       <v-row no-gutters align="center">
         <v-col cols="12" md="6">
           <v-stepper v-model="e1">
-            <v-stepper-header style="overflow:hidden">
-              <v-stepper-step :editable="e1!=3" :complete="e1 > 1" step="1">Payment Method</v-stepper-step>
-
-              <v-stepper-step :complete="e1 > 2" step="2">Review</v-stepper-step>
-
-              <v-stepper-step step="3">Success</v-stepper-step>
-            </v-stepper-header>
 
             <v-stepper-items ref="container">
               <v-expand-transition>

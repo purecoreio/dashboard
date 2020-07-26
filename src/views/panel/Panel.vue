@@ -96,11 +96,13 @@ export default {
     selectedNetworkName: null,
     drawer: {
       model: null,
+      active: null,
       items: [
         {
           action: "analytics",
           title: "Analytics",
           icon: "bar_chart",
+          active: false,
           items: [
             { title: "Growth", path: "/analytics/growth" },
             { title: "Voting Sites", path: "/analytics/voting" },
@@ -110,18 +112,21 @@ export default {
         {
           action: "players",
           title: "Players",
+          active: false,
           icon: "supervisor_account",
           items: [{ title: "Lookup", path: "/players/lookup" }],
         },
         {
           action: "servers",
           title: "Servers",
+          active: false,
           icon: "view_list",
           items: [{ title: "List", path: "/servers/list" }],
         },
         {
           action: "donations",
           title: "Donations",
+          active: false,
           icon: "store",
           items: [
             { title: "Transactions", path: "/donations/transactions" },
@@ -132,6 +137,7 @@ export default {
         {
           action: "community",
           title: "Community",
+          active: false,
           icon: "chat_bubble",
           items: [
             { title: "Discord", path: "/community/discord" },
@@ -142,6 +148,7 @@ export default {
         {
           action: "punishments",
           title: "Punishments",
+          active: false,
           icon: "gavel",
           items: [
             { title: "Offences", path: "/punishments/offences" },
@@ -154,6 +161,7 @@ export default {
         {
           action: "website",
           title: "Website",
+          active: false,
           icon: "dvr",
           items: [
             { title: "Domain", path: "/website/domain" },
@@ -164,6 +172,7 @@ export default {
         {
           action: "settings",
           title: "Settings",
+          active: false,
           icon: "settings",
           items: [{ title: "Danger Zone", path: "/settings/dangerZone" }],
         },
@@ -172,6 +181,7 @@ export default {
   }),
   mounted() {
     this.$emit("setDrawer", true);
+    this.checkActive();
     if (localStorage.getItem("dark", null) != null) {
       var info = localStorage.getItem("dark") == "true";
       if (info) {
@@ -222,8 +232,24 @@ export default {
         localStorage.setItem("dark", false);
       }
     },
+    $route() {
+      this.checkActive();
+    },
   },
   methods: {
+    checkActive() {
+      let active = null;
+      for (let index = 0; index < this.drawer.items.length; index++) {
+        const element = this.drawer.items[index];
+        element.items.forEach((subelement) => {
+          if (this.$router.currentRoute.path.includes(subelement.path))
+            active = index;
+        });
+      }
+      if (active != null) {
+        this.drawer.items[active].active = true;
+      }
+    },
     selectNetwork: function() {
       this.$emit("selectNetwork");
     },

@@ -2,12 +2,29 @@
   <v-app id="app">
     <!-- login form -->
 
-    <v-app-bar app clipped-left v-if="$router.currentRoute.name != 'Login'">
+    <v-app-bar
+      elevation="0"
+      app
+      clipped-left
+      v-if="$router.currentRoute.name != 'Login'"
+    >
       <v-app-bar-nav-icon
         @click="openDrawer()"
         v-if="$vuetify.breakpoint.smAndDown && drawer"
       />
-      <v-toolbar-title>purecore</v-toolbar-title>
+      <v-row v-if="$vuetify.breakpoint.mdAndUp" no-gutters>
+        <v-col>
+          <div class="logo">
+            <v-avatar size="20">
+              <v-img src="./assets/c.png" />
+            </v-avatar>
+            <strong class="ml-2 primary--text" style="font-size:18px">
+              purecore
+            </strong>
+          </div>
+        </v-col>
+        <v-col> </v-col>
+      </v-row>
       <v-spacer />
       <v-btn to="/account/" icon>
         <v-icon>account_circle</v-icon>
@@ -61,288 +78,15 @@
             <v-col cols="6">
               <v-layout row wrap justify-end>
                 <v-flex shrink>
-                  <v-dialog v-model="setup.dialog" persistent max-width="600px">
-                    <template v-slot:activator="{ on }">
-                      <v-btn class="ma-2" v-on="on" outlined color="primary"
-                        >CREATE NETWORK</v-btn
-                      >
-                    </template>
-                    <v-stepper v-model="setup.stepper">
-                      <v-stepper-header>
-                        <v-stepper-step :complete="setup.stepper > 1" step="1"
-                          >Game</v-stepper-step
-                        >
-
-                        <v-divider></v-divider>
-
-                        <v-stepper-step :complete="setup.stepper > 2" step="2"
-                          >ID</v-stepper-step
-                        >
-
-                        <v-divider></v-divider>
-
-                        <v-stepper-step :complete="setup.stepper > 3" step="3"
-                          >Setup</v-stepper-step
-                        >
-                      </v-stepper-header>
-
-                      <v-stepper-items>
-                        <v-stepper-content step="1">
-                          <v-row>
-                            <v-col cols="12">
-                              <p
-                                class="heading"
-                                style="font-size: 150%; margin: 0px;"
-                              >
-                                <strong>Game</strong>
-                              </p>
-                              <p class="heading" style="margin: 0px;">
-                                Select the game your network is running
-                              </p>
-                              <v-divider class="mt-4" />
-                              <v-btn
-                                @click="
-                                  (setup.game = 'minecraft'),
-                                    (setup.stepper = 2)
-                                "
-                                depressed
-                                block
-                                color="secondary"
-                                class="mt-4"
-                                >Minecraft: Java Edition</v-btn
-                              >
-                              <v-btn
-                                @click="
-                                  (setup.game = 'minecraft_bedrock'),
-                                    (setup.stepper = 2)
-                                "
-                                depressed
-                                block
-                                color="secondary"
-                                class="mt-1"
-                                >Minecraft: Bedrock Edition</v-btn
-                              >
-                            </v-col>
-                          </v-row>
-                          <v-row no-gutters class="px-3">
-                            <v-col cols="6">
-                              <v-layout row wrap justify-start>
-                                <v-flex shrink>
-                                  <v-btn
-                                    outlined
-                                    v-if="!setup.mandatory"
-                                    color="secondary"
-                                    @click="
-                                      setup.dialog = false;
-                                      setup.stepper = 1;
-                                    "
-                                    >CANCEL</v-btn
-                                  >
-                                </v-flex>
-                              </v-layout>
-                            </v-col>
-                          </v-row>
-                        </v-stepper-content>
-
-                        <v-stepper-content step="2">
-                          <v-row class="mb-0 pb-0">
-                            <v-col v-if="setup.error != null" cols="12" sm="12">
-                              <v-expand-transition>
-                                <v-alert
-                                  class="mb-0"
-                                  text
-                                  color="primary"
-                                  v-show="setup.error != null"
-                                  >{{ setup.error }}</v-alert
-                                >
-                              </v-expand-transition>
-                            </v-col>
-                            <v-col cols="12" sm="12">
-                              <v-text-field
-                                hide-details
-                                v-model="setup.name"
-                                label="Network Name"
-                                required
-                                outlined
-                              ></v-text-field>
-                            </v-col>
-                            <v-col cols="6" sm="6">
-                              <v-text-field
-                                hide-details
-                                v-model="setup.cname"
-                                label="Subdomain"
-                                required
-                                outlined
-                              ></v-text-field>
-                            </v-col>
-                            <v-col cols="6" sm="6">
-                              <v-text-field
-                                hide-details
-                                label="purecore.io"
-                                outlined
-                                disabled
-                              ></v-text-field>
-                            </v-col>
-                            <v-col cols="12" sm="12">
-                              <v-checkbox
-                                hide-details
-                                v-model="setup.ipmode"
-                                color="primary"
-                                label="My network is already being hosted"
-                              ></v-checkbox>
-                            </v-col>
-                          </v-row>
-                          <v-expand-transition>
-                            <v-row v-show="setup.ipmode">
-                              <v-col cols="12" md="10" sm="8">
-                                <v-text-field
-                                  hide-details
-                                  v-model="setup.ip"
-                                  class="ma-0"
-                                  label="IP"
-                                  outlined
-                                ></v-text-field>
-                              </v-col>
-                              <v-col cols="12" md="2" sm="4">
-                                <v-text-field
-                                  hide-details
-                                  v-model="setup.port"
-                                  class="ma-0"
-                                  label="Port"
-                                  outlined
-                                ></v-text-field>
-                              </v-col>
-                            </v-row>
-                          </v-expand-transition>
-                          <v-row no-gutters class="px-3">
-                            <v-col cols="6">
-                              <v-layout row wrap justify-start>
-                                <v-flex shrink>
-                                  <v-btn
-                                    outlined
-                                    v-if="!setup.mandatory"
-                                    color="secondary"
-                                    @click="
-                                      setup.dialog = false;
-                                      setup.stepper = 1;
-                                    "
-                                    >CANCEL</v-btn
-                                  >
-                                </v-flex>
-                              </v-layout>
-                            </v-col>
-                            <v-col cols="6">
-                              <v-layout row wrap justify-end>
-                                <v-flex shrink>
-                                  <v-btn
-                                    depressed
-                                    color="primary"
-                                    @click="
-                                      setup.stepper = 3;
-                                      createNetwork();
-                                    "
-                                    >NEXT</v-btn
-                                  >
-                                </v-flex>
-                              </v-layout>
-                            </v-col>
-                          </v-row>
-                        </v-stepper-content>
-
-                        <v-stepper-content step="3">
-                          <v-expand-transition>
-                            <div v-show="!setup.created">
-                              <center
-                                style="padding-top: 50px; padding-bottom: 50px"
-                              >
-                                <v-progress-circular
-                                  indeterminate
-                                  color="primary"
-                                ></v-progress-circular>
-                              </center>
-                            </div>
-                          </v-expand-transition>
-                          <v-expand-transition>
-                            <div>
-                              <v-row v-show="setup.created">
-                                <v-col cols="12">
-                                  <p
-                                    class="heading"
-                                    style="font-size: 150%; margin: 0px;"
-                                  >
-                                    <strong>Installation</strong>
-                                  </p>
-                                  <p class="heading" style="margin: 0px;">
-                                    Install the plugins on your network
-                                  </p>
-                                  <v-divider class="mt-4" />
-
-                                  <router-link
-                                    :to="{
-                                      name: 'ServerList',
-                                      params: { mode: 'proxy' },
-                                    }"
-                                  >
-                                    <v-btn
-                                      @click="
-                                        network.dialog = false;
-                                        setup.stepper = 1;
-                                        switchingNetworks = false;
-                                      "
-                                      depressed
-                                      block
-                                      color="secondary"
-                                      class="mt-4"
-                                      >Multiple Server Setup (Waterfall,
-                                      Bungeecord, etc)</v-btn
-                                    >
-                                  </router-link>
-
-                                  <router-link
-                                    :to="{
-                                      name: 'ServerList',
-                                      params: { mode: 'single' },
-                                    }"
-                                  >
-                                    <v-btn
-                                      @click="
-                                        network.dialog = false;
-                                        setup.stepper = 1;
-                                        switchingNetworks = false;
-                                      "
-                                      depressed
-                                      block
-                                      color="secondary"
-                                      class="mt-1"
-                                      >Single Server Setup (Spigot, Bukkit,
-                                      etc)</v-btn
-                                    >
-                                  </router-link>
-                                </v-col>
-                              </v-row>
-                              <v-row no-gutters class="px-3">
-                                <v-col cols="6">
-                                  <v-layout row wrap justify-start>
-                                    <v-flex shrink>
-                                      <v-btn
-                                        outlined
-                                        color="secondary"
-                                        @click="
-                                          network.dialog = false;
-                                          setup.stepper = 1;
-                                        "
-                                        >SKIP</v-btn
-                                      >
-                                    </v-flex>
-                                  </v-layout>
-                                </v-col>
-                              </v-row>
-                            </div>
-                          </v-expand-transition>
-                        </v-stepper-content>
-                      </v-stepper-items>
-                    </v-stepper>
-                  </v-dialog>
+                  <v-btn
+                    to="/setup/"
+                    @click="network.dialog = false"
+                    class="ma-2"
+                    v-on="on"
+                    outlined
+                    color="primary"
+                    >CREATE NETWORK</v-btn
+                  >
                 </v-flex>
               </v-layout>
             </v-col>
@@ -632,8 +376,7 @@ export default {
           .then(function(networks) {
             main.availableNetworks = networks;
             if (networks.length <= 0) {
-              main.network.dialog = true;
-              main.setup.mandatory = true;
+              main.$router.push({ path: "/setup/" });
             } else {
               if (main.network.selectedId == null) {
                 main.network.dialog = true;
@@ -668,5 +411,12 @@ export default {
 @import url("https://fonts.googleapis.com/css?family=Barlow&display=swap");
 * {
   font-family: "Barlow", sans-serif;
+}
+.logo {
+  filter: grayscale(1);
+  transition: 200ms;
+}
+.logo:hover {
+  filter: grayscale(0);
 }
 </style>

@@ -23,13 +23,6 @@ Vue.use(VueCodemirror, {
   }
 })
 
-Vue.config.productionTip = false
-new Vue({
-  router,
-  store,
-  vuetify,
-  render: h => h(App)
-}).$mount('#app')
 
 const gauthOption = {
   clientId: '593217935798-1h8jef218evbleu7i5su8ctds6urp12f.apps.googleusercontent.com',
@@ -42,5 +35,13 @@ Vue.use(GAuth, gauthOption)
 Vue.use(VueGtag, {
   config: { id: "G-VJ3VLD1HH2" }
 });
+
+Vue.config.productionTip = false
+new Vue({
+  router,
+  store,
+  vuetify,
+  render: h => h(App)
+}).$mount('#app')
 
 

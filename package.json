@@ -7,29 +7,27 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
-  "alias": {
-    "vue": "./node_modules/vue/dist/vue.esm.js"
-  },
   "dependencies": {
-    "@stripe/stripe-js": "^1.7.0",
+    "@stripe/stripe-js": "^1.8.0",
     "animated-number-vue": "^1.0.0",
     "apexcharts": "^3.19.3",
     "canvas-confetti": "^1.2.0",
     "core-js": "^3.6.5",
     "country-region-data": "^1.6.0",
     "lottie-vuejs": "^0.3.7",
-    "mapbox-gl": "^1.11.0",
-    "purecore": "^1.14.2",
+    "mapbox-gl": "^1.11.1",
+    "purecore": "^1.15.7",
     "vue": "^2.6.11",
-    "vue-apexcharts": "^1.5.3",
+    "vue-and-devices-mocks": "^1.0.0",
+    "vue-apexcharts": "^1.6.0",
     "vue-codemirror": "^4.0.6",
-    "vue-google-oauth2": "^1.5.4",
-    "vue-gtag": "^1.7.0",
+    "vue-google-oauth2": "^1.5.5",
+    "vue-gtag": "^1.8.0",
     "vue-mapbox": "^0.4.1",
     "vue-router": "^3.3.4",
     "vue-smooth-height": "^1.6.4",
     "vue-stripe-elements-plus": "^0.3.2",
-    "vuetify": "^2.3.3",
+    "vuetify": "^2.3.6",
     "vuex": "^3.5.1"
   },
   "devDependencies": {
@@ -41,11 +39,11 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
-    "sass": "^1.26.9",
+    "sass": "^1.26.10",
     "sass-loader": "^8.0.2",
-    "vue-cli-plugin-vuetify": "^2.0.6",
+    "vue-cli-plugin-vuetify": "^2.0.7",
     "vue-template-compiler": "^2.6.11",
-    "vuetify-loader": "^1.5.0"
+    "vuetify-loader": "^1.6.0"
   },
   "eslintConfig": {
     "root": true,
@@ -66,5 +64,8 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "alias": {
+    "vue": "./node_modules/vue/dist/vue.esm.js"
+  }
 }

@@ -5,10 +5,12 @@
         <v-icon>mdi-chevron-right</v-icon>
       </template>
     </v-breadcrumbs>
-    <v-alert color="primary" text>This feature is still under development.</v-alert>
-
     <div v-if="servers.length > 1 && network != null">
-      <ServerRow v-show="true" name="Proxy Instance" :uuid="network.uuid"></ServerRow>
+      <ServerRow
+        v-show="true"
+        name="Proxy Instance"
+        :uuid="network.uuid"
+      ></ServerRow>
       <v-divider style="margin-top: 10px; margin-bottom: 10px"></v-divider>
     </div>
 
@@ -28,27 +30,103 @@
 
     <!-- dialog -->
 
+    <div v-if="servers != null && servers.length <= 0">
+      <v-alert class="mt-10 mb-10" text color="primary">
+        please, setup your first server to start using purecore
+      </v-alert>
+      <v-row align="center">
+        <v-col class="text-center pt-10 pb-10">
+          <div>
+            <v-icon large class="mb-6">
+              storage
+            </v-icon>
+          </div>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                to="/servers/list/proxy"
+                color="primary"
+                depressed
+                rounded
+                v-bind="attrs"
+                @click="
+                  setup.active = true;
+                  setup.mode = 'proxy';
+                "
+                v-on="on"
+              >
+                multi-server setup
+              </v-btn>
+            </template>
+            <span
+              >perfect for proxied servers with bungeecord, waterfall or
+              others</span
+            >
+          </v-tooltip>
+        </v-col>
+        <v-col class="text-center pt-10 pb-10">
+          <div>
+            <v-icon large class="mb-6">
+              dns
+            </v-icon>
+          </div>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                to="/servers/list/single"
+                color="primary"
+                depressed
+                rounded
+                v-bind="attrs"
+                @click="
+                  setup.active = true;
+                  setup.mode = 'single';
+                "
+                v-on="on"
+              >
+                single-server setup
+              </v-btn>
+            </template>
+            <span>perfect for single-instance servers</span>
+          </v-tooltip>
+        </v-col>
+      </v-row>
+    </div>
+
+    <v-btn
+      v-if="servers != null && servers.length > 0"
+      style="float: right"
+      color="primary"
+      @click="setup.active = true"
+      dark
+      >Add Server
+    </v-btn>
+
     <v-dialog v-model="setup.active" persistent max-width="600px">
-      <template v-slot:activator="{ on }">
-        <v-btn style="float: right" color="primary" dark v-on="on">Add Server</v-btn>
-      </template>
       <v-stepper v-model="e1">
-        <v-stepper-header>
-          <v-stepper-step :complete="e1 > 1" step="1">Define</v-stepper-step>
-
-          <v-divider></v-divider>
-
-          <v-stepper-step :complete="e1 > 2" step="2">Setup</v-stepper-step>
-        </v-stepper-header>
-
         <v-stepper-items>
           <v-stepper-content step="1">
-            <v-expand-transition>
-              <v-alert text color="primary" v-show="setup.error!=null">{{setup.error}}</v-alert>
-            </v-expand-transition>
-            <v-row>
-              <v-col cols="12">
-                <v-text-field v-model="setup.name" outlined label="Instance Name*" required></v-text-field>
+            <v-row class="mt-0 pt-0">
+              <v-col class="pt-0" cols="12">
+                <v-text-field
+                  v-model="setup.name"
+                  outlined
+                  label="Instance Name"
+                  autocomplete="off"
+                  required
+                  hide-details
+                ></v-text-field>
+                <v-alert class="mt-4" color="primary" text>
+                  Spaces will be converted to underscores
+                </v-alert>
+                <v-alert
+                  transition="scale-transition"
+                  :value="setup.error != null"
+                  text
+                  color="primary"
+                >
+                  {{ setup.error }}</v-alert
+                >
               </v-col>
             </v-row>
             <v-row no-gutters class="px-3">
@@ -58,16 +136,30 @@
                     <v-btn
                       outlined
                       color="secondary"
-                      v-if="(setup.mode=='view'||setup.mode=='single')||(setup.mode=='proxy'&&servers.length>1)"
-                      @click="setup.active = false;e1=1"
-                    >CANCEL</v-btn>
+                      v-if="
+                        setup.mode == 'view' ||
+                          setup.mode == 'single' ||
+                          (setup.mode == 'proxy' && servers.length > 1)
+                      "
+                      @click="
+                        setup.active = false;
+                        e1 = 1;
+                      "
+                      >CANCEL</v-btn
+                    >
                   </v-flex>
                 </v-layout>
               </v-col>
               <v-col cols="6">
                 <v-layout row wrap justify-end>
                   <v-flex shrink>
-                    <v-btn depressed color="primary" @click="createServer()">NEXT</v-btn>
+                    <v-btn
+                      :loading="setup.loading"
+                      depressed
+                      color="primary"
+                      @click="createServer()"
+                      >Create</v-btn
+                    >
                   </v-flex>
                 </v-layout>
               </v-col>
@@ -78,85 +170,70 @@
             <v-expand-transition>
               <div v-show="!setup.created">
                 <center style="padding-top: 50px; padding-bottom: 50px">
-                  <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                  <v-progress-circular
+                    indeterminate
+                    color="primary"
+                  ></v-progress-circular>
                 </center>
               </div>
             </v-expand-transition>
             <v-expand-transition>
               <div v-show="setup.created">
-                <v-row justify="center" align="center">
-                  <v-col cols="8" md="9" sm="12">
-                    <v-text-field
-                      type="password"
-                      hide-details
-                      :loading="setup.key.loading"
-                      :value="setup.key.value"
-                      disabled
-                      label="Key"
-                      required
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="4" md="3" sm="12">
+                <v-alert text color="primary">
+                  Your instance has been created. Install the plugin and copy
+                  they key in your config
+                </v-alert>
+                <v-alert
+                  v-if="
+                    mode == 'proxy' &&
+                      instances != null &&
+                      instances.length <= 1
+                  "
+                  text
+                  color="primary"
+                  >You should add at least two instances before setting up your
+                  proxy instance</v-alert
+                >
+                <v-row no-gutters>
+                  <v-col cols="12" sm="6">
                     <v-btn
-                      @click="copyKey()"
-                      :disabled="setup.key.loading"
-                      :loading="setup.key.loading"
-                      block
-                      text
                       outlined
                       color="primary"
-                    >Copy</v-btn>
+                      :block="!$vuetify.breakpoint.smAndUp"
+                      :class="!$vuetify.breakpoint.smAndUp ? 'mb-2' : ''"
+                      v-if="
+                        setup.mode == 'view' ||
+                          setup.mode == 'single' ||
+                          (setup.mode == 'proxy' && servers.length > 1)
+                      "
+                      @click="
+                        setup.active = false;
+                        e1 = 1;
+                      "
+                      >CLOSE</v-btn
+                    >
                   </v-col>
-                </v-row>
-                <v-expand-transition>
-                  <v-row v-show="false">
-                    <v-col cols="12">
-                      <v-divider></v-divider>
-                    </v-col>
-                    <v-col cols="12" md="5" sm="12">
-                      <v-btn block color="primary" outlined>Plugin (.jar)</v-btn>
-                    </v-col>
-                    <v-col cols="12" md="2" sm="12" class="text-center">
-                      <v-container>
-                        <v-row justify="center">Or</v-row>
-                      </v-container>
-                    </v-col>
-                    <v-col cols="12" md="5" sm="12">
-                      <v-btn block color="primary" outlined>Plugin + Config (.zip)</v-btn>
-                    </v-col>
-                    <v-col cols="12">
-                      <v-alert
-                        text
-                        color="primary"
-                        v-if="shouldAskProxy"
-                      >You should add at least two instances before setting up your proxy instance</v-alert>
-                    </v-col>
-                  </v-row>
-                </v-expand-transition>
-                <v-row no-gutters class="px-3">
-                  <v-col cols="6">
-                    <v-layout row wrap justify-start>
-                      <v-flex shrink>
-                        <v-btn
-                          outlined
-                          color="secondary"
-                          v-if="(setup.mode=='view'||setup.mode=='single')||(setup.mode=='proxy'&&servers.length>1)"
-                          @click="setup.active = false;e1=1"
-                        >CLOSE</v-btn>
-                      </v-flex>
-                    </v-layout>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-layout row wrap justify-end>
-                      <v-flex shrink>
-                        <v-btn
-                          depressed
-                          color="primary"
-                          v-if="setup.mode=='proxy'"
-                          @click="createAnother()"
-                        >ADD ANOTHER</v-btn>
-                      </v-flex>
-                    </v-layout>
+                  <v-col class="text-right" cols="12" sm="6">
+                    <v-btn
+                      @click="copyKey()"
+                      v-if="!(setup.mode == 'proxy' && servers.length > 1)"
+                      :disabled="setup.key.loading"
+                      :loading="setup.key.loading"
+                      :block="!$vuetify.breakpoint.smAndUp"
+                      :class="!$vuetify.breakpoint.smAndUp ? 'mb-2' : ' mr-2'"
+                      outlined
+                      color="primary"
+                      >Copy Key</v-btn
+                    >
+                    <v-btn
+                      depressed
+                      color="primary"
+                      :block="!$vuetify.breakpoint.smAndUp"
+                      :class="!$vuetify.breakpoint.smAndUp ? 'mb-2' : ''"
+                      v-if="setup.mode == 'proxy'"
+                      @click="createAnother()"
+                      >Add Another</v-btn
+                    >
                   </v-col>
                 </v-row>
               </div>
@@ -169,13 +246,21 @@
     <v-dialog v-model="setup.proxyAsking" persistent max-width="400px">
       <v-card class="pa-5">
         <h2>Setup proxy now?</h2>
-        <p>Do you want to setup your proxy instance already? Or do you prefer keep adding servers?</p>
+        <p>
+          Do you want to setup your proxy instance already? Or do you prefer
+          keep adding servers?
+        </p>
         <v-divider class="mt-4 mb-4" />
         <v-row no-gutters class="px-3">
           <v-col cols="6">
             <v-layout row wrap justify-start>
               <v-flex shrink>
-                <v-btn outlined color="secondary" @click="setup.proxyAsking = false">KEEP ADDING</v-btn>
+                <v-btn
+                  outlined
+                  color="secondary"
+                  @click="setup.proxyAsking = false"
+                  >KEEP ADDING</v-btn
+                >
               </v-flex>
             </v-layout>
           </v-col>
@@ -185,8 +270,12 @@
                 <v-btn
                   depressed
                   color="primary"
-                  @click="setup.active=false;setup.proxyAsking=false;"
-                >SETUP</v-btn>
+                  @click="
+                    setup.active = false;
+                    setup.proxyAsking = false;
+                  "
+                  >SETUP</v-btn
+                >
               </v-flex>
             </v-layout>
           </v-col>
@@ -198,7 +287,6 @@
   </div>
 </template>
 
-
 <script>
 import ServerRow from "../../../components/Instance/ServerRow";
 import core from "purecore";
@@ -206,11 +294,19 @@ import core from "purecore";
 export default {
   name: "ServersList",
   components: {
-    ServerRow: ServerRow
+    ServerRow: ServerRow,
   },
   props: ["mode"],
+  watch: {
+    e1(value) {
+      if (value == 1) {
+        this.setup.name = "";
+      }
+    },
+  },
   data: () => ({
     setup: {
+      loading: false,
       mode: null,
       created: false,
       proxyAsked: false,
@@ -220,8 +316,8 @@ export default {
       name: "",
       key: {
         value: "",
-        loading: true
-      }
+        loading: true,
+      },
     },
     loadingNew: false,
     session: null,
@@ -230,17 +326,17 @@ export default {
       {
         text: "Servers",
         disabled: true,
-        href: ""
+        href: "",
       },
       {
         text: "List",
         disabled: false,
-        href: "#"
-      }
+        href: "#",
+      },
     ],
     dialog: false,
     e1: 1,
-    network: null
+    network: null,
   }),
   methods: {
     copyKey() {
@@ -252,17 +348,16 @@ export default {
       document.body.removeChild(dummy);
     },
     createServer() {
-      this.e1 = 2;
       this.setup.created = false;
       var mainObj = this;
+      mainObj.setup.loading = true;
       mainObj.setup.key.loading = true;
-
-      var coreInstance = new core(JSON.parse(localStorage.session));
-      coreInstance
-        .getInstance(localStorage.network)
-        .asNetwork()
+      mainObj.setup.error = null;
+      mainObj.network
         .createServer(mainObj.setup.name)
         .then(function(instance) {
+          mainObj.setup.loading = false;
+          mainObj.e1 = 2;
           mainObj.setup.created = true;
           mainObj.setup.error = null;
           instance.getKeys().then(function(keys) {
@@ -272,8 +367,9 @@ export default {
           mainObj.loadServers();
         })
         .catch(function(error) {
+          mainObj.setup.loading = false;
           mainObj.setup.created = false;
-          mainObj.setup.error = error.message;
+          mainObj.setup.error = error;
           mainObj.e1 = 1;
         });
     },
@@ -312,7 +408,7 @@ export default {
           }
         });
       }
-    }
+    },
   },
   mounted() {
     let vm = this;
@@ -321,6 +417,6 @@ export default {
     vm.$nextTick(function() {
       vm.setup.mode = vm.mode;
     });
-  }
+  },
 };
 </script>
