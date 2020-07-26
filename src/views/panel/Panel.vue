@@ -214,8 +214,8 @@ export default {
           .then(function(instance) {
             mainObj.selectedNetworkName = instance.getName();
           })
-          .catch(function(err) {
-            alert(err.message);
+          .catch(function() {
+            //alert(err.message);
           });
       } catch (error) {
         setTimeout(() => {
