@@ -140,7 +140,7 @@
           </v-col>
           <v-col v-if="newPerkObj == null" cols="auto">
             <v-btn
-              :class="$vuetify.breakpoint.smAndUp ? 'pt-5 pb-9':''"
+              :class="$vuetify.breakpoint.smAndUp ? 'pt-7 pb-7':''"
               :disabled="newPerkEditing"
               color="primary"
               :icon="!$vuetify.breakpoint.smAndUp"
@@ -212,7 +212,7 @@
         <v-expand-transition>
           <v-row align="center" v-show="showActionDesc">
             <v-col>
-              <v-alert :color="allowAction ? 'primary' : 'warning'" class="mb-0 pa-0">
+              <v-alert transition="scale-transition" :value="actionDesc!='Awaiting information'" :color="allowAction ? 'primary' : 'warning'" class="mb-0 pa-0">
                 <v-list-item>
                   <v-list-item-content>
                     <p class="mb-0 mt-0">{{actionDesc}}</p>

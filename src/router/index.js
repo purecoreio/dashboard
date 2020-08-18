@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Panel from "../views/panel/Panel";
 import Account from "../views/account/Account";
+import Hosting from "../views/hosting/Hosting";
 import Login from "../views/login/Login";
 
 Vue.use(VueRouter);
@@ -9,6 +10,7 @@ Vue.use(VueRouter);
 const routes = [
   { path: "/", redirect: "/analytics/growth" },
   { path: "/account/", redirect: "/account/plan" },
+  { path: "/hosting/", redirect: "/hosting/list" },
   {
     path: "*",
     name: "404",
@@ -18,6 +20,18 @@ const routes = [
     path: "/login/",
     name: "Login",
     component: Login,
+  },
+  {
+    path: "/hosting/",
+    name: "Hosting",
+    component: Hosting,
+    children: [
+      {
+        path: "/hosting/list",
+        name: "HostingList",
+        component: () => import("../views/hosting/List.vue"),
+      },
+    ],
   },
   {
     path: "/account/",
