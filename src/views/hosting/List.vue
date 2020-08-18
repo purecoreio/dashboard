@@ -5,7 +5,7 @@
       style="padding-bottom:50px!important;padding-top:50px!important"
     >
       <v-row align="center">
-        <v-col class="flex-grow-0 flex-shrink-1">
+        <v-col v-if="$vuetify.breakpoint.mdAndUp" class="flex-grow-0 flex-shrink-1">
           <v-img v-if="!$vuetify.theme.dark" width="150px" src="@/assets/oem/rizentextblack.svg" />
           <v-img v-if="$vuetify.theme.dark" width="150px" src="@/assets/oem/rizentext.svg" />
         </v-col>
