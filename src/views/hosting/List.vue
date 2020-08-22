@@ -19,11 +19,21 @@
       </v-row>
     </v-card>
     <v-row align="center">
-      <v-col class="flex-grow-1 flex-shrink-0"></v-col>
+      <v-col class="flex-grow-1 flex-shrink-0">
+        <v-chip-group v-model="region" mandatory active-class="primary--text">
+          <v-chip v-for="tag in regionalTags" :key="tag">{{ tag }}</v-chip>
+        </v-chip-group>
+      </v-col>
       <v-col class="flex-grow-0 flex-shrink-1">
         <v-switch :disabled="!nocompare != compare" label="compare" @change="comparepricing()"></v-switch>
       </v-col>
     </v-row>
+    <v-alert
+      :value="region!=0"
+      transition="scale-transition"
+      text
+      color="primary"
+    >We are planning on releasing our hosting services outside Europe, please, follow us on social media to keep yourself posted!</v-alert>
     <v-alert
       :value="compare"
       transition="scale-transition"
@@ -33,7 +43,7 @@
     <v-row>
       <v-col v-for="i in 9" :key="i" cols="12" md="4" xl="3">
         <v-card style="overflow:hidden">
-          <v-expand-transition>
+          <v-fade-transition>
             <div v-show="nocompare" class="pa-2">
               <v-list-item>
                 <v-list-item-content>
@@ -88,7 +98,9 @@
                 </v-list-item-content>
                 <v-list-item-action>
                   <v-chip>
-                    <v-icon class="mr-1" small>memory</v-icon>AMD Ryzen 7 3700X
+                    <v-icon class="mr-1" small>memory</v-icon>
+                    <span v-if="region==0">AMD Ryzen 7 3700X</span>
+                    <span v-if="region==1">AMD Ryzen 7 3700X</span>
                   </v-chip>
                 </v-list-item-action>
               </v-list-item>
@@ -103,8 +115,8 @@
                 </v-list-item-action>
               </v-list-item>
             </div>
-          </v-expand-transition>
-          <v-expand-transition>
+          </v-fade-transition>
+          <v-fade-transition>
             <div v-show="compare" class="pa-2">
               <v-list-item>
                 <v-list-item-content>
@@ -164,7 +176,7 @@
                 <v-list-item-action>
                   <v-btn
                     text
-                    href="https://pebblehost.com/minecraft#premium"
+                    href="https://billing.pebblehost.com/cart.php?a=confproduct&i=1"
                     target="_blank"
                     block
                   >pebblehost</v-btn>
@@ -173,6 +185,7 @@
               <v-text-field
                 type="number"
                 v-model="price"
+                append-icon="euro"
                 label="compare price (in eur)"
                 hint="spoiler: purecore is better"
                 outlined
@@ -180,15 +193,20 @@
               ></v-text-field>
               <v-alert :value="price!=null" transition="scale-transition" text color="primary">
                 <span
-                  v-if="(price-(Math.round((((i+1)*2)/64)*87)+0.99))*12>0"
-                >{{Math.round((price-(Math.round((((i+1)*2)/64)*87)+0.99))*12*100)/100}}€ of yearly savings</span>
+                  v-if="(price-(Math.round((((i+1)*2)/64)*objective)+0.99))*12>0"
+                >{{Math.round((price-(Math.round((((i+1)*2)/64)*objective)+0.99))*12*100)/100}}€ of yearly savings</span>
                 <span
-                  v-if="(price-(Math.round((((i+1)*2)/64)*87)+0.99))*12<=0"
+                  v-if="(price-(Math.round((((i+1)*2)/64)*objective)+0.99))*12<=0"
                 >No savings using purecore</span>
               </v-alert>
             </div>
-          </v-expand-transition>
-          <v-btn x-large tile depressed block>add ({{Math.round((((i+1)*2)/64)*87)+0.99}}€/Mo)</v-btn>
+          </v-fade-transition>
+          <v-btn
+            x-large
+            tile
+            depressed
+            block
+          >add ({{Math.round((((i+1)*2)/64)*objective)+0.99}}€/Mo)</v-btn>
         </v-card>
       </v-col>
     </v-row>
@@ -236,21 +254,33 @@ export default {
         this.compare = false;
         setTimeout(() => {
           this.nocompare = true;
-        }, 500);
+        }, 250);
       } else {
         this.nocompare = false;
         setTimeout(() => {
           this.compare = true;
-        }, 500);
+        }, 250);
       }
     },
   },
   mounted() {},
+  watch: {
+    region(val) {
+      if (val === 0) {
+        this.objective = 90;
+      } else {
+        this.objective = 150;
+      }
+    },
+  },
   data: () => {
     return {
       nocompare: true,
       compare: false,
+      objective: 90,
       price: null,
+      region: 0,
+      regionalTags: ["Europe", "North America"],
     };
   },
 };
