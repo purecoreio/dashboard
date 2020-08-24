@@ -31,6 +31,12 @@ const routes = [
         name: "HostingList",
         component: () => import("../views/hosting/List.vue"),
       },
+      {
+        path: "/hosting/checkout/:template/:machine",
+        name: "HostingCheckout",
+        props: true,
+        component: () => import("../views/hosting/Checkout.vue"),
+      },
     ],
   },
   {

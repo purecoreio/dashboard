@@ -2,33 +2,87 @@
   <v-app id="app">
     <!-- login form -->
 
-    <v-app-bar
-      elevation="0"
-      app
-      clipped-left
-      v-if="$router.currentRoute.name != 'Login'"
-    >
-      <v-app-bar-nav-icon
-        @click="openDrawer()"
-        v-if="$vuetify.breakpoint.smAndDown && drawer"
-      />
+    <v-app-bar elevation="0" app clipped-left v-if="$router.currentRoute.name != 'Login'">
+      <v-app-bar-nav-icon @click="openDrawer()" v-if="$vuetify.breakpoint.smAndDown && drawer" />
       <v-row v-if="$vuetify.breakpoint.mdAndUp" no-gutters>
         <v-col>
-          <div class="logo">
+          <div @click="$router.push({path:'/'})" class="logo">
             <v-avatar size="20">
               <v-img src="./assets/c.png" />
             </v-avatar>
-            <strong class="ml-2 primary--text" style="font-size:18px">
-              purecore
-            </strong>
+            <strong class="ml-2 primary--text" style="font-size:18px">purecore</strong>
           </div>
         </v-col>
-        <v-col> </v-col>
+        <v-col></v-col>
       </v-row>
       <v-spacer />
-      <v-btn to="/account/" icon>
-        <v-icon>account_circle</v-icon>
-      </v-btn>
+      <v-menu transition="scale-transition" origin="top right" max-width="400px" open-on-hover bottom left>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn v-bind="attrs" v-on="on" icon>
+            <v-badge
+              color="primary"
+              :content="notifications.lenght"
+              :value="notifications.length>0"
+              bordered
+              bottom
+              dot
+              offset-x="10"
+              offset-y="10"
+            >
+              <v-icon>account_circle</v-icon>
+            </v-badge>
+          </v-btn>
+        </template>
+
+        <v-card>
+          <div style="max-height:400px">
+            <v-list>
+              <div>
+                <v-list-item to="/account/">
+                  <v-list-item-content>Account</v-list-item-content>
+                  <v-list-item-icon>
+                    <v-icon>account_circle</v-icon>
+                  </v-list-item-icon>
+                </v-list-item>
+              </div>
+            </v-list>
+            <v-divider />
+            <v-list>
+              <div v-for="notification in notifications" :key="notification.uuid">
+                <v-list-item
+                  :to="notification.action.replace('https://purecore.io/dashboard/#','')"
+                >
+                  <v-list-item-content class="text-justify">
+                    <h4>
+                      {{ notification.title }}
+                      <v-chip
+                        class="ml-2"
+                      >{{notification.creation.getHours()}}:{{notification.creation.getMinutes()}} {{notification.creation.getDay()}}/{{notification.creation.getMonth()+1}}</v-chip>
+                    </h4>
+                    {{ notification.message }}
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider />
+              </div>
+              <v-list-item v-if="notifications.length>0">
+                <v-list-item-content class="pt-7 pb-7">
+                  <center>
+                    <h4 class="mb-2">you are all set!</h4>
+                    <h5>click on the notifications to make 'em disappear</h5>
+                  </center>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item v-if="notifications.length<=0">
+                <v-list-item-content class="pt-7 pb-7">
+                  <center>
+                    <h4>no pending notifications</h4>
+                  </center>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </div>
+        </v-card>
+      </v-menu>
       <v-dialog v-model="network.dialog" persistent max-width="500px">
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" icon>
@@ -70,8 +124,7 @@
                     class="ma-2"
                     outlined
                     color="secondary"
-                    >CLOSE</v-btn
-                  >
+                  >CLOSE</v-btn>
                 </v-flex>
               </v-layout>
             </v-col>
@@ -85,8 +138,7 @@
                     v-on="on"
                     outlined
                     color="primary"
-                    >CREATE NETWORK</v-btn
-                  >
+                  >CREATE NETWORK</v-btn>
                 </v-flex>
               </v-layout>
             </v-col>
@@ -132,9 +184,7 @@
       <v-footer inset absolute>
         <center style="width: 100%">
           <v-btn style="text-transform: none" text :to="{ name: 'About' }">
-            <span class="px-4"
-              >&copy; 2019 / {{ new Date().getFullYear() }} quiquelhappy</span
-            >
+            <span class="px-4">&copy; 2019 / {{ new Date().getFullYear() }} quiquelhappy</span>
           </v-btn>
         </center>
       </v-footer>
@@ -184,13 +234,15 @@ export default {
     selectedNetwork: null,
     selectedNetworkName: null,
     switchingNetworks: false,
+    notifications: [],
+    loadingNotifications: false,
   }),
   mounted() {
     this.initialCheck();
   },
   watch: {
     network: {
-      handler: function(newData) {
+      handler: function (newData) {
         if (newData.selectedId != localStorage.getItem("network")) {
           localStorage.setItem("network", newData.selectedId);
         }
@@ -219,12 +271,12 @@ export default {
       coreInstance
         .getInstance(newNetwork, null, "NTW")
         .update()
-        .then(function() {
+        .then(function () {
           localStorage.network = newNetwork;
           mainObj.selectedNetwork = newNetwork;
           mainObj.selectorModel = newNetwork;
         })
-        .catch(function() {
+        .catch(function () {
           localStorage.removeItem("network");
           mainObj.selectedNetwork = null;
           mainObj.getAvailableNetworks();
@@ -303,15 +355,28 @@ export default {
           } else {
             this.network.selectedId = null;
           }
+          this.getNotifications();
           this.getAvailableNetworks();
         } catch (error) {
-          console.log(error)
+          console.log(error);
           localStorage.removeItem("session");
           this.toLogin();
         }
       } else {
         this.toLogin();
       }
+    },
+    getNotifications() {
+      let main = this;
+      main.loadingNotifications = true;
+      this.session
+        .getOwner()
+        .asAccount()
+        .getPendingNotifications()
+        .then((notifications) => {
+          main.loadingNotifications = false;
+          main.notifications = notifications;
+        });
     },
     createNetwork() {
       var mainObj = this;
@@ -352,13 +417,13 @@ export default {
       }
 
       promise
-        .then(function(network) {
+        .then(function (network) {
           mainObj.setup.created = true;
           mainObj.getAvailableNetworks();
           mainObj.selectedNetwork = network.getId();
           mainObj.network.dialog = true;
         })
-        .catch(function(error) {
+        .catch(function (error) {
           mainObj.setup.created = false;
           mainObj.setup.stepper = 2;
           mainObj.setup.error = error.message;
@@ -374,7 +439,7 @@ export default {
         let main = this;
         this.session
           .getNetworks()
-          .then(function(networks) {
+          .then(function (networks) {
             main.availableNetworks = networks;
             if (networks.length <= 0) {
               main.$router.push({ path: "/setup/" });
@@ -394,9 +459,9 @@ export default {
               main.setup.mandatory = false;
             }
           })
-          .catch(function(err) {
-            console.log("network list err")
-            console.log(err)
+          .catch(function (err) {
+            console.log("network list err");
+            console.log(err);
             localStorage.removeItem("session");
             main.checkSession();
           });

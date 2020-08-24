@@ -13,6 +13,10 @@ import 'codemirror/mode/javascript/javascript'
 import 'codemirror/mode/xml/xml'
 import 'codemirror/mode/css/css'
 
+import VueChatScroll from 'vue-chat-scroll'
+Vue.use(VueChatScroll)
+
+
 Vue.use(VueCodemirror, {
   options: {
     theme: 'base16-dark',

@@ -30,78 +30,32 @@
         </v-col>
       </v-row>
     </v-card>
-    <v-card class="pa-5 mb-2" outlined>
-      <div class="overline">HOSTING</div>
-      <v-row align="center" justify="center">
-        <v-col cols="12" md="10">
-          <p>
-            You are not hosting this instance on purecore, we are fine with that,
-            but hosting your instance in our servers will ensure your instance always
-            run on at least a dedicated core, and, as we have a really smart system that
-            detects how busy is your server, we can allocate more resources and dynamically
-            improve your server over time
-          </p>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn block depressed v-on="on" color="gray">SETUP</v-btn>
-            </template>
-            <span>WIP 😿</span>
-          </v-tooltip>
-        </v-col>
-      </v-row>
-    </v-card>
-    <v-card class="pa-5 mb-2" outlined>
-      <div class="overline">HEALTH</div>
-      <div style="position: relative">
-        <div style="filter: blur(5px)">
-          <apexchart
-            type="area"
-            group="machine"
-            height="200"
-            :options="chartOptions"
-            :series="series"
-          />
-          <apexchart
-            type="area"
-            group="machine"
-            height="200"
-            :options="chartOptions"
-            :series="series1"
-          />
-          <apexchart
-            type="area"
-            group="machine"
-            height="200"
-            :options="chartOptions"
-            :series="series2"
-          />
-        </div>
-        <div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%">
-          <v-container fill-height fluid>
-            <v-row align="center" justify="center">
-              <v-col>
-                <center>
-                  <h2 class="mb-4">This feature is being worked on</h2>
-                  <link
-                    href="https://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext"
-                    rel="stylesheet"
-                  />
-                  <a class="bmc-button" target="_blank" href="https://www.buymeacoffee.com/happy">
-                    <img
-                      src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
-                      alt="Buy me a coffee"
-                    />
-                    <span style="margin-left:15px;font-size:19px !important;">Buy me a coffee</span>
-                  </a>
-                </center>
-              </v-col>
-            </v-row>
-          </v-container>
-        </div>
-      </div>
-    </v-card>
+    <v-fade-transition>
+      <v-card v-show="hosted==false" class="pa-5 mb-2" outlined>
+        <div class="overline">HOSTING</div>
+        <v-row align="center" justify="center">
+          <v-col cols="12" md="10">
+            <p>
+              You are not hosting this instance on purecore, we are fine with that,
+              but hosting your instance in our servers will ensure your instance always
+              run on at least a dedicated core, take a look at our hosting plans!
+              You already have a dedicated machine? No problem! Use the purecore supervisor
+              and manage your instances from this panel!
+            </p>
+          </v-col>
+          <v-col cols="12" md="2">
+            <v-btn block depressed to="/hosting/" color="primary">SETUP</v-btn>
+          </v-col>
+        </v-row>
+      </v-card>
+    </v-fade-transition>
+    <v-fade-transition>
+      <Panel
+        v-show="instance.data!=null"
+        v-if="instance.data!=null"
+        :host="instance.data"
+      />
+    </v-fade-transition>
   </div>
 </template>
 
@@ -152,19 +106,36 @@
 
 <script>
 import core from "purecore";
-import VueApexCharts from "vue-apexcharts";
+import Panel from "@/components/Hosting/Panel";
 
 export default {
   name: "InstanceView",
   props: ["uuid"],
   mounted() {
     this.loadKeys();
+    this.loadHost();
   },
   components: {
-    apexchart: VueApexCharts
+    Panel,
   },
   methods: {
-    loadKeys: function() {
+    loadHost: function () {
+      var mainObj = this;
+      var coreInstance = new core(JSON.parse(localStorage.session)).getInstance(
+        mainObj.uuid
+      );
+
+      coreInstance
+        .getHost()
+        .then((host) => {
+          mainObj.instance.data = host;
+          mainObj.hosted = true;
+        })
+        .catch(() => {
+          mainObj.hosted = false;
+        });
+    },
+    loadKeys: function () {
       var mainObj = this;
       var coreInstance = new core(JSON.parse(localStorage.session)).getInstance(
         mainObj.uuid
@@ -172,41 +143,43 @@ export default {
 
       coreInstance
         .getKeys()
-        .then(function(keys) {
+        .then(function (keys) {
           mainObj.instance.key.list = keys;
         })
-        .catch(function(err) {
+        .catch(function (err) {
           mainObj.instance.key.error = err.message;
         });
     },
-    textToClipboard: function(text) {
+    textToClipboard: function (text) {
       var dummy = document.createElement("textarea");
       document.body.appendChild(dummy);
       dummy.value = text;
       dummy.select();
       document.execCommand("copy");
       document.body.removeChild(dummy);
-    }
+    },
   },
   data: () => ({
     instance: {
       key: {
         list: [],
-        error: ""
-      }
+        error: "",
+      },
+      data: null,
     },
+    hosted: null,
     chartOptions: {
       chart: {
         toolbar: {
-          show: false
-        }
+          show: false,
+        },
       },
       dataLabels: {
-        enabled: false
+        enabled: false,
       },
       stroke: {
         show: false,
-        curve: "smooth"
+        curve: "smooth",
       },
       colors: ["#ff8a65"],
       fill: {
@@ -216,51 +189,51 @@ export default {
           opacityFrom: 1,
           opacityTo: 0.3,
           stops: [0, 100],
-          colorStops: []
-        }
+          colorStops: [],
+        },
       },
       xaxis: {
         labels: {
-          show: false
+          show: false,
         },
         axisBorder: {
-          show: false
+          show: false,
         },
         axisTicks: {
-          show: false
+          show: false,
         },
         crosshairs: {
-          show: false
-        }
+          show: false,
+        },
       },
       yaxis: {
-        show: false
+        show: false,
       },
       legend: {
-        show: false
+        show: false,
       },
       grid: {
-        show: false
-      }
+        show: false,
+      },
     },
     series: [
       {
         name: "CPU Usage",
-        data: [100, 0, 20]
-      }
+        data: [100, 0, 20],
+      },
     ],
     series1: [
       {
         name: "TPS",
-        data: [20, 20, 18]
-      }
+        data: [20, 20, 18],
+      },
     ],
     series2: [
       {
         name: "RAM",
-        data: [16, 14, 15]
-      }
-    ]
-  })
+        data: [16, 14, 15],
+      },
+    ],
+  }),
 };
 </script>
