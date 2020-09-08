@@ -7,12 +7,12 @@
             <v-list-item>
               <v-list-item-content>
                 <v-list-item-title class="title">
-                  {{host.instance.name}}
+                  {{host.host.instance.name}}
                   <v-fade-transition>
                     <span style="font-size:14px" v-show="showStatus">{{connectionStatus}}</span>
                   </v-fade-transition>
                 </v-list-item-title>
-                <v-list-item-subtitle>{{host.instance.uuid}}</v-list-item-subtitle>
+                <v-list-item-subtitle>{{host.host.instance.uuid}}</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
 
@@ -54,7 +54,7 @@
           </v-fade-transition>
           <v-row no-gutters align="stretch">
             <v-col class="pa-5">
-              <span>{{host.machine.ipv4}}:{{host.port}}</span>
+              <span>{{host.host.machine.ipv4}}:{{host.host.port}}</span>
             </v-col>
             <v-col class="text-right">
               <v-btn
@@ -152,10 +152,10 @@ export default {
   props: ["host"],
   methods: {
     setupSocket() {
-      this.socket = io("http://" + this.host.machine.ipv4 + ":31518");
+      this.socket = io("http://" + this.host.host.machine.ipv4 + ":31518");
       this.socket
         .on("connect", () => {
-          this.socket.emit("authenticate", this.host);
+          this.socket.emit("authenticate", { auth: this.host.hash });
           this.connectionStatus = "connected";
           this.connectionProgress = 50;
         })

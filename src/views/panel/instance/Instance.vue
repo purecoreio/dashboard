@@ -126,7 +126,7 @@ export default {
       );
 
       coreInstance
-        .getHost()
+        .getHostAuth()
         .then((host) => {
           mainObj.instance.data = host;
           mainObj.hosted = true;
