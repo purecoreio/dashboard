@@ -1,177 +1,129 @@
 <template>
-  <v-container
-    style="margin-bottom: 0px !important; padding:0px;"
-    fill-height
-    fluid
+  <v-card
+    style="
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: 60px;
+    "
   >
-    <v-layout row wrap>
-      <v-flex d-flex xs6 v-if="$vuetify.breakpoint.mdAndUp">
-        <v-sheet
-          elevation="5"
-          width="100%"
-          :color="$vuetify.theme.dark ? 'grey darken-4' : 'primary'"
-          dark
-          tile
-          flat
+    <v-snackbar v-model="snackbar">
+      {{ text }}
+    </v-snackbar>
+    <div class="pt-5 pb-5">
+      <div class="d-flex align-center logoWhole justify-center">
+        <v-img
+          alt="purecore.io logo"
+          class="logoAnimation mr-4"
+          contain
+          src="@/assets/c.png"
+          max-width="40"
+          scale-transition
+        />
+        <span
+          class="logoText mr-3"
+          style="font-size: 30px; padding-bottom: 5px"
         >
-          <v-container fill-height fluid>
-            <v-row align="center" justify="center">
-              <v-col>
-                <center>
-                  <div style="max-width:400px">
-                    <h1>purecore</h1>
-                    <v-divider class="mt-4 mb-4" />
-                    <v-card
-                      hover
-                      color="white"
-                      class="text-left black--text mb-4"
-                    >
-                      <v-card-title>
-                        Introducing Team Accounts
-                      </v-card-title>
-                      <v-card-text class="black--text">
-                        Empower your staff team with our permission manager. Its
-                        the most modular permission manager ever seen on the
-                        sector. Limit every call, create permission groups and
-                        sync them automatically with software on your server.
-                        Now compatible with Luckperms.
-                      </v-card-text>
-                    </v-card>
-                    <v-card hover color="white" class="text-left black--text">
-                      <v-card-title>
-                        Introducing Premium
-                      </v-card-title>
-                      <v-card-text class="black--text">
-                        Get some extra perks and support purecore's development
-                        by subscribing to premium, now with a free 7-day trial
-                        for premium+.
-                      </v-card-text>
-                    </v-card>
-                  </div>
-                </center>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-sheet>
-      </v-flex>
-
-      <v-flex d-flex xs12 md6>
-        <v-container fill-height fluid>
-          <v-row align="center" justify="center">
-            <v-col>
-              <center>
-                <div style="max-width:400px">
-                  <div v-if="!$vuetify.breakpoint.mdAndUp">
-                    <h1 class="mb-3">purecore</h1>
-                    <v-divider class="mb-6" />
-                  </div>
-                  <v-card outlined class="mb-4">
-                    <div style="filter:blur(4px)">
-                      <v-card-text>
-                        Login as a staff member
-                      </v-card-text>
-                      <v-list
-                        class="pa-0"
-                        :color="!$vuetify.theme.dark ? 'grey lighten-4' : ''"
-                      >
-                        <v-list-item>
-                          <v-list-item-avatar>
-                            <v-avatar>
-                              <v-img
-                                src="https://minotar.net/helm/quiquelhappy"
-                              />
-                            </v-avatar>
-                          </v-list-item-avatar>
-                          <v-list-item-content>
-                            quiquelhappy
-                          </v-list-item-content>
-                          <v-list-item-action>
-                            <v-icon>
-                              lock
-                            </v-icon>
-                          </v-list-item-action>
-                        </v-list-item>
-                      </v-list>
-                    </div>
-                    <div
-                      style="position:absolute; left:0px;top:0px;width:100%;height:100%"
-                    >
-                      <p class="mb-0 mt-7"><b>Team Accounts</b></p>
-                      <span>In development</span>
-                    </div>
-                  </v-card>
-
-                  <v-btn
-                    @click="GoogleLoginHandle"
-                    v-if="!(session != null && session != undefined)"
-                    depressed
-                    large
-                    block
-                    :loading="loginLoading"
-                  >
-                    LOGIN WITH GOOGLE
-                    <v-avatar right size="25px" style="margin-left: 10px">
-                      <v-img src="../../assets/glogo.svg" alt="Login" />
-                    </v-avatar>
-                  </v-btn>
-                </div>
-              </center>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-flex>
-    </v-layout>
-  </v-container>
+          purecore
+          <v-chip color="primary" small class="betaChip"> BETA </v-chip>
+        </span>
+      </div>
+    </div>
+    <v-divider />
+    <v-sheet
+      style="max-width: 400px; margin-left: auto; margin-right: auto"
+      class="pl-2 pr-2 pt-4 pb-2"
+    >
+      <div class="mt-8" v-if="this.$vuetify.breakpoint.mdAndUp"></div>
+      <v-btn
+        v-for="oauth in oauths"
+        :key="oauth.name"
+        class="mb-2"
+        block
+        large
+        depressed
+        @click="handleLogin(oauth.loginName)"
+      >
+        <v-row align="center" justify="center" no-gutters>
+          <v-col class="flex-grow-0 flex-shrink-1">
+            <v-avatar size="20px" class="mr-3">
+              <v-img
+                :src="
+                  require(`@/assets/oauth/${String(
+                    oauth.name
+                  ).toLowerCase()}.svg`)
+                "
+              />
+            </v-avatar>
+          </v-col>
+          <v-col class="flex-grow-0 flex-shrink-1 text-center">
+            <p style="width: 160px" class="ma-0">
+              LOGIN WITH {{ String(oauth.displayName).toUpperCase() }}
+            </p>
+          </v-col>
+        </v-row>
+      </v-btn>
+      <div class="mt-10" v-if="this.$vuetify.breakpoint.mdAndUp"></div>
+    </v-sheet>
+    <v-sheet class="pa-3" style="background-color: rgba(0, 0, 0, 0.1)">
+      <center>By logging in, you accept our TOS and privacy policy</center>
+    </v-sheet>
+  </v-card>
 </template>
-
 <script>
-import core from "purecore";
-
 export default {
-  mounted() {
-    this.$emit("setDrawer", false);
-    if (
-      localStorage.getItem("session") != null &&
-      localStorage.getItem("session") != "null"
-    ) {
-      this.$router.replace({ path: "/" });
-    }
-  },
-  watch: {
-    session: function(val) {
-      if (val != null) {
-        localStorage.setItem("session", JSON.stringify(val));
-        this.$emit("initialCheck");
-      }
-    },
-  },
-  data: () => ({
-    session: null,
-    loginLoading: false,
-  }),
   methods: {
-    GoogleLoginHandle() {
-      this.loginLoading = true;
-      var mainObj = this;
-      this.$gAuth
-        .signIn()
-        .then((GoogleUser) => {
-          new core()
-            .fromToken(GoogleUser.getAuthResponse().id_token)
-            .then(function(session) {
-              mainObj.loginLoading = false;
-              mainObj.session = session;
-            })
-            .catch((err) => {
-              mainObj.loginLoading = false;
-              console.log(err);
-            });
+    handleLogin(method) {
+      this.$loginManager
+        .login(method)
+        .then(() => {
+          this.$router.push({ path: "/select/" });
         })
-        .catch(function(err) {
-          console.log(err);
-          mainObj.loginLoading = false;
+        .catch((err) => {
+          this.text = err.message;
+          this.snackbar = true;
         });
     },
+  },
+  mounted() {
+    if (this.$loginManager.loggedIn) {
+      this.$router.push({ path: "/select/" });
+    }
+  },
+  data: () => {
+    return {
+      snackbar: false,
+      text: "",
+      msalInstance: null,
+      oauths: [
+        {
+          name: "google",
+          loginName: "google",
+          displayName: "Google",
+        },
+        {
+          name: "discord",
+          loginName: "discord",
+          displayName: "Discord",
+        },
+        {
+          name: "steam",
+          loginName: "steam",
+          displayName: "steam",
+        },
+        {
+          name: "xbox",
+          loginName: "microsoft",
+          displayName: "Xbox",
+        },
+      ],
+      msalConfig: {
+        auth: {
+          clientId: "19b652b9-4426-48b0-878c-e6d93f2515b4",
+          redirectUri: "https://purecore.io/",
+        },
+      },
+    };
   },
 };
 </script>

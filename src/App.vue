@@ -1,490 +1,351 @@
 <template>
-  <v-app id="app">
-    <!-- login form -->
+  <v-app>
+    <div
+      v-if="$router.currentRoute.path.includes(`login`)"
+      style="
+        filter: grayscale(1);
+        opacity: 0.4;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0px;
+        left: 0px;
+      "
+    >
+      <particles-bg v-if="$vuetify.breakpoint.mdAndUp" type="polygon" />
+    </div>
+    <v-navigation-drawer
+      :value="
+        $router.currentRoute.path.includes(`network`) &&
+        $vuetify.breakpoint.mdAndUp
+      "
+      app
+      clipped
+      mini-variant
+      mini-variant-width="70px"
+    >
+      <v-list nav>
+        <v-list-item
+          v-for="(link, i) in networkLinks"
+          :key="i"
+          color="primary"
+          :to="link.path"
+          link
+        >
+          <v-list-item-icon>
+            <v-icon>{{ link.icon }}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>{{ $t(link.title) }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+    <v-app-bar
+      :hidden="$router.currentRoute.path.includes(`login`)"
+      app
+      flat
+      clipped-left
+    >
+      <router-link to="/select/">
+        <div
+          :class="
+            'd-flex align-center' +
+            ($vuetify.breakpoint.mdAndUp ? 'logoWhole' : '')
+          "
+        >
+          <v-img
+            alt="purecore.io logo"
+            class="mr-1 ml-1 logoAnimation"
+            contain
+            src="@/assets/c.png"
+            transition="scale-transition"
+            max-width="30px"
+          />
+        </div>
+      </router-link>
 
-    <v-app-bar elevation="0" app clipped-left v-if="$router.currentRoute.name != 'Login'">
-      <v-app-bar-nav-icon @click="openDrawer()" v-if="$vuetify.breakpoint.smAndDown && drawer" />
-      <v-row v-if="$vuetify.breakpoint.mdAndUp" no-gutters>
-        <v-col>
-          <div @click="$router.push({path:'/'})" class="logo">
-            <v-avatar size="20">
-              <v-img src="./assets/c.png" />
-            </v-avatar>
-            <strong class="ml-2 primary--text" style="font-size:18px">purecore</strong>
-          </div>
-        </v-col>
-        <v-col></v-col>
-      </v-row>
+      <div
+        v-if="$vuetify.breakpoint.mdAndUp"
+        style="width: 110px"
+        class="d-flex align-center ml-7"
+      >
+        <v-btn
+          :loading="plusStatus == null"
+          block
+          class="planSelector"
+          depressed
+          rounded
+        >
+          <span v-if="plusStatus == 0">{{ $t("free") }}</span>
+          <span v-if="plusStatus == 1">Plus</span>
+        </v-btn>
+      </div>
       <v-spacer />
-      <v-menu transition="scale-transition" origin="top right" max-width="400px" open-on-hover bottom left>
+
+      <div v-if="$vuetify.breakpoint.mdAndUp" class="d-flex align-center">
+        <v-btn
+          :loading="networkLoading"
+          to="/select/"
+          :disabled="$router.currentRoute.path.includes(`select`)"
+          class="networkSelector"
+          depressed
+          rounded
+        >
+          <span v-if="$router.currentRoute.path.includes(`select`)">{{
+            $t("selectingProject")
+          }}</span>
+          <span
+            v-if="
+              (!$router.currentRoute.path.includes(`network`) ||
+                this.network == null) &&
+              !$router.currentRoute.path.includes(`select`)
+            "
+            >{{ $t("selectProject") }}
+            <v-icon>arrow_drop_down</v-icon>
+          </span>
+          <span
+            v-if="
+              $router.currentRoute.path.includes(`network`) &&
+              this.network != null
+            "
+            >{{ this.network.name }}
+            <v-icon>arrow_drop_down</v-icon>
+          </span>
+        </v-btn>
+      </div>
+
+      <v-btn icon>
+        <v-icon>notifications_none</v-icon>
+      </v-btn>
+      <v-menu open-on-hover offset-y>
         <template v-slot:activator="{ on, attrs }">
           <v-btn v-bind="attrs" v-on="on" icon>
-            <v-badge
-              color="primary"
-              :content="notifications.lenght"
-              :value="notifications.length>0"
-              bordered
-              bottom
-              dot
-              offset-x="10"
-              offset-y="10"
-            >
-              <v-icon>account_circle</v-icon>
-            </v-badge>
+            <v-icon>account_circle</v-icon>
           </v-btn>
         </template>
 
-        <v-card>
-          <div style="max-height:400px">
-            <v-list>
-              <div>
-                <v-list-item to="/account/">
-                  <v-list-item-content>Account</v-list-item-content>
-                  <v-list-item-icon>
-                    <v-icon>account_circle</v-icon>
-                  </v-list-item-icon>
-                </v-list-item>
-              </div>
-            </v-list>
-            <v-divider />
-            <v-list>
-              <div v-for="notification in notifications" :key="notification.uuid">
-                <v-list-item
-                  :to="notification.action.replace('https://purecore.io/dashboard/#','')"
-                >
-                  <v-list-item-content class="text-justify">
-                    <h4>
-                      {{ notification.title }}
-                      <v-chip
-                        class="ml-2"
-                      >{{notification.creation.getHours()}}:{{notification.creation.getMinutes()}} {{notification.creation.getDay()}}/{{notification.creation.getMonth()+1}}</v-chip>
-                    </h4>
-                    {{ notification.message }}
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider />
-              </div>
-              <v-list-item v-if="notifications.length>0">
-                <v-list-item-content class="pt-7 pb-7">
-                  <center>
-                    <h4 class="mb-2">you are all set!</h4>
-                    <h5>click on the notifications to make 'em disappear</h5>
-                  </center>
-                </v-list-item-content>
-              </v-list-item>
-              <v-list-item v-if="notifications.length<=0">
-                <v-list-item-content class="pt-7 pb-7">
-                  <center>
-                    <h4>no pending notifications</h4>
-                  </center>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-          </div>
-        </v-card>
+        <v-list class="mt-0 mb-0 pt-0 pb-0">
+          <v-list-item to="/account/">
+            <v-list-item-icon>
+              <v-icon> face </v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Account</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="logout()">
+            <v-list-item-icon>
+              <v-icon> exit_to_app </v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Log Out</v-list-item-title>
+          </v-list-item>
+        </v-list>
       </v-menu>
-      <v-dialog v-model="network.dialog" persistent max-width="500px">
-        <template v-slot:activator="{ on }">
-          <v-btn v-on="on" icon>
-            <v-icon>compare_arrows</v-icon>
-          </v-btn>
-        </template>
-        <v-card max-width="500">
-          <v-list v-if="availableNetworks.length > 0">
-            <v-list-item-group v-model="network.switchId" color="primary">
-              <v-list-item
-                v-for="(network, i) in availableNetworks"
-                :key="i"
-                @click="selectNetwork(network)"
-              >
-                <v-list-item-icon>
-                  <v-icon>arrow_forward</v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-title v-text="network.name"></v-list-item-title>
-                </v-list-item-content>
-                <!-- 
-                <v-list-item-action>
-                  <v-btn icon>
-                    <v-icon>delete_outline</v-icon>
-                  </v-btn>
-                </v-list-item-action>-->
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-          <v-divider v-if="availableNetworks.length > 0"></v-divider>
-          <v-row no-gutters class="px-3" max-width="500">
-            <v-col cols="6">
-              <v-layout row wrap justify-start>
-                <v-flex shrink>
-                  <v-btn
-                    @click="disableNetworkSwitcher"
-                    :disabled="network.selectedId == null"
-                    class="ma-2"
-                    outlined
-                    color="secondary"
-                  >CLOSE</v-btn>
-                </v-flex>
-              </v-layout>
-            </v-col>
-            <v-col cols="6">
-              <v-layout row wrap justify-end>
-                <v-flex shrink>
-                  <v-btn
-                    to="/setup/"
-                    @click="network.dialog = false"
-                    class="ma-2"
-                    v-on="on"
-                    outlined
-                    color="primary"
-                  >CREATE NETWORK</v-btn>
-                </v-flex>
-              </v-layout>
-            </v-col>
-          </v-row>
-        </v-card>
-      </v-dialog>
-      <v-btn
-        @click="
-          session = null;
-          selectedNetwork = null;
-        "
-        v-if="session != null && session != undefined"
-        icon
-      >
-        <v-icon>exit_to_app</v-icon>
-      </v-btn>
-      <!-- login form -->
     </v-app-bar>
 
-    <v-content v-if="$router.currentRoute.name != 'Login'">
-      <v-container fluid class="mb-5">
-        <v-row align="center" justify="center">
-          <v-col cols="12" xs="12" sm="12" md="10" lg="8" xl="6">
-            <transition
-              mode="out-in"
-              @beforeLeave="beforeLeave"
-              @enter="enter"
-              @afterEnter="afterEnter"
-              name="fade"
-            >
-              <router-view
-                @selectNetwork="deselectAndShow"
-                @setDrawer="setDrawer"
-                :drawer="drawer"
-                :key="session + network.selectedId"
-                ref="childComponent"
-                class="mb-5"
-              />
+    <v-main>
+      <v-container :fill-height="this.shouldCenter" :fluid="this.shouldCenter">
+        <v-row
+          :align="shouldCenter ? 'center' : 'start'"
+          :justify="shouldCenter ? 'center' : 'start'"
+        >
+          <v-col>
+            <transition mode="out-in" name="fade">
+              <router-view />
             </transition>
           </v-col>
         </v-row>
       </v-container>
-      <v-footer inset absolute>
-        <center style="width: 100%">
-          <v-btn style="text-transform: none" text :to="{ name: 'About' }">
-            <span class="px-4">&copy; 2019 / {{ new Date().getFullYear() }} quiquelhappy</span>
-          </v-btn>
-        </center>
-      </v-footer>
-    </v-content>
-    <router-view
-      @setDrawer="setDrawer"
-      @initialCheck="initialCheck"
-      v-if="$router.currentRoute.name == 'Login'"
-      :drawer="drawer"
-      :key="session + network.selectedId"
-      ref="childComponent"
-      class="mb-5"
-    />
+    </v-main>
+    <v-footer
+      v-if="!$router.currentRoute.path.includes(`login`)"
+      inset
+      app
+      absolute
+      padless
+    >
+      <v-col class="text-center" cols="12">
+        {{ new Date().getFullYear() }} — <strong>purecore</strong>
+      </v-col>
+    </v-footer>
   </v-app>
 </template>
 
 <script>
-import core from "purecore";
+import { ParticlesBg } from "particles-bg-vue";
 
 export default {
   name: "App",
-  data: () => ({
-    drawer: false,
-    selectorModel: false,
-    prevHeight: 0,
-    network: {
-      selectedId: null,
-      dialog: false,
-      switchId: null,
-    },
-    setup: {
-      dialog: false,
-      stepper: 1,
-      ipmode: true,
-      name: "",
-      ip: "",
-      port: "",
-      game: "",
-      cname: "",
-      created: false,
-      error: null,
-      mandatory: false,
-    },
-    availableNetworks: [],
-    session: null,
-    loginLoading: false,
-    selectedNetwork: null,
-    selectedNetworkName: null,
-    switchingNetworks: false,
-    notifications: [],
-    loadingNotifications: false,
-  }),
-  mounted() {
-    this.initialCheck();
+  components: {
+    ParticlesBg,
   },
   watch: {
-    network: {
-      handler: function (newData) {
-        if (newData.selectedId != localStorage.getItem("network")) {
-          localStorage.setItem("network", newData.selectedId);
+    context: {
+      handler() {
+        if (this.context.subscriptionStatus != null) {
+          this.plusStatus = Number(this.context.subscriptionStatus.plus);
         }
       },
       deep: true,
     },
-
-    session(newSession) {
-      if (
-        newSession != null &&
-        newSession != undefined &&
-        newSession != "null" &&
-        newSession != ""
-      ) {
-        localStorage.setItem("session", JSON.stringify(newSession));
+    $route(to, from) {
+      this.shouldCenterCalc();
+      if (!to.path.includes("/network/server/")) {
+        this.isSubmenu = false;
+        if (from.path.includes("/network/server/")) {
+          this.keepCol = true;
+          setTimeout(() => {
+            this.keepCol = false;
+          }, 100);
+        }
       } else {
-        localStorage.removeItem("session");
-        this.checkSession();
-      }
-    },
-
-    selectedNetwork(newNetwork) {
-      var mainObj = this;
-      var coreInstance = new core(JSON.parse(localStorage.session));
-
-      coreInstance
-        .getInstance(newNetwork, null, "NTW")
-        .update()
-        .then(function () {
-          localStorage.network = newNetwork;
-          mainObj.selectedNetwork = newNetwork;
-          mainObj.selectorModel = newNetwork;
-        })
-        .catch(function () {
-          localStorage.removeItem("network");
-          mainObj.selectedNetwork = null;
-          mainObj.getAvailableNetworks();
-        });
-    },
-
-    switchingNetworks(newValue) {
-      if (newValue) {
-        this.getAvailableNetworks();
+        if (to.path.includes("/network/server/")) {
+          setTimeout(() => {
+            this.isSubmenu = true;
+          }, 100);
+        }
       }
     },
   },
   methods: {
-    deselectAndShow() {
-      this.network.selectedId = null;
-      this.network.switchId = null;
-      localStorage.removeItem("network");
-      this.getAvailableNetworks();
-    },
-    initialCheck() {
-      if (localStorage.getItem("dark", null) != null) {
-        var info = localStorage.getItem("dark") == "true";
-        if (info) {
-          this.dark = true;
-        } else {
-          this.dark = false;
+    shouldCenterCalc() {
+      let centeredEndpoints = ["login", "wizard"];
+      for (let i = 0; i < centeredEndpoints.length; i++) {
+        const element = centeredEndpoints[i];
+        if (this.$router.currentRoute.path.includes(element)) {
+          this.shouldCenter = true;
+          return;
         }
       }
-
-      if (
-        this.$router.currentRoute == "/" ||
-        this.$router.currentRoute == "/login/" ||
-        this.$router.currentRoute == null ||
-        this.$router.currentRoute == undefined
-      ) {
-        this.$router.replace({ path: "/summary/general" });
-      }
-
-      this.checkSession();
+      this.shouldCenter = false;
     },
-    setDrawer(e) {
-      this.drawer = e;
-    },
-    openDrawer() {
-      this.$refs.childComponent.openDrawer();
-    },
-    beforeLeave(element) {
-      this.prevHeight = getComputedStyle(element).height;
-    },
-    enter(element) {
-      const { height } = getComputedStyle(element);
-
-      element.style.height = this.prevHeight;
-
-      setTimeout(() => {
-        element.style.height = height;
-      });
-    },
-    afterEnter(element) {
-      element.style.height = "auto";
-    },
-    toLogin() {
+    logout() {
+      this.$loginManager.logout();
       this.$router.push({ path: "/login/" });
     },
-    checkSession() {
-      if (localStorage.session) {
-        try {
-          var coreInstance = new core(JSON.parse(localStorage.session));
-          this.session = coreInstance.getCoreSession();
-          if (
-            localStorage.network != null &&
-            localStorage.network != undefined &&
-            localStorage.network != "null"
-          ) {
-            this.network.selectedId = localStorage.network;
-          } else {
-            this.network.selectedId = null;
-          }
-          this.getNotifications();
-          this.getAvailableNetworks();
-        } catch (error) {
-          console.log(error);
-          localStorage.removeItem("session");
-          this.toLogin();
+    checkLogin() {
+      if (this.$loginManager.isLoggedIn()) {
+        if (this.$router.currentRoute.path.includes(`login`)) {
+          this.$router.push({ path: "/select/" });
         }
       } else {
-        this.toLogin();
+        this.$router.push({ path: "/login/" });
       }
     },
-    getNotifications() {
-      let main = this;
-      main.loadingNotifications = true;
-      this.session
-        .getOwner()
-        .asAccount()
-        .getPendingNotifications()
-        .then((notifications) => {
-          main.loadingNotifications = false;
-          main.notifications = notifications;
-        });
-    },
-    createNetwork() {
-      var mainObj = this;
-      var coreInstance = new core(JSON.parse(localStorage.session));
-      var promise = null;
-      if (this.setup.ipmode) {
-        if (this.setup.port == null || this.setup.port == "") {
-          promise = coreInstance
-            .getCoreSession()
-            .getUser()
-            .createNetwork(
-              mainObj.setup.name,
-              mainObj.setup.game,
-              mainObj.setup.cname,
-              mainObj.setup.ip
-            );
-        } else {
-          promise = coreInstance
-            .getCoreSession()
-            .getUser()
-            .createNetwork(
-              mainObj.setup.name,
-              mainObj.setup.game,
-              mainObj.setup.cname,
-              mainObj.setup.ip,
-              parseInt(mainObj.setup.port)
-            );
-        }
-      } else {
-        promise = coreInstance
-          .getCoreSession()
-          .getUser()
-          .createNetwork(
-            mainObj.setup.name,
-            mainObj.setup.game,
-            mainObj.setup.cname
-          );
-      }
-
-      promise
-        .then(function (network) {
-          mainObj.setup.created = true;
-          mainObj.getAvailableNetworks();
-          mainObj.selectedNetwork = network.getId();
-          mainObj.network.dialog = true;
-        })
-        .catch(function (error) {
-          mainObj.setup.created = false;
-          mainObj.setup.stepper = 2;
-          mainObj.setup.error = error.message;
-        });
-    },
-    disableNetworkSwitcher() {
-      if (this.network.selectedId != null) {
-        this.network.dialog = false;
-      }
-    },
-    getAvailableNetworks() {
-      if (this.session != undefined && this.session != null) {
-        let main = this;
-        this.session
-          .getNetworks()
-          .then(function (networks) {
-            main.availableNetworks = networks;
-            if (networks.length <= 0) {
-              main.$router.push({ path: "/setup/" });
-            } else {
-              if (main.network.selectedId == null) {
-                main.network.dialog = true;
-              } else {
-                for (const key in networks) {
-                  if (networks.hasOwnProperty(key)) {
-                    const network = networks[key];
-                    if (network.uuid == main.network.selectedId) {
-                      main.network.switchId = parseInt(key);
-                    }
-                  }
-                }
-              }
-              main.setup.mandatory = false;
-            }
+    checkNetwork() {
+      if (this.network != null && this.network.name == null) {
+        this.networkLoading = true;
+        this.network
+          .asInstance()
+          .update()
+          .then((instance) => {
+            this.$store.commit("network", instance.asNetwork());
           })
-          .catch(function (err) {
-            console.log("network list err");
-            console.log(err);
-            localStorage.removeItem("session");
-            main.checkSession();
+          .catch(() => {
+            localStorage.removeItem("network");
+            this.$store.commit("network", null);
+            /*this.$router.push({
+              path: "/select/",
+            });*/
+          })
+          .finally(() => {
+            this.networkLoading = false;
           });
+      } else if (this.network == null) {
+        /*this.$router.push({
+          path: "/select/",
+        });*/
       }
     },
-    selectNetwork(network) {
-      this.network.selectedId = network.uuid;
-      this.network.dialog = false;
-    },
+  },
+  data: () => ({
+    context: null,
+    shouldCenter: false,
+    networkLoading: false,
+    keepCol: false,
+    isSubmenu: false,
+    network: null,
+    plusStatus: null,
+    trialStatus: 0,
+    serverLinks: [
+      {
+        path: "setup",
+        icon: "build",
+        title: "setup",
+      },
+      {
+        path: "health",
+        icon: "data_usage",
+        title: "health",
+      },
+      {
+        path: "console",
+        icon: "computer",
+        title: "console",
+      },
+    ],
+    networkLinks: [
+      {
+        path: "/network/servers/",
+        icon: "dns",
+        title: "servers",
+      },
+      {
+        path: "/network/players/",
+        icon: "people",
+        title: "players",
+      },
+      {
+        path: "/network/donations/",
+        icon: "store",
+        title: "donations",
+      },
+      {
+        path: "/network/community/",
+        icon: "chat",
+        title: "community",
+      },
+      {
+        path: "/network/punishments/",
+        icon: "gavel",
+        title: "punishments",
+      },
+      {
+        path: "/network/website/",
+        icon: "language",
+        title: "website",
+      },
+      {
+        path: "/network/settings/",
+        icon: "settings",
+        title: "settings",
+      },
+    ],
+  }),
+  mounted() {
+    this.context = this.$purecore.getContext();
+    if (this.context.subscriptionStatus != null) {
+      this.plusStatus = Number(this.context.subscriptionStatus.plus);
+      this.trialStatus = Number(this.context.subscriptionStatus.usedTrial);
+    } else {
+      setInterval(() => {
+        if (this.context.subscriptionStatus != null) {
+          this.plusStatus = Number(this.context.subscriptionStatus.plus);
+          this.trialStatus = Number(this.context.subscriptionStatus.usedTrial);
+        }
+      }, 100);
+    }
+    this.isSubmenu = this.$router.currentRoute.path.includes(
+      "/network/server/"
+    );
+    //this.$vuetify.theme.dark = true;
+    var userLang = navigator.language || navigator.userLanguage;
+    if (userLang.includes("-")) userLang.split("-")[0];
+    this.$i18n.locale = userLang;
+    //this.checkNetwork();
+    this.checkLogin();
+    this.shouldCenterCalc();
   },
 };
 </script>
 
-<style>
-@import url("https://fonts.googleapis.com/css?family=Barlow&display=swap");
-* {
-  font-family: "Barlow", sans-serif;
-}
-.logo {
-  filter: grayscale(1);
-  transition: 200ms;
-}
-.logo:hover {
-  filter: grayscale(0);
-}
+<style lang="css">
+@import "./assets/styles/app.css";
 </style>
