@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@stripe/stripe-js": "^1.11.0",
-    "apexcharts": "^3.23.0",
+    "apexcharts": "^3.24.0",
     "card-validator": "^8.1.0",
     "chart.js": "^2.9.4",
     "core-js": "^3.6.5",
