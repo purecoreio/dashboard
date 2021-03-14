@@ -5,7 +5,7 @@
     </v-snackbar>
     <v-dialog v-model="addingPaymentMethod" width="500">
       <v-card>
-        <v-card-title> Add Payment Method </v-card-title>
+        <v-card-title> {{ $t("addPaymentMethod") }} </v-card-title>
 
         <v-card-text>
           <v-card
@@ -18,8 +18,7 @@
 
           <center class="mt-4">
             <small class="grey--text">
-              Since this is a recurrent item, your card will be saved for later
-              use
+              {{ $t("yourCardWillBeSaved") }}
             </small>
           </center>
         </v-card-text>
@@ -32,7 +31,7 @@
             text
             @click="addingPaymentMethod = false"
           >
-            Cancel
+            {{ $t("cancel") }}
           </v-btn>
           <v-spacer></v-spacer>
           <secure />
@@ -44,7 +43,7 @@
             class="ml-2"
             @click="addMethod()"
           >
-            Add
+            {{ $t("add") }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -71,7 +70,7 @@
       </div>
       <div v-if="!loadingPms && pms.length <= 0">
         <center>
-          <h3 class="mt-6 mb-6">No saved payment methods</h3>
+          <h3 class="mt-6 mb-6">{{ $t("noSavedPaymentMethod") }}</h3>
         </center>
       </div>
       <v-list v-if="!loadingPms && pms.length > 0">
@@ -117,7 +116,9 @@
                   <v-list-item-action>
                     <v-icon> check_circle_outline </v-icon>
                   </v-list-item-action>
-                  <v-list-item-title>Set as default</v-list-item-title>
+                  <v-list-item-title>
+                    {{ $t("setAsDefault") }}
+                  </v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -129,7 +130,9 @@
 
     <v-row align="center" class="pl-2 pr-4 pb-1 pt-4" no-gutters>
       <v-col class="flex-grow-1 flex-shrink-0">
-        <p class="overline ma-0">Billing Address</p>
+        <p class="overline ma-0">
+          {{ $t("billingAddress") }}
+        </p>
       </v-col>
     </v-row>
     <v-card class="mb-7 pl-4 pt-2 pb-2 pr-4" outlined>
@@ -138,7 +141,7 @@
           <v-text-field
             hide-details
             solo-inverted
-            placeholder="Full Name"
+            :placeholder="$t('fullName')"
             v-model="address.name"
             :disabled="settingAddress"
           />
@@ -149,7 +152,7 @@
             hide-details
             solo-inverted
             :disabled="settingAddress"
-            placeholder="Email"
+            :placeholder="$t('email')"
           />
         </v-col>
         <v-col cols="12">
@@ -163,7 +166,7 @@
             item-text="countryName"
             item-value="countryShortCode"
             hide-details
-            label="Country"
+            :label="$t('country')"
             solo-inverted
             @change="updateRegions"
           ></v-select>
@@ -177,7 +180,7 @@
             item-value="name"
             hide-details
             solo-inverted
-            label="State, county, province, or region"
+            :label="$t('province')"
           ></v-select>
         </v-col>
         <v-col cols="12" md="6">
@@ -186,7 +189,7 @@
             :disabled="settingAddress"
             v-model="address.city"
             solo-inverted
-            placeholder="City"
+            :placeholder="$t('city')"
           />
         </v-col>
         <v-col cols="12" md="6">
@@ -195,7 +198,7 @@
             :disabled="settingAddress"
             v-model="address.postalcode"
             solo-inverted
-            placeholder="Post Code"
+            :placeholder="$t('postCode')"
           />
         </v-col>
         <v-col cols="12" md="6">
@@ -204,7 +207,7 @@
             hide-details
             :disabled="settingAddress"
             solo-inverted
-            placeholder="Line 1"
+            :placeholder="$t('line1')"
           />
         </v-col>
         <v-col cols="12" md="6">
@@ -213,7 +216,7 @@
             hide-details
             :disabled="settingAddress"
             solo-inverted
-            placeholder="Line 2"
+            :placeholder="$t('line2')"
           />
         </v-col>
         <v-col cols="12" class="text-right">
@@ -225,7 +228,8 @@
             :loading="settingAddress"
             color="primary"
           >
-            <v-icon class="mr-2">save</v-icon>Save
+            <v-icon class="mr-2">save</v-icon>
+            {{ $t("save") }}
           </v-btn>
         </v-col>
       </v-row>

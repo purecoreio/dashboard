@@ -2,10 +2,10 @@ S<template>
   <SubNav
     :title="name"
     :items="[
-      { name: 'Console', link: `/network/instance/${this.instance}/console/` },
-      { name: 'Health', link: `/network/instance/${this.instance}/health/` },
-      { name: 'Setup', link: `/network/instance/${this.instance}/setup/` },
-      { name: 'Image', link: `/network/instance/${this.instance}/image/` },
+      { name: $t('console'), link: `/network/instance/${this.instance}/console/` },
+      { name: $t('health'), link: `/network/instance/${this.instance}/health/` },
+      { name: $t('setup'), link: `/network/instance/${this.instance}/setup/` },
+      { name: $t('image'), link: `/network/instance/${this.instance}/image/` },
     ]"
   >
     <transition mode="out-in" name="fade">

@@ -129,13 +129,13 @@
             <v-list-item-icon>
               <v-icon> face </v-icon>
             </v-list-item-icon>
-            <v-list-item-title>Account</v-list-item-title>
+            <v-list-item-title> {{ $t("account") }}</v-list-item-title>
           </v-list-item>
           <v-list-item @click="logout()">
             <v-list-item-icon>
               <v-icon> exit_to_app </v-icon>
             </v-list-item-icon>
-            <v-list-item-title>Log Out</v-list-item-title>
+            <v-list-item-title> {{ $t("logOut") }}</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -375,7 +375,7 @@ export default {
     //this.$vuetify.theme.dark = true;
     var userLang = navigator.language || navigator.userLanguage;
     this.$i18n.locale = userLang;
-    console.log(this.$i18n.locale)
+    console.log(this.$i18n.locale);
     //this.checkNetwork();
     this.checkLogin();
     this.shouldCenterCalc();

@@ -36,8 +36,8 @@
       <div v-show="!loading && profiles.length <= 0">
         <center class="mt-8">
           <v-icon class="mb-5" x-large> recent_actors </v-icon>
-          <h2>Your network has no online players</h2>
-          <span>Your online players will be listed here</span>
+          <h2>{{$t('noOnlinePlayers')}}</h2>
+          <span>{{$t('noOnlinePlayersFooter')}}</span>
         </center>
       </div>
     </v-fade-transition>

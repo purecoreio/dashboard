@@ -1,10 +1,10 @@
 <template>
   <SubNav
-    title="Players"
+    :title="$t('players')"
     :items="[
-      { name: 'Online', link: '/network/players/online/' },
-      { name: 'Growth', link: '/network/players/growth/' },
-      { name: 'Activity', link: '/network/players/activity/' },
+      { name: $t('online'), link: '/network/players/online/' },
+      { name: $t('growth'), link: '/network/players/growth/' },
+      { name: $t('activity'), link: '/network/players/activity/' },
     ]"
   >
     <transition mode="out-in" name="fade">

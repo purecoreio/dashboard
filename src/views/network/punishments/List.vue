@@ -117,8 +117,8 @@
       <div v-show="!loading && punishments.length <= 0">
         <center class="mt-10">
           <v-icon class="mb-10" x-large> gavel </v-icon>
-          <h2>Your network has no recorded punishments</h2>
-          <span>Your new punishments will be listed here</span>
+          <h2>{{ $t("noPunishments") }}</h2>
+          <span>{{ $t("noPunishmentsFooter") }}</span>
         </center>
       </div>
     </v-fade-transition>

@@ -35,7 +35,9 @@
               <p class="ma-0 white--text" style="font-size: 120%">
                 purecore<span class="plus"> plus</span>
               </p>
-              <p class="ma-0 white--text">get the most out of your network</p>
+              <p class="ma-0 white--text">
+                {{ $t("getTheMostOutOfYourNetwork") }}
+              </p>
             </v-col>
             <v-col class="text-right">
               <v-fade-transition>
@@ -48,8 +50,8 @@
                   <span
                     v-if="trialStatus != null && trialStatus != 0"
                     class="white--text overline ma-0 pa-0"
-                    >9.99€/<b>MO</b> </span
-                  >
+                    >9.99€/<b>MO</b>
+                  </span>
                 </div>
               </v-fade-transition>
               <v-fade-transition>
@@ -95,7 +97,7 @@
                         item-text="countryName"
                         item-value="countryShortCode"
                         hide-details
-                        label="Country"
+                        :label="$t('country')"
                         outlined
                         @change="updateRegions"
                       ></v-select>
@@ -108,7 +110,7 @@
                         item-text="name"
                         item-value="name"
                         hide-details
-                        label="State, county, province, or region"
+                        :label="$t('province')"
                         outlined
                       ></v-select>
                     </v-col>
@@ -119,7 +121,7 @@
                         outlined
                         :disabled="settingAddress"
                         v-model="address.city"
-                        placeholder="City"
+                        :placeholder="$t('city')"
                       />
                     </v-col>
                     <v-col cols="12" md="6">
@@ -128,7 +130,7 @@
                         outlined
                         :disabled="settingAddress"
                         v-model="address.postalcode"
-                        placeholder="Post Code"
+                        :placeholder="$t('postCode')"
                       />
                     </v-col>
                     <v-col cols="12" md="6">
@@ -137,7 +139,7 @@
                         hide-details
                         :disabled="settingAddress"
                         outlined
-                        placeholder="Line 1"
+                        :placeholder="$t('line1')"
                       />
                     </v-col>
                     <v-col cols="12" md="6">
@@ -146,7 +148,7 @@
                         hide-details
                         :disabled="settingAddress"
                         outlined
-                        placeholder="Line 2"
+                        :placeholder="$t('line2')"
                       />
                     </v-col>
                   </v-row>
@@ -166,7 +168,7 @@
                         depressed
                         @click="updateAddress()"
                       >
-                        Next
+                        {{ $t("next") }}
                       </v-btn>
                     </v-col>
                   </v-row>
@@ -183,7 +185,9 @@
                         </v-col>
                         <v-col class="text-center flex-shrink-0 flex-grow-1">
                           <p class="ma-0">
-                            <span v-if="trialStatus == null || trialStatus == 0">free <b>7-day</b> trial, then </span><b>9.99€/mo</b>
+                            <span v-if="trialStatus == null || trialStatus == 0"
+                              >free <b>7-day</b> trial, then </span
+                            ><b>9.99€/mo</b>
                           </p>
                         </v-col>
                         <v-col class="flex-shrink-1 flex-grow-0">
@@ -206,7 +210,7 @@
                     <v-col v-if="$vuetify.breakpoint.lgAndUp" cols="12" lg="6">
                       <center>
                         <h4 style="max-width: 200px" class="mb-2">
-                          Thanks for making purecore better for everybody
+                          {{ $t("thanksForMakingPurecoreBetter") }}
                         </h4>
                         <v-icon>favorite</v-icon>
                       </center>

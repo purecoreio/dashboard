@@ -1,11 +1,11 @@
 <template>
   <SubNav
-    title="Profile"
+    :title="$t('profile')"
     :items="[
-      { name: 'Plan', link: '/account/plan/' },
-      { name: 'Billing', link: '/account/billing/' },
-      { name: 'Voting Sites', link: '/account/votingsites/' },
-      { name: 'Machines', link: '/account/machines/', plus: true },
+      { name: $t('plan'), link: '/account/plan/' },
+      { name: $t('billing'), link: '/account/billing/' },
+      { name: $t('votingSites'), link: '/account/votingsites/' },
+      { name: $t('machines'), link: '/account/machines/', plus: true },
     ]"
   >
     <transition mode="out-in" name="fade">

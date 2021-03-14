@@ -1,10 +1,10 @@
 <template>
   <SubNav
-    title="Servers"
+    :title="$t('servers')"
     :show="!$router.currentRoute.path.includes(`wizard`)"
     :items="[
-      { name: 'List', link: '/network/servers/list' },
-      { name: 'Incidents', link: '/network/servers/incidents', plus: true },
+      { name: $t('list'), link: '/network/servers/list' },
+      { name: $t('incidents'), link: '/network/servers/incidents', plus: true },
     ]"
   >
     <transition mode="out-in" name="fade">

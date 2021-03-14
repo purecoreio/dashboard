@@ -1,5 +1,5 @@
 <template>
-    <div>
-        <h1>Server console</h1>
-    </div>
+  <div>
+    <h1>{{ $t("console") }}</h1>
+  </div>
 </template>

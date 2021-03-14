@@ -5,7 +5,7 @@
     </v-snackbar>
     <v-dialog v-model="createServerMenu" max-width="600px">
       <v-card style="overflow: hidden">
-        <v-card-title> Register server </v-card-title>
+        <v-card-title> {{ $t("createServer") }} </v-card-title>
 
         <div class="pl-4 pr-4 pb-4">
           <v-row no-gutters>
@@ -22,7 +22,7 @@
               <v-text-field
                 @keyup.enter.native="registerServer()"
                 v-model="newServerName"
-                label="Server Name"
+                :label="$t('name')"
                 hide-details
                 outlined
               />
@@ -36,7 +36,7 @@
                   newServerName = '';
                 "
               >
-                Cancel
+                {{ $t("cancel") }}
               </v-btn></v-col
             >
             <v-col class="text-right">
@@ -46,7 +46,7 @@
                 color="primary"
                 @click="registerServer()"
               >
-                Register
+                {{ $t("register") }}
               </v-btn>
             </v-col>
           </v-row>
@@ -57,17 +57,17 @@
       <v-card style="overflow: hidden">
         <v-card-title v-if="selected.length > 0">
           <span v-if="selected.length == 1"
-            >Deleting {{ selected[0].name }}</span
+            >{{ $t("deleting") }} {{ selected[0].name }}</span
           >
           <span v-if="selected.length > 1"
-            >Deleting {{ selected.length }} servers</span
+            >{{ $t("deleting") }} {{ selected.length }}
+            {{ $t("servers") }}</span
           >
         </v-card-title>
         <v-row align="center" class="pl-4 pr-4">
           <v-col cols="12">
             <v-alert class="mb-0" color="primary" text>
-              The selected servers will be deleted. This action can not be
-              rolled back!
+              {{ $t("thisActionCannotBeRolledback") }}
             </v-alert>
           </v-col>
           <v-col>
@@ -76,7 +76,7 @@
               hide-details
               v-model="deleteNotice"
               :ripple="false"
-              label="I understand"
+              :label="$t('iUnderstand')"
             >
             </v-checkbox>
           </v-col>
@@ -87,7 +87,7 @@
               @click="deleteServers(selected)"
               :disabled="!deleteNotice"
               :loading="deletingServer"
-              >Delete</v-btn
+              >{{ $t("delete") }}</v-btn
             >
           </v-col>
         </v-row>
@@ -96,13 +96,12 @@
     <v-dialog v-model="groupDeleteMenu" max-width="600px">
       <v-card style="overflow: hidden">
         <v-card-title v-if="groupToDelete != null">
-          Deleting {{ groupToDelete.name }}
+          {{ $t("deleting") }} {{ groupToDelete.name }}
         </v-card-title>
         <v-row class="pl-4 pr-4">
           <v-col>
             <v-alert color="primary" text>
-              Your server group will be deleted. Keep in mind the servers inside
-              this group wont be deleted, but uncategorized.
+              {{ $t("serverGroupRemove") }}
             </v-alert>
           </v-col>
           <v-col cols="12" class="text-right">
@@ -111,7 +110,7 @@
               text
               @click="deleteGroup(groupToDelete)"
               :loading="deletingGroup"
-              >Delete</v-btn
+              >{{ $t("delete") }}</v-btn
             >
           </v-col>
         </v-row>
@@ -119,14 +118,14 @@
     </v-dialog>
     <v-dialog v-model="createGroupMenu" max-width="600px">
       <v-card style="overflow: hidden">
-        <v-card-title> Creating new group </v-card-title>
+        <v-card-title> {{ $t("createGroup") }} </v-card-title>
         <v-row class="pl-4 pr-4">
           <v-col cols="12">
             <v-text-field
               outlined
               hide-details
               v-model="newGroupName"
-              label="New Group Name"
+              :label="$t('name')"
               @keyup.enter.native="createGroup()"
             />
           </v-col>
@@ -137,7 +136,7 @@
               @click="createGroup"
               :disabled="newGroupName == null || newGroupName.length <= 3"
               :loading="creatingGroup"
-              >Create</v-btn
+              >{{ $t("create") }}</v-btn
             >
           </v-col>
         </v-row>
@@ -169,7 +168,7 @@
                 outlined
                 hide-details
                 v-model="newGroupName"
-                label="New Group Name"
+                :label="$t('name')"
               />
             </v-col>
           </v-expand-transition>
@@ -256,7 +255,7 @@
                     v-bind="attrs"
                     v-on="on"
                   >
-                    Selected
+                    {{ $t("selected") }}
                     <v-icon>arrow_drop_down</v-icon>
                   </v-btn>
                 </template>
@@ -265,13 +264,15 @@
                     <v-list-item-icon>
                       <v-icon>delete</v-icon>
                     </v-list-item-icon>
-                    <v-list-item-title>Delete</v-list-item-title>
+                    <v-list-item-title style="text-transform: capitalize">{{
+                      $t("delete")
+                    }}</v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="movingForm = true">
                     <v-list-item-icon>
                       <v-icon>low_priority</v-icon>
                     </v-list-item-icon>
-                    <v-list-item-title>Move</v-list-item-title>
+                    <v-list-item-title>{{ $t("move") }}</v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>
@@ -286,11 +287,11 @@
                 color="primary"
                 depressed
               >
-                Create Server
+                {{ $t("createServer") }}
                 <v-icon>add</v-icon>
               </v-btn>
               <v-btn @click="createGroupMenu = true" color="primary" depressed>
-                Create Group
+                {{ $t("createGroup") }}
                 <v-icon>add</v-icon>
               </v-btn>
             </v-col>
@@ -310,19 +311,23 @@
                     <v-list-item-icon>
                       <v-icon>add</v-icon>
                     </v-list-item-icon>
-                    <v-list-item-title>Create Server</v-list-item-title>
+                    <v-list-item-title>{{
+                      $t("createServer")
+                    }}</v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="createGroupMenu = true">
                     <v-list-item-icon>
                       <v-icon>add</v-icon>
                     </v-list-item-icon>
-                    <v-list-item-title>Create Group</v-list-item-title>
+                    <v-list-item-title>{{
+                      $t("createGroup")
+                    }}</v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>
             </v-col>
           </v-row>
-          <v-card elevation="0" tile>
+          <v-card v-if="serverCount > 1" elevation="0" tile>
             <div class="list-group-item">
               <v-card tile elevation="0" class="mb-2">
                 <v-list-item link>
@@ -354,9 +359,9 @@
               <v-toolbar-title v-if="serverGroup.name != null"
                 >{{ serverGroup.name }}
               </v-toolbar-title>
-              <v-toolbar-title v-if="serverGroup.name == null"
-                >Ungrouped</v-toolbar-title
-              >
+              <v-toolbar-title v-if="serverGroup.name == null">{{
+                $t("ungrouped")
+              }}</v-toolbar-title>
               <v-spacer />
 
               <v-menu
@@ -380,7 +385,9 @@
                     <v-list-item-icon>
                       <v-icon>delete</v-icon>
                     </v-list-item-icon>
-                    <v-list-item-title>Delete group</v-list-item-title>
+                    <v-list-item-title>{{
+                      $t("deleteGroup")
+                    }}</v-list-item-title>
                   </v-list-item>
                   <v-list-item
                     @click="
@@ -391,7 +398,7 @@
                     <v-list-item-icon>
                       <v-icon>add</v-icon>
                     </v-list-item-icon>
-                    <v-list-item-title>Add Server</v-list-item-title>
+                    <v-list-item-title>{{ $t("addServer") }}</v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>
@@ -453,7 +460,7 @@
           <v-fade-transition>
             <v-list v-show="drag" class="pa-0">
               <v-toolbar class="mb-1" dense flat>
-                <v-toolbar-title>New Group</v-toolbar-title>
+                <v-toolbar-title>{{ $t("newGroup") }}</v-toolbar-title>
               </v-toolbar>
               <div style="position: relative; width: 100%; height: 62px">
                 <center
@@ -538,6 +545,7 @@ export default {
       dragAndDrop: {
         new: [],
       },
+      serverCount: 0,
       movingForm: false,
       groups: [],
       newGroupSelect: null,
@@ -855,6 +863,10 @@ export default {
               }
             }
           }
+          this.serverCount = 0;
+          groupLists.forEach((group) => {
+            this.serverCount += group.servers.length;
+          });
           this.selected = [];
           this.dragAndDrop = {
             new: [],

@@ -37,16 +37,16 @@
           />
         </v-col>
         <v-col class="flex-grow-0 flex-shrink-1">
-          <span v-if="server != null && server.online ? 'active' : ''"
-            >Online</span
-          >
+          <span v-if="server != null && server.online ? 'active' : ''">{{
+            $t("online")
+          }}</span>
           <span
             v-if="
               server == null || (server != null && !server.online)
                 ? 'active'
                 : ''
             "
-            >Offline</span
+            >{{ $t("offline") }}</span
           >
         </v-col>
         <v-col class="flex-grow-1 flex-shrink-0 text-right">
@@ -57,7 +57,7 @@
             text
             color="primary"
           >
-            Check Again
+            {{ $t("checkAgain") }}
           </v-btn>
         </v-col>
       </v-row>
@@ -69,28 +69,32 @@
               <v-list-item-avatar>
                 <v-avatar color="primary"> 1 </v-avatar>
               </v-list-item-avatar>
-              <v-list-item-content> Download purecore.jar (contact quiquelhappy on Discord) </v-list-item-content>
+              <v-list-item-content>
+                {{ $t("pluginStep1") }}
+              </v-list-item-content>
             </v-list-item>
             <v-list-item>
               <v-list-item-avatar>
                 <v-avatar color="primary"> 2 </v-avatar>
               </v-list-item-avatar>
               <v-list-item-content>
-                Drop purecore.jar under plugins
+                {{ $t("pluginStep2") }}
               </v-list-item-content>
             </v-list-item>
             <v-list-item>
               <v-list-item-avatar>
                 <v-avatar color="primary"> 3 </v-avatar>
               </v-list-item-avatar>
-              <v-list-item-content> Restart your server </v-list-item-content>
+              <v-list-item-content>
+                {{ $t("pluginStep3") }}
+              </v-list-item-content>
             </v-list-item>
             <v-list-item>
               <v-list-item-avatar>
                 <v-avatar color="primary"> 4 </v-avatar>
               </v-list-item-avatar>
               <v-list-item-content>
-                Use /purecore key [hash]
+                {{ $t("pluginStep4") }}
               </v-list-item-content>
             </v-list-item>
           </v-list>

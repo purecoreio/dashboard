@@ -1,7 +1,7 @@
 <template>
   <SubNav
-    title="Punishments"
-    :items="[{ name: 'List', link: '/network/punishment/list/' }]"
+    :title="$t('punishments')"
+    :items="[{ name: $t('list'), link: '/network/punishment/list/' }]"
   >
     <transition mode="out-in" name="fade">
       <router-view />

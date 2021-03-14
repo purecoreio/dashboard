@@ -5,13 +5,13 @@
     </v-snackbar>
     <v-slide-y-transition>
       <center v-show="w == 1">
-        <h2>Let's setup your servers!</h2>
+        <h2>{{ $t("letsSetupYourServers") }}</h2>
       </center>
     </v-slide-y-transition>
     <v-slide-y-transition>
       <div v-show="(w == 3 || w == 4) && setupType == null">
         <center>
-          <h2>Do you use a proxy or have multiple servers?</h2>
+          <h2>{{ $t("proxyOrServer") }}</h2>
         </center>
         <v-expand-transition>
           <div v-show="w == 4">
@@ -22,8 +22,8 @@
                   <center>
                     <v-icon> blur_on </v-icon>
                     <v-divider class="mt-3 mb-3" />
-                    <h4>Yes</h4>
-                    <h5>Multiple Server Setup</h5>
+                    <h4>{{ $t("yes") }}</h4>
+                    <h5>{{ $t("multipleServerSetup") }}</h5>
                   </center>
                 </v-card>
               </v-col>
@@ -32,17 +32,14 @@
                   <center>
                     <v-icon> filter_center_focus </v-icon>
                     <v-divider class="mt-3 mb-3" />
-                    <h4>No</h4>
-                    <h5>Single Server Setup</h5>
+                    <h4>{{ $t("no") }}</h4>
+                    <h5>{{ $t("singleServerSetup") }}</h5>
                   </center>
                 </v-card>
               </v-col>
             </v-row>
             <v-alert class="mt-4" color="primary" text>
-              If you are planning on expanding your network down the line, you
-              will be able to add more servers to your network later on. Please,
-              choose your current server setup and not your intended future
-              server setup.
+              {{ $t("planningOnExpanding") }}
             </v-alert>
           </div>
         </v-expand-transition>
@@ -94,7 +91,7 @@
                 </center>
               </v-card>
               <v-btn @click="m = 2" large block class="mt-4" depressed>
-                Skip <v-icon>skip_next</v-icon>
+                {{ $t("skip") }} <v-icon>skip_next</v-icon>
               </v-btn>
             </v-stepper-content>
             <v-stepper-content step="2">
@@ -112,7 +109,7 @@
               <v-list class="mt-0 mb-0 pt-0 pb-0">
                 <v-list-item v-if="serverNames.length <= 0">
                   <v-list-item-content>
-                    <center>Please, add at least two servers</center>
+                    <center>{{ $t("atLeastTwoServers") }}</center>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item v-for="(name, i) in serverNames" :key="i">
@@ -133,7 +130,7 @@
                       @keyup.enter.native="addName()"
                       solo-inverted
                       hide-details
-                      placeholder="Server Name"
+                      :placeholder="$t('name')"
                       v-model="name"
                     />
                   </v-col>
@@ -153,7 +150,7 @@
                 class="mt-4"
                 depressed
               >
-                Register <v-icon>add</v-icon>
+                {{ $t("register") }} <v-icon>add</v-icon>
               </v-btn>
               <v-alert
                 class="mb-0 mt-4"
@@ -162,7 +159,7 @@
                 :value="serverNames.length < 2"
                 transition="scale-transition"
               >
-                Please, define at least two server names
+                {{ $t("atLeastTwoServers") }}
               </v-alert>
             </v-stepper-content>
           </v-stepper-items>
@@ -186,8 +183,10 @@
                     "
                     icon
                   >
-                    <v-icon> arrow_back </v-icon> </v-btn
-                  >Please, name your server
+                    <v-icon> arrow_back </v-icon>
+                  </v-btn>
+
+                  {{ $t("nameYourServer") }}
                 </h2>
               </center>
               <v-text-field
@@ -195,7 +194,7 @@
                 @keyup.enter.native="register()"
                 solo-inverted
                 hide-details
-                placeholder="Server Name"
+                :placeholder="$t('name')"
                 v-model="name"
               />
               <v-btn
@@ -207,7 +206,7 @@
                 class="mt-4 mb-4"
                 depressed
               >
-                Register <v-icon>add</v-icon>
+                {{ $t("register") }} <v-icon>add</v-icon>
               </v-btn>
               <v-alert
                 transition="scale-transition"

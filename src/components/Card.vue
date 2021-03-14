@@ -68,12 +68,10 @@
           block
           large
         >
-          Start Trial
+          {{ $t("startTrial") }}
         </v-btn>
         <center class="mt-1">
-          <small class="grey--text"
-            >Your card will be saved for later use</small
-          >
+          <small class="grey--text">{{ $t("yourCardWillBeSaved") }}</small>
           <v-divider class="mt-2 mb-3" />
           <v-btn
             @click="pay()"

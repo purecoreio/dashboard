@@ -2,17 +2,21 @@
   <div>
     <v-dialog v-model="dialog" max-width="290">
       <v-card>
-        <v-card-title class="headline"> Remove this network? </v-card-title>
-        <v-card-text>This action can't be rolled back</v-card-text>
+        <v-card-title class="headline">
+          {{ $t("deleteNetwork") }}
+        </v-card-title>
+        <v-card-text>{{ $t("thisActionCannotBeRolledback") }}</v-card-text>
         <v-card-actions>
-          <v-btn text @click="deleteNetwork()"> Yes </v-btn>
+          <v-btn text @click="deleteNetwork()"> {{ $t("yes") }} </v-btn>
           <v-spacer></v-spacer>
-          <v-btn color="primary" depressed @click="dialog = false"> No </v-btn>
+          <v-btn color="primary" depressed @click="dialog = false">
+            {{ $t("no") }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-alert text color="warning">
-      Warning. These options can cause irreparable damage to your data.
+      {{ $t("dangerZoneHeadsUp") }}
     </v-alert>
     <v-list>
       <v-list-item @click="dialog = true">
@@ -20,9 +24,9 @@
           <v-icon> delete </v-icon>
         </v-list-item-icon>
         <v-list-item-content>
-          <v-list-item-title> Delete Network </v-list-item-title>
+          <v-list-item-title> {{ $t("deleteNetwork") }} </v-list-item-title>
           <v-list-item-subtitle>
-            This action can't be rolled back
+            {{ $t("thisActionCannotBeRolledback") }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>

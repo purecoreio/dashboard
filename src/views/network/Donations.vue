@@ -1,13 +1,13 @@
 <template>
   <SubNav
-    title="Donations"
+    :title="$t('donations')"
     :items="[
-      { name: 'Transactions', link: '/network/donations/transactions/' },
-      { name: 'Packages', link: '/network/donations/packages/' },
-      { name: 'Gateways', link: '/network/donations/gateways/' },
-      { name: 'Tax Reporting', link: '/network/donations/tax/' },
-      { name: 'Discounts', link: '/network/donations/discounts/', plus: true },
-      { name: 'Targets', link: '/network/donations/targets/', plus: true },
+      { name: $t('transactions'), link: '/network/donations/transactions/' },
+      { name: $t('packages'), link: '/network/donations/packages/' },
+      { name: $t('gateways'), link: '/network/donations/gateways/' },
+      { name: $t('taxReporting'), link: '/network/donations/tax/' },
+      { name: $t('discounts'), link: '/network/donations/discounts/', plus: true },
+      { name: $t('targets'), link: '/network/donations/targets/', plus: true },
     ]"
   >
     <transition mode="out-in" name="fade">
