@@ -374,8 +374,8 @@ export default {
     );
     //this.$vuetify.theme.dark = true;
     var userLang = navigator.language || navigator.userLanguage;
-    if (userLang.includes("-")) userLang.split("-")[0];
     this.$i18n.locale = userLang;
+    console.log(this.$i18n.locale)
     //this.checkNetwork();
     this.checkLogin();
     this.shouldCenterCalc();
