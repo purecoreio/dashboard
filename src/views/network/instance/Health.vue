@@ -30,15 +30,28 @@
           </v-list-item-action>
         </v-list-item>
       </v-list>
-        <v-container style="position:absolute;width:100%;left:0px;top:0px;height:100%" fill-height fluid>
-          <v-row align="center" justify="center">
-            <v-col>
-              <center>
-                <h4>See instance incidents with purecore <span class="plus">plus</span></h4>
-              </center>
-            </v-col>
-          </v-row>
-        </v-container>
+      <v-container
+        style="
+          position: absolute;
+          width: 100%;
+          left: 0px;
+          top: 0px;
+          height: 100%;
+        "
+        fill-height
+        fluid
+      >
+        <v-row align="center" justify="center">
+          <v-col>
+            <center>
+              <h4>
+                See instance incidents with purecore
+                <span class="plus">plus</span>
+              </h4>
+            </center>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-card>
     <v-divider class="mt-4 mb-4" />
     <div v-if="options != null">
