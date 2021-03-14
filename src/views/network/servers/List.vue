@@ -322,6 +322,26 @@
               </v-menu>
             </v-col>
           </v-row>
+          <v-card elevation="0" tile>
+            <div class="list-group-item">
+              <v-card tile elevation="0" class="mb-2">
+                <v-list-item link>
+                  <v-list-item-action class="pt-1">
+                    <status-indicator
+                      :status="false ? 'active' : ''"
+                      :pulse="false"
+                    />
+                  </v-list-item-action>
+                  <v-list-item-content @click="seeServer(network)">
+                    <v-list-item-title>Proxy</v-list-item-title>
+                    <v-list-item-subtitle>{{
+                      network.id
+                    }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-card>
+            </div>
+          </v-card>
           <v-list v-for="(serverGroup, i) in servers" :key="i" class="pa-0">
             <v-toolbar
               v-if="
@@ -396,7 +416,7 @@
               </v-simple-checkbox>
             </v-toolbar>
             <draggable
-              @change="handleDrop($event, serverGroup.id)"
+              @change="handleDrop(event, serverGroup.id)"
               @start="drag = true"
               @end="drag = false"
               :list="dragAndDrop[serverGroup.id]"
@@ -407,10 +427,13 @@
                 v-for="server in dragAndDrop[serverGroup.id]"
                 :key="server.id"
               >
-                <v-card class="mb-2">
+                <v-card elevation="0" class="mb-2">
                   <v-list-item link>
                     <v-list-item-action class="pt-1">
-                      <status-indicator />
+                      <status-indicator
+                        :status="server.online ? 'active' : ''"
+                        :pulse="server.online"
+                      />
                     </v-list-item-action>
                     <v-list-item-content @click="seeServer(server)">
                       <v-list-item-title>{{ server.name }}</v-list-item-title>
@@ -499,6 +522,7 @@ export default {
   },
   data: () => {
     return {
+      network: null,
       autoimportPlatform: null,
       autoimportOptions: [
         {
@@ -543,6 +567,7 @@ export default {
     };
   },
   mounted() {
+    this.network = this.$purecore.getContext().getNetwork();
     if (this.$purecore.getContext().getNetwork() == null) {
       this.$router.push({
         path: "/select/",

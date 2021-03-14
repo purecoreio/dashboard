@@ -183,7 +183,7 @@
                         </v-col>
                         <v-col class="text-center flex-shrink-0 flex-grow-1">
                           <p class="ma-0">
-                            free <b>7-day</b> trial, then <b>9.99€/mo</b>
+                            <span v-if="trialStatus == null || trialStatus == 0">free <b>7-day</b> trial, then </span><b>9.99€/mo</b>
                           </p>
                         </v-col>
                         <v-col class="flex-shrink-1 flex-grow-0">

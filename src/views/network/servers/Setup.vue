@@ -38,7 +38,7 @@
                 </v-card>
               </v-col>
             </v-row>
-            <v-alert color="primary" text>
+            <v-alert class="mt-4" color="primary" text>
               If you are planning on expanding your network down the line, you
               will be able to add more servers to your network later on. Please,
               choose your current server setup and not your intended future

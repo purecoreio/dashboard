@@ -1,4 +1,5 @@
 <template>
+  <!-- https://docs.google.com/forms/d/e/1FAIpQLSd7CStWKn9Ak30TIZADQCw5U9RMmM_nF6cPqtZ0IACRt39g1g/viewform?usp=pp_url&entry.1314722013=uri&entry.1612373001=id -->
   <v-app>
     <div
       v-if="$router.currentRoute.path.includes(`login`)"
@@ -141,6 +142,28 @@
     </v-app-bar>
 
     <v-main>
+      <v-tooltip
+        :color="feedbackNotice ? 'primary' : ''"
+        v-model="feedbackTooltip"
+        left
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-bind="attrs"
+            v-on="on"
+            target="_blank"
+            :href="`https://docs.google.com/forms/d/e/1FAIpQLSd7CStWKn9Ak30TIZADQCw5U9RMmM_nF6cPqtZ0IACRt39g1g/viewform?usp=pp_url&entry.1314722013=${$router.currentRoute.path}&entry.1612373001=${networkId}`"
+            fixed
+            right
+            bottom
+            :color="feedbackNotice ? 'primary' : ''"
+            style="margin-bottom: 45px"
+            fab
+            ><v-icon>feedback</v-icon></v-btn
+          >
+        </template>
+        <span>Feedback</span>
+      </v-tooltip>
       <v-container :fill-height="this.shouldCenter" :fluid="this.shouldCenter">
         <v-row
           :align="shouldCenter ? 'center' : 'start'"
@@ -256,6 +279,9 @@ export default {
     },
   },
   data: () => ({
+    feedbackTooltip: true,
+    feedbackNotice: true,
+    networkId: null,
     context: null,
     shouldCenter: false,
     networkLoading: false,
@@ -303,7 +329,7 @@ export default {
         title: "community",
       },
       {
-        path: "/network/punishments/",
+        path: "/network/punishment/",
         icon: "gavel",
         title: "punishments",
       },
@@ -320,15 +346,26 @@ export default {
     ],
   }),
   mounted() {
+    setTimeout(() => {
+      this.feedbackTooltip = false;
+      this.feedbackNotice = false;
+    }, 2000);
     this.context = this.$purecore.getContext();
-    if (this.context.subscriptionStatus != null) {
+    if (
+      this.context.subscriptionStatus != null &&
+      this.context.getNetwork() != null
+    ) {
       this.plusStatus = Number(this.context.subscriptionStatus.plus);
       this.trialStatus = Number(this.context.subscriptionStatus.usedTrial);
+      this.networkId = this.context.getNetwork().getId();
     } else {
       setInterval(() => {
         if (this.context.subscriptionStatus != null) {
           this.plusStatus = Number(this.context.subscriptionStatus.plus);
           this.trialStatus = Number(this.context.subscriptionStatus.usedTrial);
+        }
+        if (this.context.getNetwork() != null) {
+          this.networkId = this.context.getNetwork().getId();
         }
       }, 100);
     }

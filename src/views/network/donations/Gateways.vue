@@ -18,7 +18,11 @@
       :attention="requiredActions"
       url="https://www.paypal.com/mep/dashboard"
       :connected="true"
-      :logo="require(`@/assets/gateways/paypal/logo.svg`)"
+      :logo="
+        require(`@/assets/gateways/paypal/${
+          $vuetify.theme.dark ? 'dark' : 'light'
+        }.svg`)
+      "
     />
     <gateway
       name="mollie"

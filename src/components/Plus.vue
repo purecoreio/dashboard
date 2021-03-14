@@ -9,7 +9,7 @@
   >
     <v-tooltip color="primary" max-width="300px" bottom>
       <template v-slot:activator="{ on }">
-        <v-btn small icon v-on="on">
+        <v-btn @click="go()" small icon v-on="on">
           <v-icon small>arrow_circle_up</v-icon>
         </v-btn>
       </template>
@@ -17,3 +17,16 @@
     </v-tooltip>
   </div>
 </template>
+<script>
+export default {
+  methods: {
+    go() {
+      setTimeout(() => {
+        this.$router.push({
+          path: "/account/plan/",
+        });
+      }, 100);
+    },
+  },
+};
+</script>

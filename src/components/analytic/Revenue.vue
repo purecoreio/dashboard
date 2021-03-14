@@ -62,27 +62,54 @@
           margin-top: 20px;
         "
       >
-        <v-select
-          style="display: inline-block; width: 150px"
-          hide-details
-          v-model="selected"
-          :items="items"
-          outlined
-          label="Period"
-        />
-        <v-btn-toggle
-          class="ml-4 hoverOpacity"
-          dense
-          v-model="selectedDatapoint"
-          mandatory
-          group
-        >
-          <v-btn style="border-radius: 20px"> Revenue </v-btn>
+        <v-row align="center" no-gutters>
+          <v-col class="flex-grow-0 flex-shrink-1">
+            <v-menu
+              ref="menu"
+              v-model="menu"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  hide-details
+                  v-model="date"
+                  label="Period"
+                  prepend-inner-icon="event"
+                  readonly
+                  outlined
+                  style="min-width: 150px; display: inline-block"
+                  v-bind="attrs"
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                ref="picker"
+                v-model="date"
+                type="month"
+                :max="new Date().toISOString().substr(0, 10)"
+                @change="save"
+              ></v-date-picker>
+            </v-menu>
+          </v-col>
+          <v-col class="flex-grow-1 flex-shrink-0">
+            <v-btn-toggle
+              class="ml-4 hoverOpacity"
+              dense
+              v-model="selectedDatapoint"
+              mandatory
+              group
+            >
+              <v-btn style="border-radius: 20px"> Revenue </v-btn>
 
-          <v-btn style="border-radius: 20px"> Customers </v-btn>
+              <v-btn style="border-radius: 20px"> Customers </v-btn>
 
-          <v-btn style="border-radius: 20px"> Requests </v-btn>
-        </v-btn-toggle>
+              <v-btn style="border-radius: 20px"> Requests </v-btn>
+            </v-btn-toggle>
+          </v-col>
+        </v-row>
       </div>
     </div>
     <v-divider v-if="enoughData || loading" />
@@ -149,15 +176,20 @@ export default {
         revenue: [],
       },
       selectedBase: null,
-      selectedPeriod: 0,
-      items: ["December"],
-      selected: "December",
+      date: null,
+      menu: false,
       selectedDatapoint: 0,
       computedDatapoint: "revenue",
       chartOptions: null,
     };
   },
   watch: {
+    date() {
+      this.load();
+    },
+    menu(val) {
+      val && setTimeout(() => (this.$refs.picker.activePicker = "YEAR"));
+    },
     selectedDatapoint(datapoint) {
       switch (datapoint) {
         case 0:
@@ -174,24 +206,33 @@ export default {
   },
   mounted() {
     this.chartOptions = this.$chartOptions;
-    this.load();
+    this.date = new Date().toISOString().substr(0, 7);
+    //this.load();
   },
   methods: {
+    save(date) {
+      this.$refs.menu.save(date);
+    },
     load() {
       let main = this;
 
       main.loading = true;
+      this.enoughData = false;
       main.currentSeries = {};
       main.selectedBase = null;
+
+      let month = Number(this.date.split("-")[1]) - 1;
+      let year = this.date.split("-")[0];
 
       this.$purecore
         .getContext()
         .getNetwork()
-        .getMonthRevenue()
+        .getMonthRevenue(month, year)
         .then((revenue) => {
-          revenue.fill();
+          revenue = revenue.fill();
           if (revenue.analytics.length > 0) {
             this.chartOptions.xaxis.max = revenue.analytics[0].ending.getTime();
+            this.chartOptions.xaxis.min = revenue.analytics[0].beginning.getTime();
             main.selectedBase = revenue.analytics[0].base;
             for (let i = 0; i < revenue.analytics.length; i++) {
               const analytics = revenue.analytics[i];
@@ -215,7 +256,8 @@ export default {
             main.enoughData = false;
           }
         })
-        .catch(() => {
+        .catch((e) => {
+          alert(e.message);
           main.enoughData = false;
         })
         .finally(() => {

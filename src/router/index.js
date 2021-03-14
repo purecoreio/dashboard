@@ -1,12 +1,18 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+import Online from '../views/network/players/Online'
+
 import Transactions from '../views/network/donations/Transactions'
 import Packages from '../views/network/donations/Packages'
 import Gateways from '../views/network/donations/Gateways'
 import Tax from '../views/network/donations/TaxReporting'
 import Discounts from '../views/network/donations/Discounts'
 import Targets from '../views/network/donations/Targets'
+
+import Template from '../views/network/website/Template'
+import Pages from '../views/network/website/Pages'
+import Marketplace from '../views/network/website/Marketplace'
 
 import ServerList from '../views/network/servers/List'
 import ServerSetup from '../views/network/servers/Setup'
@@ -20,6 +26,8 @@ import instanceConsole from '../views/network/instance/Console'
 import instanceImage from '../views/network/instance/Image'
 import instanceSetup from '../views/network/instance/Setup'
 import instanceHealth from '../views/network/instance/Health'
+
+import punishmentList from '../views/network/punishments/List'
 
 import dangerZone from '../views/network/settings/DangerZone'
 
@@ -121,6 +129,50 @@ const routes = [
     ]
   },
   {
+    path: '/network/players',
+    name: 'players',
+    component: () => import('@/views/network/Players.vue'),
+    redirect: '/network/players/online',
+    children: [
+      {
+        path: '/network/players/online',
+        component: Online,
+      },
+    ]
+  },
+  {
+    path: '/network/website',
+    name: 'website',
+    component: () => import('@/views/network/Website.vue'),
+    redirect: '/network/website/template',
+    children: [
+      {
+        path: '/network/website/template',
+        component: Template,
+      },
+      {
+        path: '/network/website/pages',
+        component: Pages,
+      },
+      {
+        path: '/network/website/marketplace',
+        component: Marketplace,
+      },
+    ]
+  },
+  {
+    path: '/network/punishment',
+    name: 'punishments',
+    component: () => import('@/views/network/Punishments.vue'),
+    redirect: '/network/punishment/list',
+    children: [
+      {
+        path: '/network/punishment/List',
+        component: punishmentList,
+      },
+    ]
+  },
+  {
     path: '/network/instance/:instance/',
     redirect: '/network/instance/:instance/setup/',
     props: true,
@@ -159,6 +211,7 @@ const routes = [
       },
     ]
   },
+  { path: "*", component: () => import('@/views/error/404.vue') }
 ]
 
 const router = new VueRouter({
