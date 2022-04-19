@@ -1,23 +1,23 @@
 <template>
   <v-app>
-    <v-main>
-      <HelloWorld />
-    </v-main>
+    <router-view />
   </v-app>
 </template>
 
-<script>
-import HelloWorld from "./components/HelloWorld.vue";
+<style>
+* {
+  font-family: "Barlow", sans-serif !important;
+}
 
-export default {
-  name: "App",
+button {
+  text-transform: none !important;
+}
 
-  components: {
-    HelloWorld,
-  },
+button.v-btn--size-large i {
+  padding-top: 3px !important;
+}
 
-  data: () => ({
-    //
-  }),
-};
-</script>
+button.v-btn--size-default i {
+  padding-bottom: 2px !important;
+}
+</style>
