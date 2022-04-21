@@ -4,11 +4,12 @@ import vuetify from './plugins/vuetify'
 import router from './router'
 import Particles from "particles.vue3";
 
-const purecore = require("../../purecore-js")
+import purecore from "../../purecore-js";
 
 const app = createApp(App)
 
 app.config.globalProperties.purecore = new purecore(undefined, true)
+app.config.globalProperties.context = {}
 
 app.use(router)
   .use(vuetify)

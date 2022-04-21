@@ -1,4 +1,15 @@
 <template>
+  <v-snackbar
+    transition="slide-y-reverse-transition"
+    variant="text"
+    text
+    color="primary"
+    v-model="error.val"
+  >
+    <p class="text-center ma-0">
+      {{ error.message }}
+    </p>
+  </v-snackbar>
   <v-row align="center" justify="center">
     <v-col cols="11" sm="6" md="4" lg="3" xl="2">
       <div class="text-center mb-3">
@@ -22,11 +33,7 @@
           </v-btn>
           <v-divider class="mb-3 mt-3" />
           <v-row no-gutters>
-            <v-col
-              class="text-center"
-              v-for="(method, i) in methods.secondary"
-              :key="i"
-            >
+            <v-col class="text-center" v-for="(method, i) in methods.secondary" :key="i">
               <v-btn
                 @click="handleLogin(method.name ?? method)"
                 size="small"
@@ -44,9 +51,7 @@
       </v-sheet>
 
       <div class="mt-3 text-center">
-        <small
-          >By logging in, you are agreeing to our TOS and Privacy Policy</small
-        >
+        <small>By logging in, you are agreeing to our TOS and Privacy Policy</small>
       </div>
     </v-col>
   </v-row>
@@ -63,6 +68,10 @@ export default {
   },
   data() {
     return {
+      error: {
+        val: false,
+        message: null,
+      },
       methods: {
         primary: ["Microsoft", "Google", "GitHub"],
         secondary: [
@@ -82,12 +91,21 @@ export default {
     };
   },
   mounted() {
+    if (this.purecore.getCredentials().authenticated) {
+      this.$router.push("/network");
+    }
     this.particles = absorber;
   },
   methods: {
-    handleLogin(method){
-      this.purecore.login(method)
-    }
-  }
+    async handleLogin(method) {
+      try {
+        await this.purecore.login(method.toLowerCase());
+        this.$router.push("/network");
+      } catch (error) {
+        this.error.message = error.message;
+        this.error.val = true;
+      }
+    },
+  },
 };
 </script>
