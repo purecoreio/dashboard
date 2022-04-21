@@ -22,6 +22,12 @@ export default {
 </script>
 
 <style scoped>
+.logoAnimation {
+    animation: logoIntro;
+    animation-delay: 200ms;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+}
 .logoText {
   opacity: 0;
   color: #448aff;

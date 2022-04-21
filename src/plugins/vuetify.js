@@ -10,6 +10,21 @@ export default createVuetify(
     icons: {
       iconFont: "mdi",
     },
+    defaults: {
+      VBtn: {
+        ripple: false,
+        flat: true,
+        color: 'primary'
+      },
+      VCard: {
+        ripple: false,
+        variant: "contained-text"
+      },
+      VAlert: {
+        color: "primary",
+        variant: "contained-text"
+      },
+    },
     theme: {
       defaultTheme: 'dark',
       themes: {
