@@ -7,10 +7,10 @@
             <v-icon> mdi-swap-horizontal </v-icon>
           </v-btn>
         </v-list-item-action>
-        <v-list-item-content class="pl-3">
+        <div class="pl-3">
           <v-list-item-title> {{ network.name }} </v-list-item-title>
           <v-list-item-subtitle> #{{ network.id }} </v-list-item-subtitle>
-        </v-list-item-content>
+        </div>
       </v-list-item>
     </v-alert>
     <v-list class="px-0 pt-0" nav dense>
@@ -30,7 +30,7 @@
     </v-list>
   </v-navigation-drawer>
   <v-main>
-    <router-container>
+    <router-container v-if="network">
       <router-view :network="network" />
     </router-container>
   </v-main>
