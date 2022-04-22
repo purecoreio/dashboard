@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-app-bar
-      :model-value="!isLogin && isAuthenticated"
+      :model-value="!isLogin"
       class="pl-0"
       app
       border="b"
@@ -31,6 +31,14 @@
   font-family: "Barlow", sans-serif !important;
 }
 
+a {
+  color: #82b1ff;
+}
+
+.wizardTitle {
+  font-weight: 500;
+}
+
 .v-ripple__container {
   opacity: 0;
 }
@@ -54,8 +62,11 @@ button.text-red:active {
 }
 
 a.v-card:active {
-  transition: 200ms;
   transform: scale(0.97);
+}
+a.v-card {
+  transition: 100ms;
+  transform: scale(1);
 }
 
 .v-btn--icon:active {
