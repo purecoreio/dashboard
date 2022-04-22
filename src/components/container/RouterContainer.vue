@@ -27,6 +27,7 @@
               {{ item.name }}<v-icon v-if="item.beta" icon="mdi-flask-outline" />
             </router-link>
           </div>
+          <back-arrow @click="this.$router.replace('../')" v-if="isChild" />
         </div>
       </v-slide-x-transition>
     </div>
@@ -37,14 +38,19 @@
   </div>
 </template>
 <script>
+import BackArrow from "@/components/buttons/BackArrow.vue";
 export default {
   name: "SubNav",
+  components: {
+    BackArrow,
+  },
   data: () => {
     return {
       activeTab: 1,
       title: null,
       hasItems: false,
       items: [],
+      isChild: false,
     };
   },
   mounted() {
@@ -53,6 +59,7 @@ export default {
   methods: {
     updateLinks() {
       const route = this.$route;
+      this.isChild = route.path.split("/").length > 5;
       const matched = route.matched;
       if (matched.length > 1) {
         const penultimate = matched[matched.length - 2];
