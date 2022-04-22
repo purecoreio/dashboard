@@ -100,6 +100,7 @@ export default {
     async handleLogin(method) {
       try {
         await this.purecore.login(method.toLowerCase());
+        this.context.user = await this.purecore.getUser();
         this.$router.push("/network");
       } catch (error) {
         this.error.message = error.message;
