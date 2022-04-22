@@ -1,61 +1,96 @@
 <template>
-  <div class="d-flex justify-center mt-5">
-    <div class="sidePanel">
-      <div v-if="hasLinks">
-        <p
-          class="text-overline"
-          style="
-            font-weight: 900;
-            margin-top: 1px;
-            margin-bottom: 9px;
-            font-size: 14px !important;
-          "
-        >
-          {{ $route.name }}
-        </p>
-        <div>
-          <router-link
-            :to="item.link"
-            v-for="(item, i) in items"
-            :key="`it${i}`"
-            :class="`text-overline ${
-              $vuetify.theme.current ? 'sideLinkDark' : 'sideLinkLight'
-            }`"
-            :data-active="true"
+  <div class="d-flex justify-center mt-5 px-sm-1 pl-md-16">
+    <div class="d-none d-lg-flex sidePanel pl-7">
+      <v-slide-x-transition style="transition: 100ms">
+        <div v-show="this.hasItems > 0">
+          <p
+            class="text-overline"
+            style="
+              font-weight: 900;
+              margin-top: 1px;
+              margin-bottom: 9px;
+              font-size: 14px !important;
+            "
           >
-            {{ item.name }}
-          </router-link>
+            {{ title }}
+          </p>
+          <div>
+            <router-link
+              :to="item.link"
+              v-for="(item, i) in items"
+              :key="`it${i}`"
+              :class="`text-overline ${
+                $vuetify.theme.current ? 'sideLinkDark' : 'sideLinkLight'
+              }`"
+              :data-active="true"
+            >
+              {{ item.name }}<v-icon v-if="item.beta" icon="mdi-flask-outline" />
+            </router-link>
+          </div>
         </div>
-      </div>
+      </v-slide-x-transition>
     </div>
-    <div class="pt-1 flex-grow-1 px-4" style="max-width: 1000px">
+    <div class="flex-grow-1 px-15" style="max-width: 1000px; padding-top: 3px">
       <slot />
     </div>
-    <div class="sidePanel" />
+    <div class="d-none d-lg-flex sidePanel" />
   </div>
 </template>
 <script>
 export default {
-  props: ["title", "show"],
   name: "SubNav",
   data: () => {
     return {
       activeTab: 1,
+      title: null,
+      hasItems: false,
       items: [],
     };
   },
-  computed: {
-    hasLinks() {
-      return this.items.length > 0;
+  mounted() {
+    this.updateLinks();
+  },
+  methods: {
+    updateLinks() {
+      const route = this.$route;
+      const matched = route.matched;
+      if (matched.length > 1) {
+        const penultimate = matched[matched.length - 2];
+        if (
+          penultimate &&
+          penultimate.path.split("/").length > 3 &&
+          penultimate.children
+        ) {
+          this.items = penultimate.children.map((path) => {
+            return {
+              name: path.name ?? path.path,
+              link: path.path,
+              beta: path.meta && path.meta.beta,
+            };
+          });
+          if (this.items.length > 0) this.hasItems = true;
+          this.title =
+            penultimate.name ?? penultimate.path.split("/").findLast(() => true);
+          return;
+        }
+      }
+      this.hasItems = false;
+    },
+  },
+  watch: {
+    $route() {
+      this.updateLinks();
     },
   },
 };
 </script>
 <style lang="css" scoped>
 .sidePanel {
-  width: 200px;
+  width: 25%;
+  max-width: 170px;
 }
 .sideLinkLight {
+  font-weight: bold;
   margin-bottom: 4px;
   opacity: 0.6;
   transition: 200ms;
@@ -65,6 +100,7 @@ export default {
   color: black;
 }
 .sideLinkDark {
+  font-weight: bold;
   margin-bottom: 4px;
   opacity: 0.6;
   transition: 200ms;
@@ -76,12 +112,12 @@ export default {
 .sideLinkLight .v-icon {
   margin-left: 2px;
   color: inherit !important;
-  transform: translateY(-1.5px);
+  transform: translateY(-2px);
 }
 .sideLinkDark .v-icon {
   margin-left: 2px;
   color: inherit !important;
-  transform: translateY(-1.5px);
+  transform: translateY(-2px);
 }
 .sideLinkLight:hover {
   color: #82b1ff;
@@ -102,11 +138,9 @@ export default {
 .router-link-exact-active {
   color: #82b1ff !important;
   opacity: 1;
-  font-weight: bold;
 }
 .router-link-exact-active {
   color: #82b1ff !important;
   opacity: 1;
-  font-weight: bold;
 }
 </style>
