@@ -24,6 +24,20 @@
       </v-card>
     </v-col>
   </v-row>
+  <!-- networks the user has a role in -->
+  <div v-if="false">
+    <v-divider class="my-5" />
+    <v-list title="Networks you participate in" class="mt-5">
+      <v-list-item> asd </v-list-item>
+    </v-list>
+  </div>
+  <!-- invites, if any -->
+  <div v-if="false">
+    <v-divider class="my-5" />
+    <v-list title="Networks you participate in" class="mt-5">
+      <v-list-item> asd </v-list-item>
+    </v-list>
+  </div>
 </template>
 
 <script>
