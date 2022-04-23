@@ -1,12 +1,10 @@
 <template>
-  <instance-wizard
-    v-if="initialSetup"
-    @created="created"
-    @deleted="deleted"
-    :network="network"
-  />
-  <div class="mt-3">
-    <v-card :to="`/network/${network.id}/instance/${instance.id}`" class="mb-3 px-5 py-4" v-for="instance in instances" :key="instance.id">
+  <div v-if="initialSetup" class="mb-3">
+    <instance-wizard @created="created" @deleted="deleted" :network="network" />
+  </div>
+  <div>
+    <v-card :to="`/network/${network.id}/instance/${instance.id}`" class="mb-3 px-5 py-4" v-for="instance in instances"
+      :key="instance.id">
       <v-row align="center" no-gutters>
         <v-col>
           <v-list-item class="pa-0">
