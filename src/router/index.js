@@ -50,7 +50,7 @@ const routes = [
       {
         path: "instance/:instance",
         component: () => {
-          return import('../views/network/selected/Wrapper.vue')
+          return import('../views/network/selected/instance/Wrapper.vue')
         },
         redirect: (to) => { return `/network/${to.params.id}/instance/${to.params.instance}/settings` },
         children: [
