@@ -30,7 +30,7 @@
         </v-col>
       </v-row>
     </div>
-    <div v-if="type == 'one'">
+    <div v-if="type == 'one' || type == 'proxies'">
       <v-row no-gutters>
         <v-col cols="auto">
           <back-arrow @clicked="revert" />
@@ -79,8 +79,6 @@ export default {
       created: [],
       error: null,
       steps: [],
-      proxies: [],
-      proxyCount: 0,
     };
   },
   components: {
@@ -93,12 +91,6 @@ export default {
     },
   },
   watch: {
-    proxyCount(newCount) {
-      if (newCount <= 0) this.proxyCount = 1;
-      for (let index = 0; index < newCount; index++) {
-        if (!this.proxies[index]) this.proxies[index] = `proxy.${index + 1}`;
-      }
-    },
     async type(type) {
       this.loading = true;
       try {
@@ -123,7 +115,7 @@ export default {
             this.created.push(await this.network.createInstance("proxy"));
             this.steps = [
               "Download the plugin and install it on all your regular servers. There is no need to change any plugin settings!",
-              "Install the very same file on all your proxies, restart the proxies and paste the key on the plugin settings (you only need to do this on the proxy servers)",
+              "Install the very same file on all your proxy instances, restart your proxy and paste the key on the plugin settings of every proxy",
               "Restart all your servers. The proxies will automatically register your regular servers and sync the data",
             ];
             break;
