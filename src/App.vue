@@ -34,8 +34,8 @@
       </v-app-bar>
 
       <!-- drawer -->
-      <v-navigation-drawer :expand-on-hover="true" :rail="!this.$vuetify.display.mobile" class="py-2 px-2" v-model="showDrawer"
-        :temporary="this.$vuetify.display.mobile" :permanent="!this.$vuetify.display.mobile" app>
+      <v-navigation-drawer :expand-on-hover="true" :rail="!this.$vuetify.display.mobile" class="py-2 px-2"
+        v-model="showDrawer" :temporary="this.$vuetify.display.mobile" :permanent="!this.$vuetify.display.mobile" app>
         <v-list style="overflow:hidden" v-if="identity" class="px-0 pt-0" mandatory nav dense>
           <v-list-item class="my-2" :to="identity.action" active-color="primary">
             <v-list-item-avatar color="primary">
@@ -51,8 +51,9 @@
             <v-list-item-avatar>
               <v-icon :icon="`mdi-${link.icon}`"></v-icon>
             </v-list-item-avatar>
-
-            <v-list-item-title>{{ link.name }}</v-list-item-title>
+            <div class="pl-2">
+              <v-list-item-title>{{ link.name }}</v-list-item-title>
+            </div>
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
