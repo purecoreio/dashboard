@@ -1,5 +1,5 @@
 // Styles
-import "@mdi/font/css/materialdesignicons.min.css";
+import "@mdi/font/css/materialdesignicons.css";
 import 'vuetify/styles'
 
 // Vuetify
@@ -10,21 +10,6 @@ export default createVuetify(
     icons: {
       iconFont: "mdi",
     },
-    defaults: {
-      VBtn: {
-        ripple: false,
-        flat: true,
-        color: 'primary'
-      },
-      VCard: {
-        ripple: false,
-        variant: "contained-text"
-      },
-      VAlert: {
-        color: "primary",
-        variant: "contained-text"
-      },
-    },
     theme: {
       defaultTheme: 'dark',
       themes: {
@@ -34,6 +19,15 @@ export default createVuetify(
             primary: '#82b1ff',
             secondary: '#82b1ff',
             accent: '#b6e3ff',
+            error: '#ff8a65',
+          },
+        },
+        light: {
+          dark: false,
+          colors: {
+            primary: '#448aff',
+            secondary: '#448aff',
+            accent: '#83b9ff',
             error: '#ff8a65',
           }
         }

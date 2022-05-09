@@ -8,12 +8,7 @@
         I love coding this, I code this by night, therefore I need something to keep me
         awake.
       </h4>
-      <v-btn
-        href="https://www.buymeacoffee.com/happy"
-        target="_blank"
-        class="mt-3"
-        color="primary"
-      >
+      <v-btn href="https://www.buymeacoffee.com/happy" target="_blank" class="mt-3" color="primary">
         Support Me On BuyMeACoffee.com
       </v-btn>
     </v-col>
@@ -29,3 +24,8 @@
     <a href="https://twitter.com/quiquelhappy" target="_blank">quiquelhappy</a>
   </v-alert>
 </template>
+<script>
+export default {
+  props: ["network"]
+}
+</script>

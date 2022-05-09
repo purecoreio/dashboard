@@ -46,42 +46,6 @@
           <back-arrow @clicked="revert" />
         </v-col>
         <v-col class="pl-2">
-          <h3 class="wizardTitle">Let's setup your swarm!</h3>
-        </v-col>
-      </v-row>
-      <v-divider class="my-3" />
-      <v-text-field
-        hide-details
-        v-model="proxyCount"
-        autofocus
-        type="number"
-        variant="outlined"
-        label="How many proxies do you have?"
-      />
-      <v-divider class="mt-3" />
-      <div class="py-3" style="max-height: 300px; overflow-y: scroll">
-        <v-text-field
-          v-for="i in proxyCount"
-          :key="i"
-          class="mb-2"
-          hide-details
-          v-model="proxies[i - 1]"
-          variant="outlined"
-          :placeholder="`proxy.${i}`"
-          :label="`Proxy #${i} id`"
-        />
-      </div>
-      <v-divider class="mb-3" />
-      <div class="text-right">
-        <v-btn @click="type = 'proxiesFinish'">Register Proxies</v-btn>
-      </div>
-    </div>
-    <div v-if="type == 'proxiesFinish'">
-      <v-row no-gutters>
-        <v-col cols="auto">
-          <back-arrow @clicked="revert" />
-        </v-col>
-        <v-col class="pl-2">
           <h3 class="wizardTitle">Your proxy instances have been created!</h3>
         </v-col>
       </v-row>
@@ -156,12 +120,7 @@ export default {
             ];
             break;
           case "proxies":
-            this.proxyCount = 2;
-            break;
-          case "proxiesFinish":
-            for (let index = 0; index < this.proxyCount; index++) {
-              this.created.push(await this.network.createInstance(this.proxies[index]));
-            }
+            this.created.push(await this.network.createInstance("proxy"));
             this.steps = [
               "Download the plugin and install it on all your regular servers. There is no need to change any plugin settings!",
               "Install the very same file on all your proxies, restart the proxies and paste the key on the plugin settings (you only need to do this on the proxy servers)",

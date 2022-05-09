@@ -42,6 +42,12 @@ const routes = [
     redirect: (to) => { return `/network/${to.params.id}/instance` },
     children: [
       {
+        path: ":catchAll(.*)",
+        component: () => {
+          return import('../views/errors/UnderDevelopment.vue')
+        }
+      },
+      {
         path: "instance",
         component: () => {
           return import('../views/network/selected/instance/Instance.vue')
@@ -49,6 +55,7 @@ const routes = [
       },
       {
         path: "instance/:instance",
+        name: "instance",
         component: () => {
           return import('../views/network/selected/Wrapper.vue')
         },
@@ -108,17 +115,35 @@ const routes = [
         component: () => {
           return import('../views/network/selected/Wrapper.vue')
         },
-        redirect: (to) => { return `/network/${to.params.id}/store/package` },
+        redirect: (to) => { return `/network/${to.params.id}/store/category` },
         children: [
           {
-            path: "package",
-            name: "packages",
+            path: "category",
+            name: "categories",
             meta: {
-              beta: true
+              beta: true,
             },
             component: () => {
-              return import('../views/network/selected/store/Package.vue')
+              return import('../views/network/selected/store/Categories.vue')
             }
+          },
+          {
+            path: "category/:category/:package?",
+            name: "package",
+            meta: {
+              hidden: true,
+            },
+            component: () => {
+              return import('../views/network/selected/Wrapper.vue')
+            },
+            children: [
+              {
+                path: "",
+                component: () => {
+                  return import('../views/network/selected/store/Package.vue')
+                }
+              },
+            ]
           },
           {
             path: "gateway",
@@ -128,12 +153,6 @@ const routes = [
             }
           },
         ]
-      },
-      {
-        path: "/:catchAll(.*)",
-        component: () => {
-          return import('../views/errors/UnderDevelopment.vue')
-        }
       },
     ]
   },

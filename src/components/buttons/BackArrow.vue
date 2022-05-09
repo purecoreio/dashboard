@@ -1,11 +1,8 @@
 <template>
   <div style="display: inline-block">
-    <router-link v-if="to" class="back-arrow" :to="to">
+    <a @click="clicked" class="back-arrow">
       <v-icon icon="mdi-keyboard-backspace" />
-    </router-link>
-    <a v-if="!to" @click="clicked" class="back-arrow"
-      ><v-icon icon="mdi-keyboard-backspace"
-    /></a>
+    </a>
   </div>
 </template>
 <style scoped>
@@ -14,9 +11,11 @@
   color: gray;
   text-decoration: none;
 }
+
 .back-arrow:hover {
   color: rgb(219, 219, 219);
 }
+
 .back-arrow:active {
   color: white;
 }
@@ -24,9 +23,11 @@
 <script>
 export default {
   props: ["to"],
+  emits: ["clicked"],
   methods: {
     clicked() {
       this.$emit("clicked");
+      this.$router.back()
     },
   },
 };

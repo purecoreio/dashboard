@@ -1,30 +1,164 @@
 <template>
-  <v-app>
-    <v-app-bar
-      :model-value="!isLogin"
-      class="pl-0"
-      app
-      border="b"
-      flat
-    >
-      <div class="text-center" style="width: 256px">
-        <h2 style="font-weight: 500">
-          purecore
-          <v-chip color="primary" small class="betaChip"> BETA </v-chip>
-        </h2>
-      </div>
-      <v-spacer />
-      <v-chip class="mr-2"> Standard Plan </v-chip>
-      <v-btn :color="null" icon @click="this.logout()">
-        <v-icon icon="mdi-logout-variant" />
-      </v-btn>
-    </v-app-bar>
+  <v-defaults-provider :defaults="defaults">
+    <v-app>
 
-    <router-view
-      v-if="isLogin || (this.credentials.authenticated && this.context.user)"
-    />
-  </v-app>
+      <!-- top bar-->
+
+      <v-app-bar v-if="!isLogin" :class="$vuetify.display.mobile ? null : 'pl-0'" app border="b" flat>
+        <v-btn v-if="$vuetify.display.mobile && hasDrawer" :color="null" icon @click.stop="drawer = !drawer">
+          <v-icon icon="mdi-menu" />
+        </v-btn>
+        <v-btn class="ml-2" v-if="$vuetify.display.mobile && showBack" :color="null" icon @click="this.$router.back()">
+          <v-icon icon="mdi-keyboard-backspace" />
+        </v-btn>
+        <div v-if="!$vuetify.display.mobile" style="width: 256px">
+          <v-row align="center" no-gutters>
+            <v-spacer />
+            <v-col class="pr-3" cols="auto">
+              <v-img width="32px" src="@/assets/isotype.png" />
+            </v-col>
+            <v-col cols="auto">
+              <h2 style="font-weight: 500">
+                purecore
+                <v-chip color="primary" small class="betaChip"> BETA </v-chip>
+              </h2>
+            </v-col>
+            <v-spacer />
+          </v-row>
+        </div>
+        <v-spacer />
+        <v-chip class="mr-2"> Standard Plan </v-chip>
+        <v-btn :color="null" icon @click="this.logout()">
+          <v-icon icon="mdi-logout-variant" />
+        </v-btn>
+      </v-app-bar>
+
+      <!-- drawer -->
+      <v-navigation-drawer :expand-on-hover="true" :rail="!this.$vuetify.display.mobile" class="py-2 px-2" v-model="showDrawer"
+        :temporary="this.$vuetify.display.mobile" :permanent="!this.$vuetify.display.mobile" app>
+        <v-list style="overflow:hidden" v-if="identity" class="px-0 pt-0" mandatory nav dense>
+          <v-list-item class="my-2" :to="identity.action" active-color="primary">
+            <v-list-item-avatar color="primary">
+              {{ identity.name.substring(0, 1) }}
+            </v-list-item-avatar>
+            <div class="pl-2">
+              <v-list-item-title> {{ identity.name }} </v-list-item-title>
+              <v-list-item-subtitle> #{{ identity.id }} </v-list-item-subtitle>
+            </div>
+          </v-list-item>
+          <v-list-item class="my-2" :to="`${basePath}/${link.path}`" v-for="link in identity.links" :key="link.path"
+            active-color="primary">
+            <v-list-item-avatar>
+              <v-icon :icon="`mdi-${link.icon}`"></v-icon>
+            </v-list-item-avatar>
+
+            <v-list-item-title>{{ link.name }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-navigation-drawer>
+
+      <!-- view -->
+
+      <v-main>
+        <router-view @identity="handleIdentity"
+          v-if="isLogin || (this.credentials.authenticated && this.context.user)" />
+      </v-main>
+
+    </v-app>
+  </v-defaults-provider>
 </template>
+
+<script>
+export default {
+  computed: {
+    defaults() {
+      const common = {
+        VBtn: {
+          flat: true,
+          color: 'primary'
+        },
+        VAlert: {
+          color: "primary",
+          variant: "contained-text"
+        },
+        VToolbar: {
+          rounded: true,
+        }
+      }
+      if (this.$vuetify.theme.current == "dark") {
+        common.VCard = {
+          elevation: 0,
+          variant: "contained-text",
+        }
+      } else {
+        common.VCard = {
+          elevation: 0,
+          border: "a"
+        }
+        common.VToolbar.color = "grey-lighten-4"
+      }
+      return common
+    },
+    isLogin() {
+      return this.$router.currentRoute.value.fullPath.startsWith("/login");
+    },
+    showBack() {
+      return false
+    },
+    hasDrawer() {
+      return this.$router.currentRoute.value.href && this.$router.currentRoute.value.href.split("/").length > 3
+    },
+    showDrawer() {
+      return this.hasDrawer && (!this.$vuetify.display.mobile | this.drawer)
+    },
+    basePath() {
+      return this.$router.currentRoute.value.href.split("/").slice(0, 3).join("/")
+    },
+  },
+  data() {
+    return {
+      credentials: null,
+      loadingUser: false,
+      drawer: false,
+      identity: null,
+    };
+  },
+  methods: {
+    handleIdentity(identity) {
+      this.identity = identity
+    },
+    async updateUser() {
+      if (this.loadingUser) {
+        return;
+      }
+      this.loadingUser = true;
+      this.context.user = await this.purecore.getUser();
+      this.loadingUser = false;
+    },
+    logout() {
+      this.credentials.clear();
+      if (this.context.user) delete this.context.user;
+      this.$router.push("/login");
+    },
+  },
+  async beforeMount() {
+    this.credentials = this.purecore.getCredentials();
+
+    if (!this.credentials.authenticated) {
+      this.$router.push("/login");
+      return;
+    }
+
+    await this.updateUser();
+
+    this.credentials.addEventListener("cleared", () => {
+      if (this.context.user) delete this.context.user;
+      this.$router.push("/login");
+    });
+  },
+};
+</script>
+
 
 <style>
 * {
@@ -64,6 +198,7 @@ button.text-red:active {
 a.v-card:active {
   transform: scale(0.97);
 }
+
 a.v-card {
   transition: 100ms;
   transform: scale(1);
@@ -91,50 +226,8 @@ button.v-btn--size-default i {
 .fade-leave-to {
   opacity: 0;
 }
+
+a.v-list-item--active i {
+  color: #82b1ff;
+}
 </style>
-
-<script>
-export default {
-  computed: {
-    isLogin() {
-      return this.$router.currentRoute.value.fullPath.startsWith("/login");
-    },
-  },
-  data() {
-    return {
-      credentials: null,
-      loadingUser: false,
-    };
-  },
-  methods: {
-    async updateUser() {
-      if (this.loadingUser) {
-        return;
-      }
-      this.loadingUser = true;
-      this.context.user = await this.purecore.getUser();
-      this.loadingUser = false;
-    },
-    logout() {
-      this.credentials.clear();
-      if (this.context.user) delete this.context.user;
-      this.$router.push("/login");
-    },
-  },
-  async beforeMount() {
-    this.credentials = this.purecore.getCredentials();
-
-    if (!this.credentials.authenticated) {
-      this.$router.push("/login");
-      return;
-    }
-
-    await this.updateUser();
-
-    this.credentials.addEventListener("cleared", () => {
-      if (this.context.user) delete this.context.user;
-      this.$router.push("/login");
-    });
-  },
-};
-</script>
