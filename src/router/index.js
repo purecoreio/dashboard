@@ -146,6 +146,13 @@ const routes = [
             ]
           },
           {
+            path: "discount",
+            name: "discounts",
+            component: () => {
+              return import('../views/network/selected/store/Discounts.vue')
+            }
+          },
+          {
             path: "gateway",
             name: "gateways",
             component: () => {
