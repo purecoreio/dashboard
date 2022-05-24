@@ -16,6 +16,7 @@ app.use(router)
   .use(vuetify)
   .use(VueSmoothScroll, {
     duration: 200,
+    offset: -74,
     updateHistory: false,
     easingFunction: t => t * (2 - t),
   })
