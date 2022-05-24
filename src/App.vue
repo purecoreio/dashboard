@@ -82,6 +82,9 @@ export default {
           color: "primary",
           variant: "contained-text"
         },
+        VSwitch: {
+          color: "primary",
+        },
         VToolbar: {
           rounded: true,
         }
@@ -162,6 +165,7 @@ export default {
 
 
 <style>
+
 * {
   font-family: "Barlow", sans-serif !important;
 }
@@ -197,12 +201,12 @@ button.text-red:active {
 }
 
 a.v-card:active {
-  transform: scale(0.97);
+  box-shadow: 0 0 0 0.2rem rgba(68, 138, 255, 0.5) !important;
+  opacity: 0.75;
 }
 
 a.v-card {
-  transition: 100ms;
-  transform: scale(1);
+  transition: 200ms;
 }
 
 .v-btn--icon:active {

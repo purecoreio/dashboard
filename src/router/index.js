@@ -153,6 +153,24 @@ const routes = [
             }
           },
           {
+            path: "discount/:discount",
+            name: "discount",
+            meta: {
+              hidden: true,
+            },
+            component: () => {
+              return import('../views/network/selected/Wrapper.vue')
+            },
+            children: [
+              {
+                path: "",
+                component: () => {
+                  return import('../views/network/selected/store/Discount.vue')
+                }
+              },
+            ]
+          },
+          {
             path: "gateway",
             name: "gateways",
             component: () => {
