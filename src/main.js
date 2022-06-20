@@ -5,6 +5,7 @@ import router from './router'
 import Particles from "particles.vue3";
 import VueSmoothScroll from 'v-smooth-scroll'
 
+// https://docs.npmjs.com/cli/v8/commands/npm-link this may be useful so we can have a similar setup to main
 import purecore from "../../purecore-js";
 
 const app = createApp(App)
