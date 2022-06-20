@@ -9,7 +9,7 @@ import purecore from "purecore";
 
 const app = createApp(App)
 
-app.config.globalProperties.purecore = new purecore(undefined, true)
+app.config.globalProperties.purecore = new purecore()
 app.config.globalProperties.context = {}
 
 app.use(router)
