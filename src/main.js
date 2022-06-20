@@ -5,7 +5,7 @@ import router from './router'
 import Particles from "particles.vue3";
 import VueSmoothScroll from 'v-smooth-scroll'
 
-import purecore from "../../purecore-js";
+import purecore from "purecore";
 
 const app = createApp(App)
 
