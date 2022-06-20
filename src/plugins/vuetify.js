@@ -11,7 +11,7 @@ export default createVuetify(
       iconFont: "mdi",
     },
     theme: {
-      defaultTheme: 'light',
+      defaultTheme: 'dark',
       themes: {
         dark: {
           dark: true,

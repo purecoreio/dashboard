@@ -34,6 +34,13 @@ const routes = [
     ]
   },
   {
+    path: '/me',
+    name: "you",
+    component: () => {
+      return import('../views/me/Me.vue')
+    },
+  },
+  {
     path: '/network/:id',
     name: 'network',
     component: () => {
@@ -83,6 +90,15 @@ const routes = [
             path: "console",
             component: () => {
               return import('../views/network/selected/instance/view/Console.vue')
+            }
+          },
+          {
+            path: "host",
+            meta: {
+              hidden: true,
+            },
+            component: () => {
+              return import('../views/network/selected/instance/view/Host.vue')
             }
           },
         ]

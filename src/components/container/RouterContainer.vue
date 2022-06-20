@@ -12,7 +12,7 @@
             {{ title }}
           </p>
           <div>
-            <router-link :to="item.link" v-for="(item, i) in items" :key="`it${i}`" :class="`text-overline ${$vuetify.theme.current == 'dark' ? 'sideLinkDark' : 'sideLinkLight'
+            <router-link :to="item.link" v-for="(item, i) in items" :key="`it${i}`" :class="`text-overline ${$vuetify.theme.current.dark ? 'sideLinkDark' : 'sideLinkLight'
             }`" :data-active="true">
               {{ item.name }}
               <v-icon v-if="item.beta" icon="mdi-flask-outline" />

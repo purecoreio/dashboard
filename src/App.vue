@@ -28,14 +28,44 @@
         </div>
         <v-spacer />
         <v-chip class="mr-2"> Standard Plan </v-chip>
-        <v-btn :color="null" icon @click="this.logout()">
-          <v-icon icon="mdi-logout-variant" />
+
+        <v-btn icon>
+          <v-icon icon="mdi-account-circle" />
+          <v-menu open-on-hover location="start" activator="parent">
+            <v-list>
+              <v-list-item to="/me/machines">
+                <v-list-item-avatar>
+                  <v-icon icon="mdi-credit-card-outline" />
+                </v-list-item-avatar>
+                <v-list-item-title>Billing</v-list-item-title>
+              </v-list-item>
+              <v-list-item to="/me/machines">
+                <v-list-item-avatar>
+                  <v-icon icon="mdi-account-box-multiple-outline" />
+                </v-list-item-avatar>
+                <v-list-item-title>Profiles</v-list-item-title>
+              </v-list-item>
+              <v-list-item to="/me/machines">
+                <v-list-item-avatar>
+                  <v-icon icon="mdi-server-network" />
+                </v-list-item-avatar>
+                <v-list-item-title>Machines</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="this.logout()">
+                <v-list-item-avatar>
+                  <v-icon icon="mdi-logout-variant" />
+                </v-list-item-avatar>
+                <v-list-item-title>Logout</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </v-btn>
       </v-app-bar>
 
       <!-- drawer -->
-      <v-navigation-drawer :expand-on-hover="true" :rail="!this.$vuetify.display.mobile" class="py-2 px-2"
-        v-model="showDrawer" :temporary="this.$vuetify.display.mobile" :permanent="!this.$vuetify.display.mobile" app>
+      <v-navigation-drawer :expand-on-hover="true"
+        :rail="!this.$vuetify.display.mobile && this.$vuetify.display.lgAndDown" class="py-2 px-2" v-model="showDrawer"
+        :temporary="this.$vuetify.display.mobile" :permanent="!this.$vuetify.display.mobile" app>
         <v-list style="overflow:hidden" v-if="identity" class="px-0 pt-0" mandatory nav dense>
           <v-list-item class="my-2" :to="identity.action" active-color="primary">
             <v-list-item-avatar color="primary">
@@ -80,19 +110,19 @@ export default {
         },
         VAlert: {
           color: "primary",
-          variant: "contained-text"
+          variant: "tonal"
         },
         VSwitch: {
           color: "primary",
         },
         VToolbar: {
           rounded: true,
-        }
+        },
       }
-      if (this.$vuetify.theme.current == "dark") {
+      if (this.$vuetify.theme.current.dark) {
         common.VCard = {
           elevation: 0,
-          variant: "contained-text",
+          variant: "tonal",
         }
       } else {
         common.VCard = {
@@ -110,7 +140,7 @@ export default {
       return false
     },
     hasDrawer() {
-      return this.$router.currentRoute.value.href && this.$router.currentRoute.value.href.split("/").length > 3
+      return this.$router.currentRoute.value.href && (this.$router.currentRoute.value.href.split("/").length > 3 || this.$router.currentRoute.value.href.split("/")[1] == "me")
     },
     showDrawer() {
       return this.hasDrawer && (!this.$vuetify.display.mobile | this.drawer)
@@ -165,6 +195,10 @@ export default {
 
 
 <style>
+.v-list {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+}
 
 * {
   font-family: "Barlow", sans-serif !important;

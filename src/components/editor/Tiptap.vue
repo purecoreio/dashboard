@@ -3,8 +3,8 @@
 </template>
 
 <script>
-import { Editor, EditorContent } from "@tiptap/vue-3";
-import StarterKit from "@tiptap/starter-kit";
+import { Editor, EditorContent } from "@tiptap/vue-3/src/index";
+import StarterKit from "@tiptap/starter-kit/src/index";
 export default {
   components: {
     EditorContent,
