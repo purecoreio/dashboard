@@ -35,13 +35,10 @@
 <script>
 import absorber from "@/assets/particles/absorber.json";
 import AnimatedLogo from "@/components/logo/AnimatedLogo.vue";
-import { loadFull } from "tsparticles";
-import Woah from "../components/particles/Woah.vue";
 
 export default {
   components: {
-    AnimatedLogo,
-    Woah
+    AnimatedLogo
   },
   data() {
     return {
