@@ -37,7 +37,7 @@
     "vuetify-loader": "^2.0.0-alpha.0"
   },
   "engines": {
-    "node": "16.14.0",
-    "npm": "8.3.1"
+    "node": "16.15.1",
+    "npm": "8.11.0"
   }
 }
