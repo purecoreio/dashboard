@@ -18,8 +18,8 @@
         @keyup.enter="submit" />
     </v-col>
     <v-col cols="12">
-      <v-text-field :disabled="loading" v-model="cname" @keydown="manuallyChangedCname = true" hide-details
-        label="Subdomain" variant="outlined" @keyup.enter="submit" />
+      <v-text-field maxlength="32" :disabled="loading" v-model="cname" @keydown="manuallyChangedCname = true"
+        hide-details label="Subdomain" variant="outlined" @keyup.enter="submit" />
     </v-col>
     <v-col class="text-right" cols="12">
       <v-btn @click="submit" :disabled="loading" append-icon="mdi-keyboard-return">
@@ -40,13 +40,13 @@
                     <span class="text-green" v-if="cname">https://</span>{{ cname ? `${cname}.purecore.io` : '...' }}
                   </v-card>
                 </v-col>
-                <v-col cols="auto">
+                <v-col v-if="!$vuetify.display.mobile" cols="auto">
                   <v-icon size="tiny" icon="mdi-window-minimize" />
                 </v-col>
-                <v-col cols="auto">
+                <v-col v-if="!$vuetify.display.mobile" cols="auto">
                   <v-icon size="tiny" icon="mdi-square-outline" />
                 </v-col>
-                <v-col cols="auto">
+                <v-col v-if="!$vuetify.display.mobile" cols="auto">
                   <v-icon size="tiny" icon="mdi-close" />
                 </v-col>
               </v-row>
@@ -106,7 +106,7 @@ export default {
     },
     name(name) {
       if (!this.manuallyChangedCname) {
-        this.cname = name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "");
+        this.cname = name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "").substring(0, 32);
       }
     },
   },
