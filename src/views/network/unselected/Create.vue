@@ -18,8 +18,8 @@
         @keyup.enter="submit" />
     </v-col>
     <v-col cols="12">
-      <v-text-field :disabled="loading" v-model="cname" @keydown="updated = true" hide-details label="Subdomain"
-        variant="outlined" @keyup.enter="submit" />
+      <v-text-field :disabled="loading" v-model="cname" @keydown="manuallyChangedCname = true" hide-details
+        label="Subdomain" variant="outlined" @keyup.enter="submit" />
     </v-col>
     <v-col class="text-right" cols="12">
       <v-btn @click="submit" :disabled="loading" append-icon="mdi-keyboard-return">
@@ -61,7 +61,7 @@ import BackArrow from "@/components/buttons/BackArrow.vue";
 export default {
   data() {
     return {
-      updated: false,
+      manuallyChangedCname: false,
       name: null,
       cname: null,
       error: null,
@@ -85,8 +85,11 @@ export default {
     },
   },
   watch: {
+    cname(cname) {
+      this.cname = cname.toLowerCase()
+    },
     name(name) {
-      if (!this.updated) {
+      if (!this.manuallyChangedCname) {
         this.cname = name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "");
       }
     },
