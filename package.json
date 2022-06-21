@@ -36,7 +36,8 @@
     "vue-cli-plugin-vuetify": "~2.4.8",
     "vuetify-loader": "^2.0.0-alpha.0"
   },
-  "optionalDependencies": {
-    "fsevents": "^2.3.2"
+  "engines": {
+    "node": "16.14.0",
+    "npm": "8.3.1"
   }
 }
