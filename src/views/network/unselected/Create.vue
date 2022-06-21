@@ -10,7 +10,7 @@
   <v-row>
     <v-col cols="12">
       <v-expand-transition>
-        <v-alert v-show="this.error" variant="contained-text" color="primary" class="mb-7">
+        <v-alert v-show="this.error" color="primary" class="mb-7">
           {{ error }}
         </v-alert>
       </v-expand-transition>
@@ -18,8 +18,8 @@
         @keyup.enter="submit" />
     </v-col>
     <v-col cols="12">
-      <v-text-field :disabled="loading" v-model="cname" @keydown="updated = true" hide-details label="Subdomain"
-        variant="outlined" @keyup.enter="submit" />
+      <v-text-field maxlength="32" :disabled="loading" v-model="cname" @keydown="manuallyChangedCname = true"
+        hide-details label="Subdomain" variant="outlined" @keyup.enter="submit" />
     </v-col>
     <v-col class="text-right" cols="12">
       <v-btn @click="submit" :disabled="loading" append-icon="mdi-keyboard-return">
@@ -30,13 +30,29 @@
       <v-divider />
     </v-col>
     <v-col cols="12">
-      <v-card variant="contained-text" style="height: 400px; overflow: hidden">
+      <v-sheet style="height: 400px; overflow: hidden">
         <v-row no-gutters>
           <v-col cols="12">
-            <v-text-field append-inner-icon="mdi-dots-horizontal" bg-color="black" disabled
-              :label="cname ? `${cname}.purecore.io` : '...'" variant="contained" single-line />
+            <v-sheet class="px-3 py-2" color="black">
+              <v-row align="center">
+                <v-col>
+                  <v-card :rounded="true" class="px-3 py-1">
+                    <span class="text-green" v-if="cname">https://</span>{{ cname ? `${cname}.purecore.io` : '...' }}
+                  </v-card>
+                </v-col>
+                <v-col v-if="!$vuetify.display.mobile" cols="auto">
+                  <v-icon size="tiny" icon="mdi-window-minimize" />
+                </v-col>
+                <v-col v-if="!$vuetify.display.mobile" cols="auto">
+                  <v-icon size="tiny" icon="mdi-square-outline" />
+                </v-col>
+                <v-col v-if="!$vuetify.display.mobile" cols="auto">
+                  <v-icon size="tiny" icon="mdi-close" />
+                </v-col>
+              </v-row>
+            </v-sheet>
           </v-col>
-          <v-col class="text-center" cols="12">
+          <v-col class="text-center pt-10" cols="12">
             <div style="
                 max-width: 300px;
                 margin-left: auto;
@@ -48,11 +64,10 @@
             </div>
           </v-col>
           <v-col cols="12">
-            <v-card class="mt-3 pa-2" variant="contained-text"
-              style="width: 50%; height: 1000px; margin-left: auto; margin-right: auto" />
+            <v-card class="mt-3 pa-2" style="width: 50%; height: 1000px; margin-left: auto; margin-right: auto" />
           </v-col>
         </v-row>
-      </v-card>
+      </v-sheet>
     </v-col>
   </v-row>
 </template>
@@ -61,7 +76,7 @@ import BackArrow from "@/components/buttons/BackArrow.vue";
 export default {
   data() {
     return {
-      updated: false,
+      manuallyChangedCname: false,
       name: null,
       cname: null,
       error: null,
@@ -85,9 +100,12 @@ export default {
     },
   },
   watch: {
+    cname(cname) {
+      this.cname = cname.toLowerCase()
+    },
     name(name) {
-      if (!this.updated) {
-        this.cname = name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "");
+      if (!this.manuallyChangedCname) {
+        this.cname = name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "").substring(0, 32);
       }
     },
   },

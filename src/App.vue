@@ -118,16 +118,21 @@ export default {
         VToolbar: {
           rounded: true,
         },
+        VCard: {
+          rounded: 0,
+        }
       }
       if (this.$vuetify.theme.current.dark) {
         common.VCard = {
           elevation: 0,
           variant: "tonal",
+          rounded: 0
         }
       } else {
         common.VCard = {
           elevation: 0,
-          border: "a"
+          border: "a",
+          rounded: 0
         }
         common.VToolbar.color = "grey-lighten-4"
       }
