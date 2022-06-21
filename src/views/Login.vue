@@ -5,7 +5,7 @@
     </p>
   </v-snackbar>
   <v-row style="height:100%" align="center" justify="center">
-    <v-col cols="11" sm="6" md="4" lg="3" xl="2">
+    <v-col cols="11" sm="5" md="4" lg="3" xl="2">
       <div class="text-center mb-3">
         <animated-logo />
       </div>
