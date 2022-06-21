@@ -16,7 +16,7 @@
     "js-beautify": "^1.14.3",
     "particles.vue3": "^2.1.0",
     "prismjs": "^1.28.0",
-    "purecore": "^3.2.2",
+    "purecore": "^3.2.3",
     "roboto-fontface": "*",
     "tsparticles": "^2.1.0",
     "v-smooth-scroll": "^2.0.0-beta.2",
