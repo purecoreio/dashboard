@@ -19,7 +19,7 @@
         <v-row no-gutters>
           <v-col class="text-center" v-for="(method, i) in methods.secondary" :key="i">
             <v-btn @click="handleLogin(method.name ?? method)" size="small" color="black" flat icon>
-              <v-icon size="small">mdi-{{ method.icon ?? method.toLowerCase() }}</v-icon>
+              <v-icon>mdi-{{ method.icon ?? method.toLowerCase() }}</v-icon>
             </v-btn>
           </v-col>
         </v-row>
