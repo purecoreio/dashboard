@@ -10,7 +10,7 @@
   <v-row>
     <v-col cols="12">
       <v-expand-transition>
-        <v-alert v-show="this.error" variant="contained-text" color="primary" class="mb-7">
+        <v-alert v-show="this.error" color="primary" class="mb-7">
           {{ error }}
         </v-alert>
       </v-expand-transition>
@@ -64,8 +64,7 @@
             </div>
           </v-col>
           <v-col cols="12">
-            <v-card class="mt-3 pa-2" variant="contained-text"
-              style="width: 50%; height: 1000px; margin-left: auto; margin-right: auto" />
+            <v-card class="mt-3 pa-2" style="width: 50%; height: 1000px; margin-left: auto; margin-right: auto" />
           </v-col>
         </v-row>
       </v-sheet>
