@@ -1,1 +1,85 @@
-{}
+{
+    "fpsLimit": 120,
+    "particles": {
+        "color": {
+            "value": "#fff"
+        },
+        "move": {
+            "direction": "none",
+            "enable": true,
+            "outModes": {
+                "default": "destroy"
+            },
+            "speed": 2,
+            "straight": false,
+            "trail": {
+                "fillColor": "#fff",
+                "length": 1920,
+                "enable": true
+            },
+            "opacity":{
+                "animation":{
+                    "count":0,
+                    "enable":true,
+                    "speed":2,
+                    "decay":0,
+                    "sync":false,
+                    "destroy":"none",
+                    "startValue":"random"
+                }
+            }
+        },
+        "number": {
+            "value": 0,
+            "limit": 20
+        },
+        "shape": {
+            "type": "circle"
+        },
+        "size": {
+            "value": {
+                "min": 3,
+                "max": 10
+            },
+            "animation": {
+                "count": 1,
+                "startValue": "min",
+                "enable": true,
+                "speed": 2,
+                "sync": true
+            }
+        }
+    },
+    "fullScreen": true,
+    "detectRetina": true,
+    "emitters": {
+        "direction": "none",
+        "rate": {
+            "quantity": 1,
+            "delay": 0.6
+        },
+        "size": {
+            "width": 0,
+            "height": 0,
+            "mode": "precise"
+        },
+        "spawnColor": {
+            "value": "#82b1ff",
+            "animation": {
+                "l": {
+                    "enable": true,
+                    "offset": {
+                        "min": -0.2,
+                        "max": 0.2
+                    },
+                    "speed": 0,
+                    "sync": false
+                }
+            }
+        },
+        "position": {
+            "x": 50,
+            "y": 50
+        }
+    }
+}
