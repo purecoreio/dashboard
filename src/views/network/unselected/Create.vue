@@ -30,13 +30,29 @@
       <v-divider />
     </v-col>
     <v-col cols="12">
-      <v-card variant="contained-text" style="height: 400px; overflow: hidden">
+      <v-sheet style="height: 400px; overflow: hidden">
         <v-row no-gutters>
           <v-col cols="12">
-            <v-text-field append-inner-icon="mdi-dots-horizontal" bg-color="black" disabled
-              :label="cname ? `${cname}.purecore.io` : '...'" variant="contained" single-line />
+            <v-sheet class="px-3 py-2" color="black">
+              <v-row align="center">
+                <v-col>
+                  <v-card :rounded="true" class="px-3 py-1">
+                    <span class="text-green" v-if="cname">https://</span>{{ cname ? `${cname}.purecore.io` : '...' }}
+                  </v-card>
+                </v-col>
+                <v-col cols="auto">
+                  <v-icon size="tiny" icon="mdi-window-minimize" />
+                </v-col>
+                <v-col cols="auto">
+                  <v-icon size="tiny" icon="mdi-square-outline" />
+                </v-col>
+                <v-col cols="auto">
+                  <v-icon size="tiny" icon="mdi-close" />
+                </v-col>
+              </v-row>
+            </v-sheet>
           </v-col>
-          <v-col class="text-center" cols="12">
+          <v-col class="text-center pt-10" cols="12">
             <div style="
                 max-width: 300px;
                 margin-left: auto;
@@ -52,7 +68,7 @@
               style="width: 50%; height: 1000px; margin-left: auto; margin-right: auto" />
           </v-col>
         </v-row>
-      </v-card>
+      </v-sheet>
     </v-col>
   </v-row>
 </template>
