@@ -3,10 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "serve": "vite preview",
-    "build": "vite build",
-    "dev": "vite",
-    "preview": "vite preview"
+    "undolocal": "npm unlink --no-save purecore && npm install purecore",
+    "dolocal": "npm link purecore",
+    "build": "npm run undolocal && vite build",
+    "serve": "vite",
+    "dev": "npm run undolocal && npm run serve",
+    "ldev": "npm run dolocal && npm run serve",
+    "lldev": "npm run dolocal && vite --mode lldev"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.1.1",
