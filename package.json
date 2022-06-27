@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "undolocal": "npm unlink --no-save purecore && npm install purecore",
+    "undolocal": "npm unlink --no-save purecore && npm install",
     "dolocal": "npm link purecore",
     "build": "npm run undolocal && vite build",
     "serve": "vite",
