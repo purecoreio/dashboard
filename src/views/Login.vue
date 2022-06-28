@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import { event } from 'vue-gtag'
 import absorber from "@/assets/particles/absorber.json";
 import AnimatedLogo from "@/components/logo/AnimatedLogo.vue";
 
@@ -75,6 +76,7 @@ export default {
       try {
         await this.purecore.login(method.toLowerCase());
         this.context.user = await this.purecore.getUser();
+        event('login', { method: method })
         this.$router.push("/network");
       } catch (error) {
         this.error.message = error.message;
