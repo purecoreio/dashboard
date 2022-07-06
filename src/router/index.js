@@ -13,7 +13,7 @@ const routes = [
     }
   },
   {
-    path: '/network',
+    path: '/networks',
     name: 'noNetwork',
     component: () => {
       return import('../views/network/unselected/Unselected.vue')
@@ -41,12 +41,12 @@ const routes = [
     },
   },
   {
-    path: '/network/:id',
+    path: '/network/',
     name: 'network',
     component: () => {
       return import('../views/network/selected/Network.vue')
     },
-    redirect: (to) => { return `/network/${to.params.id}/instance` },
+    redirect: () => { return `/network/instances` },
     children: [
       {
         path: ":catchAll(.*)",
@@ -55,7 +55,7 @@ const routes = [
         }
       },
       {
-        path: "instance",
+        path: "instances",
         component: () => {
           return import('../views/network/selected/instance/Instance.vue')
         }
@@ -66,7 +66,7 @@ const routes = [
         component: () => {
           return import('../views/network/selected/instance/Wrapper.vue')
         },
-        redirect: (to) => { return `/network/${to.params.id}/instance/${to.params.instance}/settings` },
+        redirect: (to) => { return `/network/instance/${to.params.instance}/settings` },
         children: [
           {
             path: "settings",
@@ -108,7 +108,7 @@ const routes = [
         component: () => {
           return import('../views/network/selected/Wrapper.vue')
         },
-        redirect: (to) => { return `/network/${to.params.id}/settings/identity` },
+        redirect: (to) => { return `/network/settings/identity` },
         children: [
           {
             path: "identity",
@@ -131,7 +131,7 @@ const routes = [
         component: () => {
           return import('../views/network/selected/Wrapper.vue')
         },
-        redirect: (to) => { return `/network/${to.params.id}/store/category` },
+        redirect: (to) => { return `/network/store/category` },
         children: [
           {
             path: "category",

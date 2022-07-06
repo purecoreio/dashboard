@@ -16,13 +16,11 @@
           {{ method.name ?? method }}
         </v-btn>
         <v-divider class="mb-3 mt-3" />
-        <v-row justify="center" align="center" no-gutters>
-          <v-col v-for="(method, i) in methods.secondary" :key="i">
-            <center>
-              <v-btn @click="handleLogin(method.name ?? method)" size="small" color="black" flat icon>
-                <v-icon>mdi-{{ method.icon ?? method.toLowerCase() }}</v-icon>
-              </v-btn>
-            </center>
+        <v-row no-gutters>
+          <v-col align="center" v-for="(method, i) in methods.secondary" :key="i">
+            <v-btn @click="handleLogin(method.name ?? method)" color="black" flat icon>
+              <v-icon>mdi-{{ method.icon ?? method.toLowerCase() }}</v-icon>
+            </v-btn>
           </v-col>
         </v-row>
       </v-sheet>
@@ -79,7 +77,7 @@ export default {
         await this.purecore.login(method.toLowerCase());
         this.context.user = await this.purecore.getUser();
         event('login', { method: method })
-        this.$router.push("/network");
+        this.$router.push("/networks");
       } catch (error) {
         this.error.message = error.message;
         this.error.val = true;

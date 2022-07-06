@@ -11,7 +11,17 @@ const app = createApp(App)
 
 const mode = import.meta.env.MODE
 app.config.globalProperties.purecore = new purecore(undefined, mode == 'lldev')
-app.config.globalProperties.context = {}
+app.config.globalProperties.select = function (id) {
+  this.context.selected = id
+  localStorage.setItem("selected", id)
+}
+app.config.globalProperties.unselect = function () {
+  this.context.selected = null
+  localStorage.removeItem("selected")
+}
+app.config.globalProperties.context = {
+  selected: localStorage.getItem("selected")
+}
 
 app.use(router)
   .use(vuetify)

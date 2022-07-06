@@ -3,7 +3,7 @@
     <instance-wizard @created="created" @deleted="deleted" :network="network" />
   </div>
   <div>
-    <v-card :to="`/network/${network.id}/instance/${instance.id}`" class="mb-3 px-5 py-4" v-for="instance in instances"
+    <v-card :to="`/network/instance/${instance.id}`" class="mb-3 px-5 py-4" v-for="instance in instances"
       :key="instance.id">
       <v-row align="center" no-gutters>
         <v-col>

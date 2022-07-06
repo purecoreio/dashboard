@@ -1,5 +1,5 @@
 <template>
-  <v-card class="px-5">
+  <v-card class="px-5 py-3">
     <v-row align="center">
       <v-col cols="auto">
         <v-img :width="120" contain position="left" :height="name == 'stripe' ? 52 : 32" :src="icon" />

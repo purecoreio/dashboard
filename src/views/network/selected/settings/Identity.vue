@@ -24,7 +24,7 @@
           variant="outlined"
         />
       </v-col>
-      <v-col class="text-right" cols="12">
+      <v-col align="right" cols="12">
         <v-btn
           :disabled="loading"
           @click="updateIdentity()"

@@ -156,9 +156,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.v-field--variant-filled {
-  border-radius: 0 !important;
-}
-</style>

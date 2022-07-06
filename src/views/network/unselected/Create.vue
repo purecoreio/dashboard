@@ -90,8 +90,10 @@ export default {
     async submit() {
       this.loading = true;
       try {
+        const created = await this.context.user.createNetwork(this.name, this.cname)
+        this.select(created.id)
         this.$router.push(
-          `/network/${(await this.context.user.createNetwork(this.name, this.cname)).id}`
+          `/network/`
         );
       } catch (error) {
         this.error = error.message;

@@ -55,9 +55,9 @@ export default {
       const matched = route.matched;
       if (matched.length > 1) {
         const penultimate = matched[matched.length - 2];
+        const path = penultimate.path.split("/").filter((v) => v != "")
         if (
-          penultimate &&
-          penultimate.path.split("/").length > 3 &&
+          path.length >= 2 &&
           penultimate.children
         ) {
           this.items = penultimate.children

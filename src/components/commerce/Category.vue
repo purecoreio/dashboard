@@ -44,7 +44,7 @@
       </v-col>
     </v-row>
     <v-list class="py-0">
-      <v-list-item :to="`/network/${this.category.network.id}/store/category/${this.category.id}`">
+      <v-list-item :to="`/network/store/category/${this.category.id}`">
         <v-row no-gutters align="center">
           <v-col class="pr-3" cols="auto">
             <v-btn :disabled="loading" size="small" variant="text" icon>
@@ -57,7 +57,7 @@
       <v-divider v-if="packages.length > 0" />
       <draggable v-model="packages" :group="category.id" handle=".handle" @change="packageSort" item-key="id">
         <template #item="{ element }">
-          <v-list-item :to="`/network/${this.category.network.id}/store/category/${this.category.id}/${element.id}`">
+          <v-list-item :to="`/network/store/category/${this.category.id}/${element.id}`">
             <v-row no-gutters align="center">
               <v-col class="pr-3" cols="auto">
                 <v-btn :disabled="loading || modified" class="handle" size="small"

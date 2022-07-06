@@ -116,7 +116,7 @@ export default {
           color: "primary",
         },
         VToolbar: {
-          rounded: true,
+          rounded: false,
         },
         VCard: {
           rounded: 0,
@@ -144,14 +144,19 @@ export default {
     showBack() {
       return false
     },
+    firstElement(){
+      const elements = this.$router.currentRoute.value.href ? this.$router.currentRoute.value.href.split("/") : []
+      const firstElement = elements.length > 1 ? elements[1] : null
+      return firstElement
+    },
     hasDrawer() {
-      return this.$router.currentRoute.value.href && (this.$router.currentRoute.value.href.split("/").length > 3 || this.$router.currentRoute.value.href.split("/")[1] == "me")
+      return this.firstElement && ["me", "network"].includes(this.firstElement)
     },
     showDrawer() {
       return this.hasDrawer && (!this.$vuetify.display.mobile | this.drawer)
     },
     basePath() {
-      return this.$router.currentRoute.value.href.split("/").slice(0, 3).join("/")
+      return `/${this.firstElement}`
     },
   },
   data() {
@@ -200,6 +205,12 @@ export default {
 
 
 <style>
+.v-field--variant-filled {
+  border-radius: 0 !important;
+}
+
+
+
 .v-list {
   padding-top: 0px !important;
   padding-bottom: 0px !important;
