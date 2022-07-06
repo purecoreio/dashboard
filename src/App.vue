@@ -183,6 +183,7 @@ export default {
       this.credentials.clear();
       if (this.context.user) delete this.context.user;
       this.$router.push("/login");
+      this.unselect()
     },
   },
   async beforeMount() {
