@@ -206,7 +206,7 @@ export default {
 }
 
 * {
-  font-family: "Barlow", sans-serif !important;
+  font-family: 'Rubik', sans-serif;
 }
 
 a {
@@ -221,16 +221,16 @@ a {
   opacity: 0;
 }
 
-button {
+.v-btn {
   text-transform: none !important;
 }
 
-button:active {
+.v-btn:active {
   transition: 200ms;
   box-shadow: 0 0 0 0.2rem rgba(68, 138, 255, 0.5) !important;
 }
 
-button.text-red:active {
+.v-btn.text-red:active {
   transition: 200ms;
   box-shadow: 0 0 0 0.2rem rgba(255, 68, 68, 0.5) !important;
 }
