@@ -16,11 +16,13 @@
           {{ method.name ?? method }}
         </v-btn>
         <v-divider class="mb-3 mt-3" />
-        <v-row no-gutters>
-          <v-col class="text-center" v-for="(method, i) in methods.secondary" :key="i">
-            <v-btn @click="handleLogin(method.name ?? method)" size="small" color="black" flat icon>
-              <v-icon>mdi-{{ method.icon ?? method.toLowerCase() }}</v-icon>
-            </v-btn>
+        <v-row justify="center" align="center" no-gutters>
+          <v-col v-for="(method, i) in methods.secondary" :key="i">
+            <center>
+              <v-btn @click="handleLogin(method.name ?? method)" size="small" color="black" flat icon>
+                <v-icon>mdi-{{ method.icon ?? method.toLowerCase() }}</v-icon>
+              </v-btn>
+            </center>
           </v-col>
         </v-row>
       </v-sheet>
