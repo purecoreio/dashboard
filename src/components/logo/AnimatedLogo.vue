@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex align-center logoWhole justify-center">
+  <div class="d-flex align-center justify-center">
     <v-img
       alt="purecore.io logo"
       class="logoAnimation mr-4"
@@ -8,9 +8,9 @@
       max-width="40"
       scale-transition
     />
-    <span class="logoText mr-3" style="font-size: 30px; padding-bottom: 5px">
+    <span class="mr-3 logoText" style="font-size: 30px; padding-bottom: 5px">
       purecore
-      <v-chip color="primary" small class="betaChip"> BETA </v-chip>
+      <v-chip color="primary" small> BETA </v-chip>
     </span>
   </div>
 </template>
@@ -40,31 +40,14 @@ export default {
   animation-fill-mode: forwards;
 }
 
-.betaChip {
-  padding-bottom: 2px !important;
-  animation: betaFade;
-  animation-delay: 3s;
-  animation-duration: 200ms;
-  animation-fill-mode: forwards;
-}
-
-.logoWhole {
-  animation: logoReposition;
-  animation-delay: 3s;
-  animation-duration: 300ms;
-  animation-fill-mode: forwards;
-}
-
 @keyframes textIntro {
   0% {
     opacity: 0;
     color: #448aff;
-    transform: translateX(-20px);
   }
   50% {
     opacity: 1;
     color: #448aff;
-    transform: translateX(0px);
   }
   100% {
     opacity: 1;
@@ -75,15 +58,9 @@ export default {
 @keyframes logoIntro {
   0% {
     transform: rotate(0deg);
-    filter: grayscale(0);
-  }
-  50% {
-    transform: rotate(360deg);
-    filter: grayscale(0);
   }
   100% {
     transform: rotate(360deg);
-    filter: grayscale(1);
   }
 }
 
