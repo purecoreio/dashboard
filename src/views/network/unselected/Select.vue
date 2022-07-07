@@ -42,7 +42,7 @@ export default {
   },
   async beforeCreate() {
     this.networks = await this.context.user.getNetworks();
-    if (this.networks.length <= 0) this.$router.push("/network/create");
+    if (this.networks.length <= 0) this.$router.push("/networks/create");
   },
 };
 </script>
