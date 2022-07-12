@@ -20,7 +20,7 @@ app.config.globalProperties.unselect = function () {
   localStorage.removeItem("selected")
 }
 app.config.globalProperties.context = {
-  selected: localStorage.getItem("selected")
+  selected: localStorage.getItem("selected"),
 }
 
 app.use(router)

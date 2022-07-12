@@ -5,7 +5,7 @@
     the account of the owner of this network. If you want the funds to go directly to your
     account, select forward and you'll be able to link your account for any given service.
   </v-alert>
-  <gateway class="mb-3" v-for="gateway in gateways" :key="gateway" :name="gateway" />
+  <gateway v-for="gateway in gateways" :key="gateway" :name="gateway" :enabled="true" />
 </template>
 <script>
 import gateway from "@/components/commerce/Gateway.vue";
