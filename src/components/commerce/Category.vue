@@ -73,7 +73,7 @@
                   #{{ element.id }}
                 </v-list-item-subtitle>
               </v-col>
-              <v-col class="text-right" cols="1"> {{ element.price }} € </v-col>
+              <v-col class="text-right" cols="1"> {{ element.price.amount.original.amount }} {{ element.price.amount.original.currency }} </v-col>
             </v-row>
           </v-list-item>
         </template>

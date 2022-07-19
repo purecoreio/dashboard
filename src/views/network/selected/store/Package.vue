@@ -5,8 +5,8 @@
         <v-text-field :disabled="loading" full-width class="left" @keyup.enter="pkg ? update() : create()" v-model="name" hide-details
           label="Name" autofocus />
       </v-col>
-      <v-col cols="4">
-        <v-text-field :disabled="loading" full-width class="right" @keyup.enter="pkg ? update() : create()" :round="0" v-model="price"
+      <v-col cols="2">
+        <v-text-field :disabled="loading" full-width class="right" @keyup.enter="pkg ? update() : create()" :round="2" v-model="price"
           label="Price" hide-details type="number" />
       </v-col>
     </v-row>
@@ -75,7 +75,7 @@ export default {
         this.pkg = await this.category.getPackage(this.$route.params.package);
         this.name = this.pkg.name;
         this.description = this.pkg.description;
-        this.price = this.pkg.price;
+        this.price = this.pkg.price.amount.original.amount;
         await this.$nextTick();
         this.modified = false;
       }
@@ -113,7 +113,7 @@ export default {
       this.loading = true;
       try {
         await this.pkg.delete();
-        this.$router.push({ path: `/network/${this.network.id}/store` });
+        this.$router.push({ path: `/network/store` });
         this.error = null;
       } catch (error) {
         this.error = error.message;
@@ -121,7 +121,7 @@ export default {
       this.loading = false;
     },
     async restore() {
-      this.price = this.pkg.price;
+      this.price = this.pkg.price.amount.original.amount;
       this.name = this.pkg.name;
       this.description = this.pkg.description;
       await this.$nextTick();

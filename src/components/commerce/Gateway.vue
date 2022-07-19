@@ -1,8 +1,8 @@
 <template>
-  <v-snackbar v-model="error">
-    {{ error }}
+  <v-snackbar variant="text" text color="primary" v-model="message">
+    {{ message }}
   </v-snackbar>
-  <v-card class="px-5 py-3 mb-3">
+  <v-card class="px-5 py-3 mt-3">
     <v-row align="center">
       <v-col style="width:120px" cols="auto">
         <center>
@@ -10,25 +10,20 @@
         </center>
       </v-col>
       <v-spacer />
-      <v-col v-if="linked" cols="auto">
-        <v-btn :disabled="!enabled" :color="enabled ? 'primary' : null" size="small" variant="text" icon>
+      <v-col v-if="!gateway.wallet.available" cols="auto">
+        <v-btn color="warning" :href="gateway.wallet.limitsURL" target="_blank" variant="text"
+          append-icon="mdi-alert">
+          Fix
+        </v-btn>
+      </v-col>
+      <v-col cols="auto">
+        <v-btn :disabled="!gateway.wallet.available" :color="enabled ? 'primary' : null" size="small" variant="text"
+          icon>
           <v-icon> mdi-cog-outline </v-icon>
         </v-btn>
       </v-col>
-      <v-col v-if="linked" cols="auto">
-        <v-btn-toggle mandatory :disabled="!enabled" :color="enabled ? 'primary' : null" style="height: 42px"
-          v-model="credit">
-          <v-btn prepend-icon="mdi-circle-multiple-outline" :value="1"> Credit </v-btn>
-          <v-btn prepend-icon="mdi-forwardburger" :value="0"> Forward </v-btn>
-        </v-btn-toggle>
-      </v-col>
-      <v-col v-if="linked" cols="auto">
-        <v-switch color="primary" hide-details v-model="enabled"></v-switch>
-      </v-col>
-      <v-col v-if="!linked" cols="auto">
-        <v-btn @click="link" variant="text" append-icon="mdi-shape-circle-plus">
-          Link
-        </v-btn>
+      <v-col cols="auto">
+        <v-switch :disabled="!gateway.wallet.available" color="primary" hide-details v-model="enabled"></v-switch>
       </v-col>
     </v-row>
   </v-card>
@@ -38,10 +33,11 @@ import paypal from "@/assets/commerce/gateway/paypal.svg";
 import mollie from "@/assets/commerce/gateway/mollie.svg";
 import stripe from "@/assets/commerce/gateway/stripe.svg";
 export default {
-  props: ["name", "credit", "enabled", "linked"],
+  props: ["gateway"],
+  emits: ["linked"],
   computed: {
     icon() {
-      switch (this.name.toLowerCase()) {
+      switch (this.gateway.wallet.service.toLowerCase()) {
         case "stripe":
           return stripe;
         case "paypal":
@@ -51,28 +47,13 @@ export default {
       }
     },
   },
+  mounted(){
+    console.log(this.gateway.wallet.limitsURL)
+  },
   data: () => {
     return {
       linking: false,
-      error: null
     }
   },
-  methods: {
-    showError(error) {
-      this.error = error
-      setTimeout(() => {
-        this.error = null
-      }, 3000);
-    },
-    async link(privateKey = null, publicKey = null) {
-      this.linking = true
-      try {
-        await this.context.user.linkWallet(this.name, privateKey, publicKey)
-      } catch (error) {
-        this.showError(error.message)
-      }
-      this.linking = false
-    }
-  }
 };
 </script>
