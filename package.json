@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite dev --port 5173",
-    "build": "vite build",
+    "build": "npm install -g pnpm && pnpm i && vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
