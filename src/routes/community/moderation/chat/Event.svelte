@@ -12,7 +12,7 @@
 
 <td>
     <div class="flex flex-col items-center justify-center gap-2 px-3">
-        <Avatar src="https://minotar.net/avatar/quiquelhappy" />
+        <Avatar src={`https://minotar.net/helm/${message.sender}`} />
         <span class="text-xs">
             {message.sender}
         </span>
