@@ -2,7 +2,7 @@
     import { Card } from "flowbite-svelte";
     import Chart from "../element/Chart.svelte";
     import Plus from "~icons/ic/round-plus";
-    import type Community from "$lib/SB/Community";
+    import type Community from "$lib/sb/Community";
     import { onMount } from "svelte";
     import Serverbench from "$lib/sb/Srvbench";
     import { goto } from "$app/navigation";
