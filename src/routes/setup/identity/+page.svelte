@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import Srvbench from "$lib/sb/SrvBench";
+    import Srvbench from "$lib/sb/Srvbench";
     import {
         Label,
         Input,
