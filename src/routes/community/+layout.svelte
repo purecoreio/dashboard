@@ -16,7 +16,7 @@
     import command from "~icons/mdi/apple-keyboard-command";
     import settings from "~icons/ic/baseline-settings";
     import { onMount } from "svelte";
-    import Srvbench from "$lib/sb/SrvBench";
+    import Srvbench from "$lib/sb/Srvbench";
     import { goto } from "$app/navigation";
 
     const tools = [
