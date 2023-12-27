@@ -6,7 +6,7 @@ export default class Srvbench {
 
     private community: Community | null
     private ownedCommunities: Community[] | null
-    private moderatedCommunities: Community[] | null
+    private moderatedCommunities: Staff[] | null
 
     private static instance: Srvbench | null = null
 
@@ -67,7 +67,7 @@ export default class Srvbench {
         if (!this.ownedCommunities || !this.moderatedCommunities) {
             const result = await this.rest('community')
             this.ownedCommunities = result.owned.map((o: any) => Community.fromObject(o))
-            this.moderatedCommunities = result.moderated.map((o: any) => Community.fromObject(o))
+            this.moderatedCommunities = result.moderated.map((o: any) => Staff.fromObject(o))
         }
     }
 

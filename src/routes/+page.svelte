@@ -6,9 +6,10 @@
     import { onMount } from "svelte";
     import Serverbench from "$lib/sb/Srvbench";
     import { goto } from "$app/navigation";
+    import type Staff from "$lib/sb/Staff";
 
     let ownedCommunities: Community[] | null = null;
-    let moderatedCommunites: Community[] | null = null;
+    let moderatedCommunites: Staff[] | null = null;
 
     onMount(async () => {
         ownedCommunities =
@@ -19,7 +20,7 @@
 
     function selectCommunity(community: Community) {
         Serverbench.getInstance().setCommunity(community);
-        goto('/community/servers/list/')
+        goto("/community/servers/list/");
     }
 </script>
 
@@ -29,10 +30,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {#if ownedCommunities}
                 {#each ownedCommunities as community}
-                    <Card
-                        href="#"
-                        on:click={() => selectCommunity(community)}
-                    >
+                    <Card href="#" on:click={() => selectCommunity(community)}>
                         <h2 class="text-xl font-semibold">{community.name}</h2>
                         <Chart height={150} />
                     </Card>
@@ -52,9 +50,11 @@
         <h1 class="text-xl text-black font-semibold mb-3">Moderated Servers</h1>
         <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-5">
             {#if moderatedCommunites}
-                {#each moderatedCommunites as community}
-                    <Card href="/community/servers/list">
-                        <h2 class="text-xl font-semibold">{community.name}</h2>
+                {#each moderatedCommunites as staff}
+                    <Card href="#" on:click={() => selectCommunity(staff.community)}>
+                        <h2 class="text-xl font-semibold">
+                            {staff.community.name}
+                        </h2>
                         <Chart height={150} />
                     </Card>
                 {/each}
