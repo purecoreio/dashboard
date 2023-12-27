@@ -1,6 +1,6 @@
 <script lang="ts">
     import type Key from "$lib/sb/Key";
-    import Srvbench from "$lib/sb/SrvBench";
+    import Srvbench from "$lib/sb/Srvbench";
     import { onMount } from "svelte";
     import Copy from "~icons/ic/baseline-content-copy";
     import {

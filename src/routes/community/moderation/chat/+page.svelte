@@ -13,7 +13,7 @@
     import Spiral from "~icons/streamline/spiral-shape-solid";
     import Document from "~icons/mdi/document";
     import { onMount } from "svelte";
-    import Srvbench from "$lib/sb/SrvBench";
+    import Srvbench from "$lib/sb/Srvbench";
     import Event from "./Event.svelte";
 
     let summaries = [
