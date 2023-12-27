@@ -46,7 +46,7 @@
         {
             name: "community",
             icon: people,
-            options: ["analytics", "players", "events", "news", "hooks"],
+            options: ["members", "analytics", "events", "news", "hooks"],
         },
         {
             name: "website",
@@ -61,7 +61,7 @@
         {
             name: "settings",
             icon: settings,
-            options: ["keys", "identity", "delete", "roles", "staff"],
+            options: ["keys", "identity", "delete", "staff"],
         },
     ];
     $: activeUrl = $page.url.pathname;
@@ -73,7 +73,7 @@
     onMount(async () => {
         const srv = Srvbench.getInstance();
         try {
-            await srv.restoreCommunity()
+            await srv.restoreCommunity();
         } catch (error) {}
         if (!srv.getCommunity()) goto("/");
         loading = false;

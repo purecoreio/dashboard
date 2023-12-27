@@ -7,50 +7,61 @@
     import Mail from "~icons/mingcute/mail-fill";
     import Gavel from "~icons/fluent/gavel-24-filled";
 
-    export let message: any;
+    export let message: any,
+        instance: any,
+        color:
+            | "red"
+            | "yellow"
+            | "green"
+            | "indigo"
+            | "purple"
+            | "pink"
+            | "blue"
+            | "dark"
+            | "primary";
 </script>
 
 <td>
-    <div class="flex flex-col items-center justify-center gap-2 px-3">
-        <Avatar src={`https://minotar.net/helm/${message.sender}`} />
+    <div class="flex flex-col items-center justify-center gap-2">
+        <Avatar src={`https://minotar.net/helm/${message.sender.name}`} />
         <span class="text-xs">
-            {message.sender}
+            {message.sender.name}
         </span>
-        <Badge>
-            {String(message.created.getHours()).padStart(2, "0")}:{String(
-                message.created.getMinutes(),
+        <Badge {color}>
+            {String(message.epoch.getHours()).padStart(2, "0")}:{String(
+                message.epoch.getMinutes(),
             ).padStart(2, "0")}
         </Badge>
     </div>
 </td>
 <td class="w-full">
-    <div class="flex flex-col gap-3 w-full">
+    <div class="flex flex-col gap-3 w-full pl-2">
         <div class="flex flex-row gap-3">
-            <Badge>
-                {#if message.medium.type == "discord"}
+            <Badge {color}>
+                {#if message.medium == "discord"}
                     <Discord />
-                {:else if message.medium.type == "game"}
+                {:else if message.medium == "game"}
                     <Game />
                 {/if}
-                <span class="ml-1">{message.medium.name}</span>
+                <span class="ml-1">{instance.server.name} {instance.name}</span>
             </Badge>
-            <Badge>
-                {#if message.channel.name == null && message.channel.receiver}
+            <Badge {color}>
+                {#if message.channel == null && message.receiver}
                     <Mail />
-                {:else if message.channel.name}
+                {:else if message.channel}
                     <Hashtag />
                 {:else}
                     <Public />
                 {/if}
                 <span class="ml-1"
-                    >{message.channel.receiver ??
-                        message.channel.name ??
+                    >{message.receiver?.name ??
+                        message.channel ??
                         "public"}</span
                 >
             </Badge>
         </div>
         <div>
-            {message.text}
+            {message.message}
         </div>
     </div>
 </td>

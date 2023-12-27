@@ -12,6 +12,7 @@
     } from "flowbite-svelte";
     import Spiral from "~icons/streamline/spiral-shape-solid";
     import Document from "~icons/mdi/document";
+    import Sleeping from "~icons/fluent-emoji/sleeping-face";
     import { onMount } from "svelte";
     import Srvbench from "$lib/sb/Srvbench";
     import Event from "./Event.svelte";
@@ -24,45 +25,49 @@
             messages: 300,
         },
     ];
-    let messages: any[] = [];
-
-    function addMessage(
-        message: string,
-        sender: string,
-        medium: string,
-        mediumName: string,
-        channel: string | null = null,
-        receiver: string | null = null,
-    ) {
-        messages.unshift({
-            created: new Date(),
-            medium: {
-                type: medium,
-                name: mediumName,
-            },
-            channel: {
-                name: channel,
-                receiver: receiver,
-            },
-            sender: sender,
-            text: message,
-        });
-        messages = messages;
-    }
+    let events: any[] = [];
     let opening = true;
     onMount(async () => {
+        await reconnect();
+    });
+
+    async function reconnect() {
+        console.log("reconnecting");
+        opening = true;
         const socket = await Srvbench.getInstance().getCommunity()!.spectate();
         socket.addEventListener("message", async (e) => {
             const message = JSON.parse(e.data);
-            if (message.type == "chat") {
-                addMessage(
-                    message.message,
-                    message.sender?.name[0].value,
-                    message.medium,
-                    "default",
-                    message.channel,
-                    message.receiver?.name[0].value,
-                );
+            const event = message.event;
+            const instance = message.instance;
+            if (event.type == "chat") {
+                events.unshift({
+                    event: {
+                        type: event.type,
+                        epoch: new Date(event.epoch),
+                        medium: event.medium,
+                        message: event.message,
+                        channel: event.channel,
+                        receiver: event.receiver
+                            ? {
+                                  name: event.receiver.name,
+                              }
+                            : null,
+                        sender: event.sender
+                            ? {
+                                  name: event.sender.name,
+                              }
+                            : null,
+                    },
+                    instance: {
+                        name: instance.name,
+                        id: instance.id,
+                        server: {
+                            id: instance.server.id,
+                            name: instance.server.name,
+                        },
+                    },
+                });
+                events = events;
             }
         });
         socket.addEventListener("open", () => {
@@ -71,9 +76,44 @@
         socket.addEventListener("error", () => {
             opening = false;
         });
-    });
-</script>
+        socket.addEventListener("close", async () => {
+            await reconnect();
+        });
+    }
 
+    const colors: Map<string, string> = new Map();
+    const possibleColors = [
+        "red",
+        "yellow",
+        "green",
+        "purple",
+        "pink",
+        "blue",
+        "dark",
+        "primary",
+    ];
+    let lastColor = -1;
+    type supportedColors =
+        | "red"
+        | "yellow"
+        | "green"
+        | "purple"
+        | "pink"
+        | "blue"
+        | "dark"
+        | "primary";
+    function getColor(instanceId: string): supportedColors {
+        if (!colors.has(instanceId)) {
+            lastColor++;
+            if (lastColor >= possibleColors.length) {
+                lastColor = 0;
+            }
+            colors.set(instanceId, possibleColors[lastColor]);
+        }
+        const color = colors.get(instanceId)!;
+        return color as supportedColors;
+    }
+</script>
 
 <!--<Card class="max-w-full flex flex-col gap-5">
     <div class="flex flex-row gap-5 items-center font-bold">
@@ -130,18 +170,26 @@
     {#if opening}
         <ListPlaceholder divClass="max-w-full" />
     {:else}
-        <div class="px-2">
+        <div>
             <table class="w-full">
-                {#each messages as message, i}
-                    {#key Number(i == 0) * message.created.getTime()}
+                {#each events as event, i}
+                    {#key Number(i == 0) * event.event.epoch.getTime()}
                         <tr class:message={i == 0}>
-                            <Event {message} />
+                            <Event
+                                message={event.event}
+                                instance={event.instance}
+                                color={getColor(event.instance.id)}
+                            />
                         </tr>
                     {/key}
                 {/each}
             </table>
-            <div class="text-center py-5" class:mt-5={messages.length>0}>
-                New Messages Will Appear Above
+            <div
+                class="py-5 flex flex-col gap-5 justify-center items-center"
+                class:mt-5={events.length > 0}
+            >
+                <span>New Messages Will Appear Above</span>
+                <Sleeping height={50} width={50} />
             </div>
         </div>
     {/if}
