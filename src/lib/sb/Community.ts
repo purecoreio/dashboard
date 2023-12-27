@@ -1,5 +1,5 @@
 import Key from "./Key"
-import Srvbench from "./SrvBench"
+import Srvbench from "./Srvbench"
 
 export default class Community {
 
