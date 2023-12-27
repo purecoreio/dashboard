@@ -1,5 +1,6 @@
 import SSO from "$lib/sso/SSO";
 import Community from "./Community";
+import Staff from "./Staff";
 
 export default class Srvbench {
 
@@ -32,18 +33,18 @@ export default class Srvbench {
         localStorage.setItem('community', this.community.id)
     }
 
-    public async restoreCommunity(){
-        if(this.community) return
+    public async restoreCommunity() {
+        if (this.community) return
         const id = localStorage.getItem('community')
-        if(!id) throw new Error('unable to restore')
+        if (!id) throw new Error('unable to restore')
         this.community = await this.fetchCommunity(id)
         return this.community
     }
 
-    public async fetchCommunity(id:string){
+    public async fetchCommunity(id: string) {
         return Community.fromObject(await this.rest(`community/${id}`))
     }
-    
+
     public async createCommunity(name: string, slug: string) {
         await this.getCommunities()
         const community = Community.fromObject(await this.rest('community', {
@@ -52,6 +53,14 @@ export default class Srvbench {
         }))
         this.ownedCommunities?.push(community)
         return community
+    }
+
+    public async joinCommunity(inviteId: string): Promise<Staff> {
+        const staff = Staff.fromObject(await this.rest('community/invite', {
+            id: inviteId,
+        }))
+        this.ownedCommunities?.push(staff.community)
+        return staff
     }
 
     private async getCommunities() {

@@ -59,6 +59,7 @@
                     </Card>
                 {/each}
                 <Card
+                    href="/invite"
                     class="flex flex-col items-center justify-center"
                     color="form"
                 >

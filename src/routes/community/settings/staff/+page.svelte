@@ -11,12 +11,14 @@
         TableBodyRow,
         TableHead,
         TableHeadCell,
-        Checkbox,
-        TableSearch,
+        Modal,
         ListPlaceholder,
         Button,
         Card,
+        Input,
     } from "flowbite-svelte";
+    import MemberSelect from "../../../../element/MemberSelect.svelte";
+    import type Member from "$lib/sb/Member";
 
     let roles: Role[] = [];
     let loadingRoles = false;
@@ -43,13 +45,56 @@
         } catch (error) {}
         loadingInvites = false;
     }
+
+    let roleInviteTarget: Role | null = null;
+    let inviteModal: boolean = false;
+    let creatingInvite: boolean = false;
+    let memberTarget: Member | null;
+
+    async function inviteStaff() {
+        creatingInvite = true;
+        try {
+            await Srvbench.getInstance()
+                .getCommunity()!
+                .createInvite(roleInviteTarget!, memberTarget!);
+            inviteModal = false;
+            await loadInvites();
+        } catch (error) {}
+        creatingInvite = false;
+    }
 </script>
+
+<Modal
+    title={`${roleInviteTarget?.name} invite`}
+    bind:open={inviteModal}
+    dismissable={false}
+>
+    <div class="h-48">
+        <MemberSelect bind:member={memberTarget} />
+    </div>
+    <svelte:fragment slot="footer">
+        <div class="flex flex-row justify-between w-full">
+            <Button
+                disabled={creatingInvite}
+                on:click={() => (inviteModal = false)}
+                color="alternative">Close</Button
+            >
+            <Button disabled={creatingInvite} on:click={inviteStaff}
+                >Create Invite</Button
+            >
+        </div>
+    </svelte:fragment>
+</Modal>
 
 <Card class="max-w-full flex flex-col gap-3">
     <div class="flex flex-row items-center justify-between">
         <h1 class="text-black font-semibold">Roles</h1>
         {#if roles.length > 0}
-            <Button href="/community/settings/staff/role/new" size="sm" color="alternative">Create</Button>
+            <Button
+                href="/community/settings/staff/role/new"
+                size="sm"
+                color="alternative">Create</Button
+            >
         {/if}
     </div>
     {#if loadingRoles}
@@ -79,7 +124,13 @@
                                 >{role.permissions.join(", ")}</TableBodyCell
                             >
                             <TableBodyCell>
-                                <Button>Invite</Button>
+                                <Button
+                                    href="#"
+                                    on:click={() => {
+                                        roleInviteTarget = role;
+                                        inviteModal = true;
+                                    }}>Invite</Button
+                                >
                             </TableBodyCell>
                         </TableBodyRow>
                     {/each}
@@ -88,4 +139,32 @@
         </div>
     {/if}
 </Card>
-{roles}
+<Card class="max-w-full flex flex-col gap-3">
+    <h1 class="text-black font-semibold">Invites</h1>
+    {#if loadingInvites}
+        <ListPlaceholder divClass="max-w-full" />
+    {:else}
+        <div class="ring-1 ring-opacity-10 ring-black rounded overflow-hidden">
+            <Table>
+                <TableHead>
+                    <TableHeadCell>Member</TableHeadCell>
+                    <TableHeadCell>Role</TableHeadCell>
+                    <TableHeadCell>Id</TableHeadCell>
+                </TableHead>
+                <TableBody>
+                    {#each invites as invite}
+                        <TableBodyRow>
+                            <TableBodyCell>{invite.member.name}</TableBodyCell>
+                            <TableBodyCell>
+                                {invite.role.name}
+                            </TableBodyCell>
+                            <TableBodyCell>
+                                <Input value={invite.id} />
+                            </TableBodyCell>
+                        </TableBodyRow>
+                    {/each}
+                </TableBody>
+            </Table>
+        </div>
+    {/if}
+</Card>
