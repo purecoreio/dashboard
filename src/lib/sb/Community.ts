@@ -29,7 +29,8 @@ export default class Community {
 
     public async spectate() {
         return Srvbench.getInstance().openSocket('community/spectate', {
-            community: this.id
+            community: this.id,
+            backlog: 'yes'
         })
     }
 

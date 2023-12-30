@@ -31,6 +31,36 @@
         await reconnect();
     });
 
+    function parseEvent(event: any, instance: any) {
+        return {
+            event: {
+                type: event.type,
+                epoch: new Date(event.epoch),
+                medium: event.medium,
+                message: event.message,
+                channel: event.channel,
+                receiver: event.receiver
+                    ? {
+                          name: event.receiver.name,
+                      }
+                    : null,
+                sender: event.sender
+                    ? {
+                          name: event.sender.name,
+                      }
+                    : null,
+            },
+            instance: {
+                name: instance.name,
+                id: instance.id,
+                server: {
+                    id: instance.server.id,
+                    name: instance.server.name,
+                },
+            },
+        };
+    }
+
     async function reconnect() {
         console.log("reconnecting");
         opening = true;
@@ -40,33 +70,47 @@
             const event = message.event;
             const instance = message.instance;
             if (event.type == "chat") {
-                events.unshift({
-                    event: {
-                        type: event.type,
-                        epoch: new Date(event.epoch),
-                        medium: event.medium,
-                        message: event.message,
-                        channel: event.channel,
-                        receiver: event.receiver
-                            ? {
-                                  name: event.receiver.name,
-                              }
-                            : null,
-                        sender: event.sender
-                            ? {
-                                  name: event.sender.name,
-                              }
-                            : null,
-                    },
-                    instance: {
-                        name: instance.name,
-                        id: instance.id,
-                        server: {
-                            id: instance.server.id,
-                            name: instance.server.name,
-                        },
-                    },
-                });
+                events.unshift(parseEvent(event, instance));
+                events = events;
+            } else if (event.type == "backlog_response") {
+                for (const messageData of event.data) {
+                    const loggedEvent = parseEvent(messageData, instance);
+                    if (loggedEvent.event.type != "chat") continue;
+                    const dictLength = events.length;
+                    if (dictLength <= 0) {
+                        events.push(loggedEvent);
+                    } else {
+                        let finalIndex = -1;
+                        for (let i = dictLength - 1; i >= 0; i--) {
+                            if (i == 0) {
+                                finalIndex = 0;
+                            } else if (i >= dictLength) {
+                                finalIndex = dictLength - 1;
+                            } else {
+                                const existingMessage = events[i];
+                                if (
+                                    new Date(
+                                        existingMessage.event.epoch,
+                                    ).getTime() >
+                                    loggedEvent.event.epoch.getTime()
+                                ) {
+                                    // the backlogged event is OLDER, so it should be inserted on i+1
+                                    finalIndex = i + 1;
+                                    break;
+                                }
+                            }
+                        }
+                        if (finalIndex >= 0) {
+                            if (finalIndex == 0) {
+                                events.unshift(loggedEvent);
+                            } else if (finalIndex == events.length) {
+                                events.push(loggedEvent);
+                            } else {
+                                events.splice(finalIndex, 0, loggedEvent);
+                            }
+                        }
+                    }
+                }
                 events = events;
             }
         });
