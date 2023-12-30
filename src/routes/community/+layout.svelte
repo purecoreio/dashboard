@@ -81,9 +81,9 @@
 </script>
 
 <div class="grid-cols-4 h-screen grid">
-    <Sidebar {activeUrl} asideClass="w-64 border-r-2 f-full md:block hidden">
+    <Sidebar {activeUrl} asideClass="w-64 border-r-2 f-full md:block hidden dark:bg-gray-800 dark:border-black">
         <SidebarWrapper
-            divClass="overflow-y-auto py-4 px-3 rounded dark:bg-gray-800"
+            divClass="overflow-y-auto py-4 px-3 rounded"
         >
             <SidebarGroup>
                 {#each tools as tool}
@@ -119,9 +119,6 @@
                             {/each}
                         {/if}
                     </div>
-                    <div
-                        class="right-0 top-0 h-full bg-gradient-to-r from-transparent to-white absolute w-16 hover:opacity-0 transition-opacity"
-                    />
                 </div>
                 <slot />
             </div>

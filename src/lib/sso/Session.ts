@@ -61,6 +61,7 @@ export default class Session {
             this._access = Token.fromJWT(json.access_token)
             this._refresh = Token.fromJWT(json.refresh_token)
             this._errored = false
+            this.store()
         } catch (error) {
             this.invalidate()
             throw error

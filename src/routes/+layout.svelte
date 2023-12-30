@@ -11,6 +11,7 @@
         NavHamburger,
         ListPlaceholder,
         Spinner,
+        DarkMode,
     } from "flowbite-svelte";
 
     import { Button, Dropdown, DropdownItem, Avatar } from "flowbite-svelte";
@@ -25,15 +26,13 @@
             profiles = await sso.session!.user.getProfiles();
             sso = sso;
         } else {
-            goto('/login')
+            goto("/login");
         }
     });
 </script>
 
 {#if sso.logged}
-    <Navbar
-        class="px-2 sm:px-4 py-2.5 w-full z-20 border-b max-w-full"
-    >
+    <Navbar class="px-2 sm:px-4 py-2.5 w-full z-20 border-b max-w-full">
         <NavBrand href="/">
             <span
                 class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
@@ -41,6 +40,9 @@
             >
         </NavBrand>
         <NavHamburger />
+        <div class="grow text-right px-3">
+            <DarkMode />
+        </div>
         <NavUl ulClass="p-0">
             <Button>
                 {#if profiles == null}
@@ -61,7 +63,7 @@
                             class="flex items-center text-base font-semibold gap-2"
                         >
                             <Avatar
-                                src={profile.pfp ?? ''}
+                                src={profile.pfp ?? ""}
                                 size="xs"
                             />{profile.readableName}
                         </DropdownItem>

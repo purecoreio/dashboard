@@ -9,7 +9,11 @@
         TableHead,
         TableHeadCell,
         ListPlaceholder,
+        Dropdown,
+        DropdownItem,
+        Toggle,
     } from "flowbite-svelte";
+    import Filter from "~icons/ic/baseline-filter-alt";
     import Spiral from "~icons/streamline/spiral-shape-solid";
     import Document from "~icons/mdi/document";
     import Sleeping from "~icons/fluent-emoji/sleeping-face";
@@ -125,6 +129,13 @@
         });
     }
 
+    let servers: Record<
+        string,
+        {
+            name: string;
+            show: boolean;
+        }
+    > = {};
     const colors: Map<string, string> = new Map();
     const possibleColors = [
         "red",
@@ -146,13 +157,20 @@
         | "blue"
         | "dark"
         | "primary";
-    function getColor(instanceId: string): supportedColors {
+    function getColor(
+        instanceId: string,
+        instanceName: string,
+    ): supportedColors {
         if (!colors.has(instanceId)) {
             lastColor++;
             if (lastColor >= possibleColors.length) {
                 lastColor = 0;
             }
             colors.set(instanceId, possibleColors[lastColor]);
+            servers[instanceId] = {
+                name: instanceName,
+                show: true,
+            };
         }
         const color = colors.get(instanceId)!;
         return color as supportedColors;
@@ -210,6 +228,23 @@
         </Table>
     </div>
 </Card>-->
+
+<div class="flex flex-row justify-between">
+    <div>
+        <Button color="alternative">
+            <Filter />
+        </Button>
+        <Dropdown class="w-56 p-3 space-y-1">
+            {#each Object.keys(servers) as server}
+                <DropdownItem>
+                    <Toggle bind:checked={servers[server].show}
+                        >{servers[server].name}</Toggle
+                    >
+                </DropdownItem>
+            {/each}
+        </Dropdown>
+    </div>
+</div>
 <Card class="max-w-full max-h-screen overflow-y-scroll">
     {#if opening}
         <ListPlaceholder divClass="max-w-full" />
@@ -219,11 +254,16 @@
                 {#each events as event, i}
                     {#key Number(i == 0) * event.event.epoch.getTime()}
                         <tr class:message={i == 0}>
-                            <Event
-                                message={event.event}
-                                instance={event.instance}
-                                color={getColor(event.instance.id)}
-                            />
+                            {#if !servers[event.instance.id] || servers[event.instance.id].show}
+                                <Event
+                                    message={event.event}
+                                    instance={event.instance}
+                                    color={getColor(
+                                        event.instance.id,
+                                        `${event.instance.server.name} ${event.instance.name}`,
+                                    )}
+                                />
+                            {/if}
                         </tr>
                     {/key}
                 {/each}

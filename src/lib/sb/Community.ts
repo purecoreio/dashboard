@@ -28,9 +28,12 @@ export default class Community {
     }
 
     public async spectate() {
+        const now = new Date()
         return Srvbench.getInstance().openSocket('community/spectate', {
             community: this.id,
-            backlog: 'yes'
+            backlog: 'yes',
+            backlog_since: String(now.getTime()),
+            backlog_until: String(now.getTime() + 3600 * 1000)
         })
     }
 
