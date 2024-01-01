@@ -32,7 +32,7 @@
     }
 </script>
 
-<div class="relative w-full">
+<div class="relative w-full z-20">
     <Search
         on:focus={() => (showResults = true)}
         on:blur={() => (showResults = false)}
@@ -43,7 +43,7 @@
     />
     <div
         class:opacity-0={!showResults}
-        class="absolute left-0 w-full focus-div bg-neutral-50 ring-1 ring-black ring-opacity-10 rounded overflow-hidden shadow-md transition-all"
+        class="absolute left-0 w-full focus-div dark:bg-gray-700 bg-neutral-50 ring-1 ring-black ring-opacity-10 rounded overflow-hidden shadow-md transition-all"
     >
         {#if loadingResults}
             <div class="p-5">

@@ -30,6 +30,7 @@
   "type": "module",
   "dependencies": {
     "chart.js": "^4.4.1",
+    "chartjs-adapter-moment": "^1.0.1",
     "flowbite-svelte-icons": "^0.4.5",
     "svelte-intersection-observer": "^0.10.1"
   }

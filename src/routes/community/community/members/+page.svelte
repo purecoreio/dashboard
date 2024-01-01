@@ -2,27 +2,42 @@
     import Member from "$lib/sb/Member";
     import Srvbench from "$lib/sb/Srvbench";
     import { onMount } from "svelte";
-    import Search from "~icons/ic/baseline-person-search";
+    import Filter from "~icons/ic/baseline-filter-alt";
     import {
         Table,
         TableBody,
-        TableBodyCell,
-        TableBodyRow,
-        TableHead,
-        TableHeadCell,
-        Checkbox,
-        TableSearch,
         Card,
         ListPlaceholder,
         Spinner,
-        Input,
-        Label,
         Button,
+        Dropdown,
+        DropdownItem,
+        Select,
     } from "flowbite-svelte";
     import MemberRow from "../../../../element/MemberRow.svelte";
-    import IntersectionObserver from "svelte-intersection-observer";
+    import MemberSelect from "../../../../element/MemberSelect.svelte";
 
-    let intersector: HTMLDivElement;
+    const activityFilters: {
+        value: number;
+        name: string;
+    }[] = [];
+
+    for (let i = 0; i < 21; i++) {
+        activityFilters.push({
+            value: i == 0 ? 1 : i * 5,
+            name: `≥ ${i ? i * 5 : 1}%`,
+        });
+    }
+
+    let selectedActivity: number | null = null;
+
+    $: selectedActivity,
+        (() => {
+            members = [];
+            page = 0;
+            getMembers();
+        })();
+
     let page = 0;
     let loading = false;
     let members: Member[] = [];
@@ -31,9 +46,16 @@
         if (page == -1) return;
         if (loading) return;
         loading = true;
-        const addedMembers = await Srvbench.getInstance()
-            .getCommunity()!
-            .getMembers(page);
+        const community = Srvbench.getInstance().getCommunity()!;
+        let addedMembers: Member[] = [];
+        if (selectedActivity) {
+            addedMembers = await community.getMembersByRank(
+                page,
+                selectedActivity,
+            );
+        } else {
+            addedMembers = await community.getMembers(page);
+        }
         members.push(...addedMembers);
         members = members;
         page++;
@@ -44,58 +66,22 @@
     onMount(async () => {
         await getMembers();
     });
-
-    let usernameSearch: string;
-    let loadingSearch = false;
-    let searchResult: Member | null = null;
-
-    async function searchPlayer() {
-        loadingSearch = true;
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            searchResult = await Srvbench.getInstance()
-                .getCommunity()!
-                .searchMember(usernameSearch);
-        } catch (error) {
-            searchResult = null;
-        }
-        loadingSearch = false;
-    }
 </script>
 
-<IntersectionObserver
-    element={intersector}
-    on:observe={async (e) => {
-        await getMembers();
-    }}
-></IntersectionObserver>
+<div class="flex flex-row justify-between">
+    <div>
+        <Button disabled={loading} color="alternative">
+            <Filter />
+        </Button>
+        <Dropdown class="w-56 p-3 space-y-1">
+            <DropdownItem>
+                <Select items={activityFilters} bind:value={selectedActivity} />
+            </DropdownItem>
+        </Dropdown>
+    </div>
+</div>
 
-<Card class="max-w-full flex flex-row gap-5">
-    <Input
-        disabled={loadingSearch}
-        bind:value={usernameSearch}
-        placeholder="username"
-    ></Input>
-    <Button disabled={loadingSearch} on:click={() => searchPlayer()}>
-        <Search />
-    </Button>
-</Card>
-
-{#if searchResult}
-    <Card class="max-w-full">
-        <div
-            class:opacity-50={loadingSearch}
-            class:blur-sm={loadingSearch}
-            class="transition-all"
-        >
-            <Table>
-                <TableBody>
-                    <MemberRow member={searchResult} />
-                </TableBody>
-            </Table>
-        </div>
-    </Card>
-{/if}
+<MemberSelect />
 
 {#if members.length > 0}
     <Card class="max-w-full">
@@ -112,9 +98,9 @@
             </div>
         {/if}
     </Card>
-    {#if page > 0 && !loading}
-        <div bind:this={intersector} />
-    {/if}
 {:else if loading}
     <ListPlaceholder class="max-w-full" />
+{/if}
+{#if page >= 0}
+    <Button disabled={loading} on:click={getMembers}>Load More</Button>
 {/if}

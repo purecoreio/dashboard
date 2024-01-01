@@ -54,10 +54,21 @@ export default class Community {
         })).map((m: any) => Member.fromObject(m))
     }
 
+    public async getMembersByRank(page: number, rank: number): Promise<Member[]> {
+        return (await Srvbench.getInstance().rest(`${this.endpoint}/members/ranked`, {
+            page: page,
+            rank: rank
+        })).map((m: any) => Member.fromObject(m))
+    }
+
     public async searchMember(name: string) {
         return Member.fromObject(await Srvbench.getInstance().rest(`${this.endpoint}/members/search`, {
             name
         }))
+    }
+
+    public async getMember(id: string): Promise<Member> {
+        return Member.fromObject(await Srvbench.getInstance().rest(`${this.endpoint}/member/${id}`))!
     }
 
     public async createRole(name: string, permissions: string[]) {

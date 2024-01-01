@@ -1,6 +1,13 @@
 <script lang="ts">
     import type Member from "$lib/sb/Member";
-    import { TableBodyCell, TableBodyRow, Avatar, Badge } from "flowbite-svelte";
+    import {
+        TableBodyCell,
+        TableBodyRow,
+        Avatar,
+        Badge,
+        Button,
+    } from "flowbite-svelte";
+    import Person from "~icons/ic/sharp-account-circle";
 
     export let member: Member;
 </script>
@@ -17,9 +24,9 @@
                     {member.eid}
                 </p>
             </div>
-            <Badge>
-                {member.joined.toLocaleDateString()}
-            </Badge>
+            <Button color="alternative" href={`/community/community/members/${member.id}`}>
+                <Person/>
+            </Button>
         </div>
     </TableBodyCell>
 </TableBodyRow>
