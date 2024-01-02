@@ -27,8 +27,6 @@ export default class NewMembers {
             obj.nonReturning,
             community
         )
-
-
     }
 
 

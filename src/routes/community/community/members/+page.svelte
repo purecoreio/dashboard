@@ -16,6 +16,9 @@
     } from "flowbite-svelte";
     import MemberRow from "../../../../element/MemberRow.svelte";
     import MemberSelect from "../../../../element/MemberSelect.svelte";
+    import type NewMembers from "$lib/sb/stat/NewMembers";
+    import NewMembersChart from "./NewMembersChart.svelte";
+    import NewMembersPieChart from "./NewMembersPieChart.svelte";
 
     const activityFilters: {
         value: number;
@@ -63,14 +66,34 @@
         if (addedMembers.length < 20) page = -1;
     }
 
+    let newMembers: NewMembers[] | null = null;
+
     onMount(async () => {
         await getMembers();
+        newMembers = await Srvbench.getInstance()
+            .getCommunity()!
+            .getNewMembers();
     });
 </script>
 
-<div class="flex flex-row justify-between">
+{#if newMembers != null}
+    <div class="flex flex-row gap-5">
+        <Card class="max-w-full grow">
+            <NewMembersChart {newMembers} />
+        </Card>
+        <Card class="max-w-full">
+            <NewMembersPieChart
+                earliestNewMembers={newMembers[newMembers.length - 1]}
+                latestNewMembers={newMembers[0]}
+            />
+        </Card>
+    </div>
+{/if}
+
+<div class="flex flex-row items-center gap-5">
+    <MemberSelect />
     <div>
-        <Button disabled={loading} color="alternative">
+        <Button size="xl" disabled={loading} color="alternative">
             <Filter />
         </Button>
         <Dropdown class="w-56 p-3 space-y-1">
@@ -80,8 +103,6 @@
         </Dropdown>
     </div>
 </div>
-
-<MemberSelect />
 
 {#if members.length > 0}
     <Card class="max-w-full">
