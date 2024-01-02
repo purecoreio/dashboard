@@ -4,6 +4,7 @@ import Member from "./Member"
 import Role from "./Role"
 import Srvbench from "./Srvbench"
 import NewMembers from "./stat/NewMembers"
+import Playtime from "./stat/Playtime"
 
 export default class Community {
 
@@ -81,6 +82,10 @@ export default class Community {
 
     public async getNewMembers(): Promise<NewMembers[]> {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/stats/new_players`)).map((n: any) => NewMembers.fromObject(n, this))
+    }
+
+    public async getPlaytimes(): Promise<Playtime[]> {
+        return (await Srvbench.getInstance().rest(`${this.endpoint}/stats/playtime`)).map((n: any) => Playtime.fromObject(n, this))
     }
 
     public async getRoles(): Promise<Role[]> {

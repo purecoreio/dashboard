@@ -19,6 +19,8 @@
     import type NewMembers from "$lib/sb/stat/NewMembers";
     import NewMembersChart from "./NewMembersChart.svelte";
     import NewMembersPieChart from "./NewMembersPieChart.svelte";
+    import type Playtime from "$lib/sb/stat/Playtime";
+    import PlaytimeDistributionChart from "./PlaytimeDistributionChart.svelte";
 
     const activityFilters: {
         value: number;
@@ -67,12 +69,14 @@
     }
 
     let newMembers: NewMembers[] | null = null;
+    let playtimes: Playtime[] | null = null;
 
     onMount(async () => {
         await getMembers();
         newMembers = await Srvbench.getInstance()
             .getCommunity()!
             .getNewMembers();
+        playtimes = await Srvbench.getInstance().getCommunity()!.getPlaytimes();
     });
 </script>
 
@@ -88,6 +92,14 @@
             />
         </Card>
     </div>
+{/if}
+
+{#if playtimes != null}
+    <Card class="max-w-full">
+        <PlaytimeDistributionChart
+            {playtimes}
+        />
+    </Card>
 {/if}
 
 <div class="flex flex-row items-center gap-5">
