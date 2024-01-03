@@ -21,6 +21,8 @@
     import NewMembersPieChart from "./NewMembersPieChart.svelte";
     import type Playtime from "$lib/sb/stat/Playtime";
     import PlaytimeDistributionChart from "./PlaytimeDistributionChart.svelte";
+    import type ModerationCoverage from "$lib/sb/stat/ModerationCoverage";
+    import ModerationCoverageChart from "./ModerationCoverageChart.svelte";
 
     const activityFilters: {
         value: number;
@@ -70,6 +72,7 @@
 
     let newMembers: NewMembers[] | null = null;
     let playtimes: Playtime[] | null = null;
+    let moderationCoverage: ModerationCoverage | null = null;
 
     onMount(async () => {
         await getMembers();
@@ -77,8 +80,19 @@
             .getCommunity()!
             .getNewMembers();
         playtimes = await Srvbench.getInstance().getCommunity()!.getPlaytimes();
+        moderationCoverage = await Srvbench.getInstance()
+            .getCommunity()!
+            .getModerationCoverage();
     });
 </script>
+
+{#if moderationCoverage != null}
+    <div class="flex flex-row gap-5">
+        <Card class="max-w-full grow">
+            <ModerationCoverageChart coverage={moderationCoverage} />
+        </Card>
+    </div>
+{/if}
 
 {#if newMembers != null}
     <div class="flex flex-row gap-5">
@@ -96,9 +110,7 @@
 
 {#if playtimes != null}
     <Card class="max-w-full">
-        <PlaytimeDistributionChart
-            {playtimes}
-        />
+        <PlaytimeDistributionChart {playtimes} />
     </Card>
 {/if}
 

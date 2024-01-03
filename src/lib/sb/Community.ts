@@ -3,6 +3,7 @@ import Key from "./Key"
 import Member from "./Member"
 import Role from "./Role"
 import Srvbench from "./Srvbench"
+import ModerationCoverage from "./stat/ModerationCoverage"
 import NewMembers from "./stat/NewMembers"
 import Playtime from "./stat/Playtime"
 
@@ -101,6 +102,10 @@ export default class Community {
 
     public async getInvites(): Promise<Invite[]> {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/invites`)).map((r: any) => Invite.fromObject(r))
+    }
+
+    public async getModerationCoverage(): Promise<ModerationCoverage> {
+        return ModerationCoverage.fromObj(await Srvbench.getInstance().rest(`${this.endpoint}/coverage/moderation`))
     }
 
 }
