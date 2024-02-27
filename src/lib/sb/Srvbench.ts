@@ -1,6 +1,8 @@
 import SSO from "$lib/sso/SSO";
 import Community from "./Community";
 import Staff from "./Staff";
+import type { HandlerType } from "./voting/HandlerType";
+import VotingSite from "./voting/VotingSite";
 
 export default class Srvbench {
 
@@ -26,6 +28,11 @@ export default class Srvbench {
 
     public getCommunity() {
         return this.community
+    }
+
+    public async linkMedia(platform: string) {
+        const link = await this.rest(`media/link/${platform}`, {})
+        window.open(link.url, '_blank')!.focus();
     }
 
     public setCommunity(community: Community) {
@@ -79,6 +86,26 @@ export default class Srvbench {
     public async getModeratedCommunities() {
         await this.getCommunities()
         return this.moderatedCommunities
+    }
+
+    public async getVotingSites() {
+        const response = await this.rest('votingsites')
+        return {
+            verified: response.verified.map((s: any) => VotingSite.fromObject(s)),
+            owned: response.owned.map((s: any) => VotingSite.fromObject(s)),
+        }
+    }
+
+    public async createVotingSite(domain: string, handlerIdentifier: string, handlerTypes: HandlerType[], cooldown: number, reset: number | null, regions: string[]) {
+        const response = await this.rest('votingsites', {
+            domain,
+            handlerIdentifier,
+            handlerTypes,
+            cooldown,
+            reset,
+            regions
+        })
+        return VotingSite.fromObject(response)
     }
 
     public async rest(endpoint: string, body?: any) {

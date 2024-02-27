@@ -6,6 +6,7 @@ import Srvbench from "./Srvbench"
 import ModerationCoverage from "./stat/ModerationCoverage"
 import NewMembers from "./stat/NewMembers"
 import Playtime from "./stat/Playtime"
+import VotingSettings from "./votingSettings/VotingSettings"
 
 export default class Community {
 
@@ -83,6 +84,10 @@ export default class Community {
 
     public async getNewMembers(): Promise<NewMembers[]> {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/stats/new_players`)).map((n: any) => NewMembers.fromObject(n, this))
+    }
+
+    public async getVotingSettings(): Promise<VotingSettings> {
+        return VotingSettings.fromObject(await Srvbench.getInstance().rest(`${this.endpoint}/voting/settings`), this)
     }
 
     public async getPlaytimes(): Promise<Playtime[]> {

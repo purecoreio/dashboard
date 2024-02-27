@@ -23,6 +23,7 @@
     import PlaytimeDistributionChart from "./PlaytimeDistributionChart.svelte";
     import type ModerationCoverage from "$lib/sb/stat/ModerationCoverage";
     import ModerationCoverageChart from "./ModerationCoverageChart.svelte";
+    import type VotingSite from "$lib/sb/voting/VotingSite";
 
     const activityFilters: {
         value: number;
@@ -75,6 +76,7 @@
     let moderationCoverage: ModerationCoverage | null = null;
 
     onMount(async () => {
+        const serverbench = Srvbench.getInstance();
         await getMembers();
         newMembers = await Srvbench.getInstance()
             .getCommunity()!

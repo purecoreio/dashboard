@@ -7,6 +7,10 @@
             value: "read_chat",
             name: "Read Chat",
         },
+        {
+            value: "read_chat_public",
+            name: "Read Public Chat",
+        },
     ];
 
     let permissions: string[] = [];

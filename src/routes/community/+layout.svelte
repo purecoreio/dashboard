@@ -14,6 +14,7 @@
     import people from "~icons/ion/people-circle";
     import internet from "~icons/iconoir/internet";
     import command from "~icons/mdi/apple-keyboard-command";
+    import bullhorn from "~icons/mdi/bullhorn";
     import settings from "~icons/ic/baseline-settings";
     import { onMount } from "svelte";
     import Srvbench from "$lib/sb/Srvbench";
@@ -49,6 +50,11 @@
             options: ["members", "analytics", "events", "news", "hooks"],
         },
         {
+            name: "marketing",
+            icon: bullhorn,
+            options: ["voting", "media"],
+        },
+        {
             name: "website",
             icon: internet,
             options: ["pages", "visitors", "design", "settings"],
@@ -81,10 +87,11 @@
 </script>
 
 <div class="grid-cols-4 h-screen grid">
-    <Sidebar {activeUrl} asideClass="w-64 border-r-2 f-full md:block hidden dark:bg-gray-800 dark:border-black">
-        <SidebarWrapper
-            divClass="overflow-y-auto py-4 px-3 rounded"
-        >
+    <Sidebar
+        {activeUrl}
+        asideClass="w-64 border-r-2 f-full md:block hidden dark:bg-gray-800 dark:border-black"
+    >
+        <SidebarWrapper divClass="overflow-y-auto py-4 px-3 rounded">
             <SidebarGroup>
                 {#each tools as tool}
                     <SidebarItem

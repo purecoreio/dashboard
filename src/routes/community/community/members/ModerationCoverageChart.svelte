@@ -8,12 +8,53 @@
     import { MatrixController, MatrixElement } from "chartjs-chart-matrix";
     Chart.register(MatrixController, MatrixElement);
     import { onMount } from "svelte";
-    export let height: number = 300,
+    export let height: number = 500,
         coverage: ModerationCoverage;
 
     let canvas: HTMLCanvasElement;
 
     function asDataset() {
+        const unmoderatedLabel = "Unmoderated";
+        const hourChunks = Math.trunc(
+            (coverage.until.getTime() - coverage.since.getTime()) /
+                (3600 * 1000),
+        );
+        const datasets = datasetFromMemberTimeRange(coverage.coverages, coverage.since, coverage.until, "#f84c24", hourChunks)
+
+
+        datasets.datasets.push({
+            label: unmoderatedLabel,
+            data: getChunkUnmoderatedPercentage(
+                coverage.gaps,
+                coverage.since,
+                coverage.until,
+            ),
+            backgroundColor: (context: any) => {
+                const value = context.dataset.data[context.dataIndex].v;
+                return color("#000")
+                    .alpha(value / 2)
+                    .rgbString();
+            },
+            width: (context: any) =>
+                (context.chart.chartArea || {}).width / hourChunks,
+        });
+
+        return {
+            datasets: datasets.datasets,
+            labels: [
+                ...datasets.labels,
+                unmoderatedLabel,
+            ],
+        };
+    }
+
+    function datasetFromMemberTimeRange(
+        ranges: MemberRange[],
+        since: Date,
+        until: Date,
+        bgColor:string,
+        hourChunks:number
+    ) {
         let members: Record<
             string,
             {
@@ -21,7 +62,7 @@
                 data: MemberRange[];
             }
         > = {};
-        for (const memberCoverage of coverage.coverages) {
+        for (const memberCoverage of ranges) {
             if (!(memberCoverage.member.id in members)) {
                 members[memberCoverage.member.id] = {
                     member: memberCoverage.member,
@@ -30,10 +71,6 @@
             }
             members[memberCoverage.member.id].data.push(memberCoverage);
         }
-        const hourChunks = Math.trunc(
-            (coverage.until.getTime() - coverage.since.getTime()) /
-                (3600 * 1000),
-        );
 
         let datasets: any[] = [];
         for (const memberId in members) {
@@ -44,12 +81,12 @@
                     data: getChunkPercentage(
                         element.member.name,
                         element.data,
-                        coverage.since,
-                        coverage.until,
+                        since,
+                        until,
                     ),
                     backgroundColor: (context: any) => {
                         const value = context.dataset.data[context.dataIndex].v;
-                        return color("#f04c24").alpha(value).rgbString();
+                        return color(bgColor).alpha(value).rgbString();
                     },
                     width: (context: any) =>
                         (context.chart.chartArea || {}).width / hourChunks,
@@ -57,26 +94,10 @@
                 datasets.push(dataset);
             }
         }
-        const unmoderatedLabel = "Unmoderated"
-        datasets.push({
-            label: unmoderatedLabel,
-            data: getChunkUnmoderatedPercentage(
-                coverage.gaps,
-                coverage.since,
-                coverage.until,
-            ),
-            backgroundColor: (context: any) => {
-                const value = context.dataset.data[context.dataIndex].v;
-                return color("#000").alpha(value/2).rgbString();
-            },
-            width: (context: any) =>
-                (context.chart.chartArea || {}).width / hourChunks,
-        });
-
         return {
             datasets,
-            labels: [...Object.keys(members).map((k) => members[k].member.name),unmoderatedLabel],
-        };
+            labels: Object.keys(members).map((k) => members[k].member.name)
+        }
     }
 
     function getChunkPercentage(
