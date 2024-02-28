@@ -8,3 +8,5 @@
 </script>
 
 <Button on:click={() => linkMedia("tiktok")}>Link TikTok</Button>
+<Button on:click={() => linkMedia("youtube")}>Link YouTube</Button>
+<Button on:click={() => linkMedia("twitch")}>Link Twitch</Button>
