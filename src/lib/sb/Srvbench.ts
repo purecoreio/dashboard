@@ -70,22 +70,24 @@ export default class Srvbench {
         return staff
     }
 
-    private async getCommunities() {
-        if (!this.ownedCommunities || !this.moderatedCommunities) {
+    private async getCommunities(force:boolean = false): Promise<[Community[], Staff[]]> {
+        if (force || !this.ownedCommunities || !this.moderatedCommunities) {
             const result = await this.rest('community')
-            this.ownedCommunities = result.owned.map((o: any) => Community.fromObject(o))
-            this.moderatedCommunities = result.moderated.map((o: any) => Staff.fromObject(o))
+            const owned = result.owned.map((o: any) => Community.fromObject(o))
+            const moderated = result.moderated.map((o: any) => Staff.fromObject(o))
+            this.ownedCommunities = owned
+            this.moderatedCommunities = moderated
+            return [owned, moderated]
         }
+        return [this.ownedCommunities, this.moderatedCommunities]
     }
 
-    public async getOwnedCommunities() {
-        await this.getCommunities()
-        return this.ownedCommunities
+    public async getOwnedCommunities(force:boolean = false): Promise<Community[]> {
+        return (await this.getCommunities(force))[0]!
     }
 
-    public async getModeratedCommunities() {
-        await this.getCommunities()
-        return this.moderatedCommunities
+    public async getModeratedCommunities(force:boolean = false) {
+        return (await this.getCommunities(force))[1]!
     }
 
     public async getVotingSites() {

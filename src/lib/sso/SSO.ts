@@ -34,14 +34,16 @@ export default class SSO {
     public async login(service: string, state: string = (Math.random() + 1).toString(36).substring(7)): Promise<Session> {
         const redirect_uri = `https://${this.product}`
         return new Promise(async (resolve, reject) => {
+            let success: boolean = false
             const handleResponse = async (ev: MessageEvent<any>, tab: Window) => {
                 if (ev.data.type !== "authorization_response") return
                 const response = ev.data.response.response
                 if (response.state != state) reject('invalid state')
-                tab.close()
                 const session = await Session.exchangeCode(response.code, redirect_uri)
-                console.log(session)
+                tab.close()
+                success = true
                 session.store()
+                this._session = session
                 resolve(session)
             }
             const tab = window.open(`https://sso.nominal.es/authorize?method=${service}&response_type=code&redirect_uri=${redirect_uri}&audience=${this.product}&state=${state}`)
@@ -53,7 +55,7 @@ export default class SSO {
                 await handleResponse(ev, tab)
             })
             tab.addEventListener('unload ', () => {
-                reject('closed')
+                if (!success) reject('closed')
                 return
             })
             const interval = setInterval(() => {
