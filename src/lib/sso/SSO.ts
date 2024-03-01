@@ -80,7 +80,13 @@ export default class SSO {
             body: body ? JSON.stringify(body) : undefined,
             headers
         })
-        return response.json()
+        const data = await response.json()
+        if (data?.message?.includes("expired")) {
+            this._session?.clear()
+            this._session = null
+            throw new Error("expired")
+        }
+        return data
     }
 
 }

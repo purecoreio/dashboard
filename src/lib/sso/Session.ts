@@ -55,6 +55,8 @@ export default class Session {
     public async renewIfDue() {
         try {
             const headroom = 30 * 1000
+            console.log('access', this._access.expiry)
+            console.log('refresh', this._refresh.expiry)
             if (this._access.expiry.getTime() >= new Date().getTime() - headroom) return
             if (this._refresh.expiry.getTime() < new Date().getTime() - headroom) throw new Error('expired refresh')
             const json = await this.refreshToken()
@@ -116,9 +118,13 @@ export default class Session {
         localStorage.setItem("session", [this._refresh.token, this._access.token].join(' '))
     }
 
+    public clear(){
+        localStorage.removeItem("session")
+    }
+
     public invalidate() {
         this._errored = true
-        localStorage.removeItem("session")
+        this.clear()
     }
 
 }
