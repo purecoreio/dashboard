@@ -19,6 +19,8 @@
 	import { fade } from "svelte/transition";
 	import CreateJoin from "./CreateJoin.svelte";
 	import MiniNav from "./MiniNav.svelte";
+	import { toggleMode, ModeWatcher } from "mode-watcher";
+
 	let nav: HTMLElement;
 
 	const sso = SSO.getInstance("serverbench.io");
@@ -89,6 +91,8 @@
 		})();
 </script>
 
+<ModeWatcher defaultMode={"light"} track={true} />
+
 <CreateJoin
 	on:community={handleCreate}
 	force={!hasCommunity && !loadingCommunities}
@@ -97,7 +101,7 @@
 
 <nav
 	bind:this={nav}
-	class="bg-white dark:bg-black dark:border-neutral-900 bg-opacity-80 backdrop-blur-lg py-2 flex flex-row items-center fixed w-full px-4 border-b-[1px] gap-3 z-50"
+	class="bg-white dark:bg-black dark:border-neutral-900 bg-opacity-60 dark:bg-opacity-60 backdrop-blur-lg py-2 flex flex-row items-center fixed w-full px-4 border-b-[1px] gap-3 z-50"
 >
 	<div class="block xl:hidden">
 		<MiniNav {categories} />
@@ -200,6 +204,10 @@
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item>Machines</DropdownMenu.Item>
 					<DropdownMenu.Item>Plan</DropdownMenu.Item>
+					<DropdownMenu.Separator />
+					<DropdownMenu.Item on:click={toggleMode}
+						>Dark/Light Mode</DropdownMenu.Item
+					>
 				</DropdownMenu.Group>
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>

@@ -6,15 +6,15 @@
 	import Button from "$lib/components/ui/button/button.svelte";
 	import type Community from "$lib/sb/Community";
 	import Aside from "./Aside.svelte";
-    import {
-        Goal,
-        Gavel,
-        Cog,
-        Users,
-        Handshake,
-        ShoppingBasket,
-        Server,
-    } from "lucide-svelte";
+	import {
+		Goal,
+		Gavel,
+		Cog,
+		Users,
+		Handshake,
+		ShoppingBasket,
+		Server,
+	} from "lucide-svelte";
 
 	const categories: Record<string, any> = {
 		moderation: Gavel,
@@ -45,20 +45,31 @@
 	}
 
 	let height: number;
+	let width: number;
 </script>
 
 {#if logged}
 	<Header bind:height bind:community {categories} />
-	<Aside {height} {categories} />
+	<Aside bind:width {height} {categories} />
 	{#if community}
-		<div class="flex flex-col h-screen w-full">
-			<div style={`min-height:${height}px;`} />
-			<div class="grow pt-4 w-full overflow-y-scroll">
-				<div class="max-w-4xl mx-auto px-2 flex flex-col gap-3">
-					<slot />
+		{#key community}
+			<div class="grow pt-4 w-full h-screen overflow-y-scroll">
+				<div style={`min-height:${height}px;`} />
+				<div class="flex flex-row justify-between">
+					<div
+						class="hidden xl:block"
+						style={`min-width:${width ?? 0}px`}
+					/>
+					<main class="px-2 flex flex-col gap-3 grow max-w-3xl">
+						<slot />
+					</main>
+					<div
+						class="hidden xl:block"
+						style={`min-width:${width ?? 0}px`}
+					/>
 				</div>
 			</div>
-		</div>
+		{/key}
 	{/if}
 {:else}
 	<div class="h-screen flex flex-col items-center justify-center">
