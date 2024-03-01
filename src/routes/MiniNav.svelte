@@ -4,16 +4,15 @@
     import { Button } from "$lib/components/ui/button";
     import { page } from "$app/stores";
 
-    export let categories: Record<string, any>;
-
-    $: current = Object.keys(categories).find(
-        (m) => m == $page.url.pathname.split("/")[1],
-    );
+    export let categories: Record<string, any>, currentCategory: string | null;
 </script>
 
 <DropdownMenu.Root>
     <DropdownMenu.Trigger>
-        <Button class="rounded-full capitalize flex flex-row items-center gap-2" variant="secondary">
+        <Button
+            class="rounded-full capitalize flex flex-row items-center gap-2"
+            variant="secondary"
+        >
             <ChevronDown class="h-4 w-4" />
         </Button>
     </DropdownMenu.Trigger>
@@ -21,11 +20,11 @@
         <DropdownMenu.Group>
             {#each Object.keys(categories) as category}
                 <DropdownMenu.Item
-                    href={`/${category}`}
-                    class={`capitalize ${category == current ? "font-bold" : ""}`}
+                    href={`/${category}/${categories[category].options[0]}`}
+                    class={`capitalize ${category == currentCategory ? "font-bold" : ""}`}
                 >
                     <svelte:component
-                        this={categories[category]}
+                        this={categories[category].icon}
                         class="w-4 h-4 mr-2"
                     />
                     {category}

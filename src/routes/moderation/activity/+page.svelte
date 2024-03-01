@@ -3,6 +3,12 @@
     import Srvbench from "$lib/sb/Srvbench";
     import Event from "./Event.svelte";
     import { Label } from "$lib/components/ui/label";
+    import * as Menubar from "$lib/components/ui/menubar";
+    import error from "$lib/sound/error.mp3";
+    import click from "$lib/sound/click.mp3";
+    import * as Tooltip from "$lib/components/ui/tooltip";
+    import { Toaster } from "$lib/components/ui/sonner";
+    import { toast } from "svelte-sonner";
 
     let summaries = [
         {
@@ -16,9 +22,7 @@
     let opening = true;
     import { Switch } from "$lib/components/ui/switch";
     import * as Card from "$lib/components/ui/card";
-    import * as Popover from "$lib/components/ui/popover";
-    import { Filter } from "lucide-svelte";
-    import { Button } from "$lib/components/ui/button";
+    import { Loader2, VolumeX, Volume2 } from "lucide-svelte";
     onMount(async () => {
         await reconnect();
     });
@@ -104,6 +108,9 @@
                     }
                 }
                 events = events;
+            } else if (event.type == "toxicity") {
+                errored[event.epoch] = true;
+                await playAudio(0.5);
             }
         });
         socket.addEventListener("open", () => {
@@ -124,93 +131,111 @@
             show: boolean;
         }
     > = {};
-    const colors: Map<string, string> = new Map();
-    const possibleColors = ["red", "yellow", "green", "purple", "pink", "blue"];
-    let lastColor = -1;
-    type supportedColors =
-        | "red"
-        | "yellow"
-        | "green"
-        | "purple"
-        | "pink"
-        | "blue";
-    function getColor(
-        instanceId: string,
-        instanceName: string,
-    ): supportedColors {
-        if (!colors.has(instanceId)) {
-            lastColor++;
-            if (lastColor >= possibleColors.length) {
-                lastColor = 0;
-            }
-            colors.set(instanceId, possibleColors[lastColor]);
-            servers[instanceId] = {
-                name: instanceName,
-                show: true,
-            };
-        }
-        const color = colors.get(instanceId)!;
-        return color as supportedColors;
+
+    let alerts: boolean = false;
+    onMount(async () => {
+        await playAudio(0);
+    });
+
+    async function playAudio(volume: number, ignore: boolean = false) {
+        if (!alerts && !ignore) return;
+        const audio = new Audio(volume == 0 ? click : error);
+        try {
+            await audio.play();
+        } catch (error) {}
+        audio.remove();
     }
+
+    async function toggleAudio(on: boolean) {
+        try {
+            if (!on) throw new Error("off");
+            await playAudio(0, true);
+            alerts = true;
+        } catch (error) {
+            alerts = false;
+        }
+        if (alerts) {
+            toast("alerts enabled");
+        } else {
+            toast("alerts disabled");
+        }
+    }
+
+    let errored: Record<number, boolean> = {};
 </script>
 
-<div class="flex flex-row justify-between">
-    <div>
-        <Popover.Root>
-            <Popover.Trigger>
-                <Button class="flex flex-row gap-2">
-                    <Filter class="w-4 h-4" />
-                    Filter
-                </Button>
-            </Popover.Trigger>
-            <Popover.Content class="flex flex-col gap-3 max-w-[200px]">
+<Card.Root class="max-w-full overflow-hidden">
+    <Menubar.Root class="rounded-none border-0 border-b-[1px]">
+        <Menubar.Menu>
+            <Menubar.Trigger class="mr-auto">Filter</Menubar.Trigger>
+            <Menubar.Item on:click={() => toggleAudio(!alerts)}>
+                <Tooltip.Root open={true}>
+                    <Tooltip.Trigger>
+                        {#if alerts}
+                            <Volume2 class="w-4 h-4" />
+                        {:else}
+                            <VolumeX class="w-4 h-4" />
+                        {/if}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>
+                        <p>Get toxicity alerts</p>
+                    </Tooltip.Content>
+                </Tooltip.Root>
+            </Menubar.Item>
+            <Menubar.Content>
                 {#each Object.keys(servers) as server}
-                    <div class="flex flex-row items-center gap-3">
+                    <Menubar.Item
+                        on:click={() =>
+                            (servers[server].show = !servers[server].show)}
+                        class="flex flex-row items-center gap-3"
+                    >
                         <Switch
                             id={servers[server].name}
-                            bind:checked={servers[server].show}
+                            checked={servers[server].show}
                             >{servers[server].name}</Switch
                         >
                         <Label for={servers[server].name}
                             >{servers[server].name}</Label
                         >
-                    </div>
+                    </Menubar.Item>
                 {/each}
-                {#if Object.keys(servers).length<=0}
+                {#if Object.keys(servers).length <= 0}
                     Servers will appear after new messages
                 {/if}
-            </Popover.Content>
-        </Popover.Root>
-    </div>
-</div>
-<Card.Root class="max-w-full">
+            </Menubar.Content>
+        </Menubar.Menu>
+    </Menubar.Root>
     <!-- svelte-ignore empty-block -->
-    {#if opening}{:else}
-        <div>
-            <table class="w-full">
-                {#each events as event, i}
-                    {#key Number(i == 0) * event.event.epoch.getTime()}
-                        <tr class:message={i == 0}>
-                            {#if !servers[event.instance.id] || servers[event.instance.id].show}
-                                <Event
-                                    message={event.event}
-                                    instance={event.instance}
-                                    color={getColor(
-                                        event.instance.id,
-                                        `${event.instance.server.name} ${event.instance.name}`,
-                                    )}
-                                />
-                            {/if}
-                        </tr>
-                    {/key}
-                {/each}
-            </table>
-            <div class="py-5 flex flex-col gap-5 justify-center items-center">
+    <div>
+        <table class="w-full">
+            {#each events as event, i}
+                {#key Number(i == 0) * event.event.epoch.getTime()}
+                    <tr class:message={i == 0}>
+                        {#if !servers[event.instance.id] || servers[event.instance.id].show}
+                            <Event
+                                message={event.event}
+                                instance={event.instance}
+                                errored={errored[event.event.epoch.getTime()] ??
+                                    false}
+                            />
+                        {/if}
+                    </tr>
+                {/key}
+            {/each}
+        </table>
+        <div class="py-5 flex flex-col gap-5 justify-center items-center">
+            {#if opening}
+                <Loader2 class="animate-spin" />
+            {:else}
                 <span>New Messages Will Appear Above</span>
-            </div>
+            {/if}
         </div>
-    {/if}
+    </div>
 </Card.Root>
+
+<div>
+    <Toaster position="bottom-center" />
+</div>
 
 <style>
     table tr {

@@ -34,7 +34,8 @@
 	let moderatedCommunities: Staff[] = [];
 	let loadingCommunities: boolean = true;
 	export let community: Community | null = null,
-		categories: Record<string, any>;
+		categories: Record<string, any>,
+		currentCategory: string | null;
 	let creating: boolean = false;
 
 	function getFirstChar(profile: Profile) {
@@ -103,12 +104,12 @@
 	bind:this={nav}
 	class="bg-white dark:bg-black dark:border-neutral-900 bg-opacity-60 dark:bg-opacity-60 backdrop-blur-lg py-2 flex flex-row items-center fixed w-full px-4 border-b-[1px] gap-3 z-50"
 >
-	<div class="block xl:hidden">
-		<MiniNav {categories} />
+	<div class="block lg:hidden">
+		<MiniNav {categories} {currentCategory} />
 	</div>
 	<div class="flex flex-row items-center gap-2 grow">
 		<span class="font-semibold text-xl"> serverbench </span>
-		<Badge class="hidden xl:block">alpha</Badge>
+		<Badge class="hidden lg:block">alpha</Badge>
 	</div>
 	{#if community}
 		<div in:fade={{ duration: 100 }}>

@@ -4,8 +4,9 @@ import type { HandlerType } from "../voting/HandlerType"
 import type VotingSite from "../voting/VotingSite"
 import VotingSiteSetup from "./VotingSiteSetup"
 import VotingCredentials from "./credentials/Credentials"
-import NuVotifierCredentials from "./credentials/NuVotifierCredentials"
-import VotifierCredentials from "./credentials/VotifierCredentials"
+import NuVotifierHandler from "./handler/NuVotifierHandler"
+import VotifierHandler from "./handler/VotifierHandler"
+import VotingHandler from "./handler/VotingHandler"
 
 export default class VotingSettings {
 
@@ -15,17 +16,15 @@ export default class VotingSettings {
     public readonly autoscoringQueries: string[]
     public readonly featuredSites: number | null
     public readonly featuredSitesHeadroom: number
-    public readonly credentials: VotingCredentials
     public readonly sites: VotingSiteSetup[]
 
-    constructor(id: string, community: Community, autoscore: boolean, autoscoringQueries: string[], featuredSites: number | null, featuredSitesHeadroom: number, credentials: VotingCredentials, sites: VotingSiteSetup[]) {
+    constructor(id: string, community: Community, autoscore: boolean, autoscoringQueries: string[], featuredSites: number | null, featuredSitesHeadroom: number, sites: VotingSiteSetup[]) {
         this.id = id
         this.community = community
         this.autoscore = autoscore
         this.autoscoringQueries = autoscoringQueries
         this.featuredSites = featuredSites
         this.featuredSitesHeadroom = featuredSitesHeadroom
-        this.credentials = credentials
         this.sites = sites
     }
 
@@ -37,17 +36,11 @@ export default class VotingSettings {
             obj.autoscoringQueries,
             obj.featuredSites,
             obj.featuredSitesHeadroom,
-            new VotingCredentials(community, null, new NuVotifierCredentials(null), new VotifierCredentials(null, null, null, null)), //VotingCredentials.fromObject(obj.credentials, community),
             obj.sites.map((s: any) => VotingSiteSetup.fromObject(s))
         )
     }
 
     public async regenCredentials(handlerType: HandlerType): Promise<VotingSettings> {
-        const credentials =
-            VotingCredentials.fromObject(
-                await Srvbench.getInstance().rest(`community/${this.community.id}/voting/credentials/${handlerType}`, {}),
-                this.community
-            )
         return new VotingSettings(
             this.id,
             this.community,
@@ -55,9 +48,20 @@ export default class VotingSettings {
             this.autoscoringQueries,
             this.featuredSites,
             this.featuredSitesHeadroom,
-            credentials,
             this.sites
         )
+    }
+
+    public async getCredentials(): Promise<VotingHandler[]> {
+        return (await Srvbench.getInstance().rest(`community/${this.community.id}/voting/handlers`)).map((o: any) => {
+            if (o.type == 'NuVotifierHandler') {
+                return NuVotifierHandler.fromObject(o)
+            } else if (o.type == 'VotifierHandler') {
+                return VotifierHandler.fromObject(o)
+            } else {
+                throw new Error('unknown')
+            }
+        })
     }
 
     public async setupSite(votingSite: VotingSite, url: string, handlerType: HandlerType, entrypoint: string | null, cooldown: number | null, reset: number | null) {
