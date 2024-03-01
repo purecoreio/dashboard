@@ -18,7 +18,7 @@
 
 <aside
     bind:this={aside}
-    class="h-screen hidden xl:flex flex-col fixed top-0 left-0 w-full max-w-xs border-r-[1px] px-3 gap-2 pt-4 bg-white dark:bg-black dark:border-neutral-900 bg-opacity-60 dark:bg-opacity-60 backdrop-blur-lg z-50"
+    class="h-screen hidden xl:flex flex-col fixed top-0 left-0 w-full max-w-64 border-r-[1px] px-3 gap-2 pt-4 bg-white dark:bg-black dark:border-neutral-900 bg-opacity-60 dark:bg-opacity-60 backdrop-blur-lg z-50"
     style={`margin-top:${height}px;`}
 >
     {#each Object.keys(categories) as category}

@@ -60,8 +60,10 @@
 						class="hidden xl:block"
 						style={`min-width:${width ?? 0}px`}
 					/>
-					<main class="px-2 flex flex-col gap-3 grow max-w-3xl">
-						<slot />
+					<main class="px-2 grow">
+						<div class="max-w-4xl mx-auto w-full flex flex-col gap-3">
+							<slot />
+						</div>
 					</main>
 					<div
 						class="hidden xl:block"
