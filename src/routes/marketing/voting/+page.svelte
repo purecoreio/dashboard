@@ -13,6 +13,7 @@
     import { Button } from "$lib/components/ui/button";
     import { ExternalLink } from "lucide-svelte";
     import * as Tooltip from "$lib/components/ui/tooltip";
+    import Todo from "$lib/components/serverbench/todo.svelte";
 
     let settings: VotingSettings | null = null;
     let sites: VotingSiteSetup[] = [];
@@ -36,6 +37,14 @@
     {/each}
 </Section>
 
+<Section title="Featuring">
+    <Todo />
+</Section>
+
+<Section title="Rewards">
+    <Todo />
+</Section>
+
 <Section title="Sites">
     <Card.Root>
         <Table.Root>
@@ -49,7 +58,9 @@
             <Table.Body>
                 {#each sites as site}
                     <Table.Row>
-                        <Table.Cell class="font-medium flex flex-row items-center">
+                        <Table.Cell
+                            class="font-medium flex flex-row items-center"
+                        >
                             <Tooltip.Root>
                                 <Tooltip.Trigger>
                                     <Button

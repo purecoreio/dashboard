@@ -20,6 +20,7 @@
 	} from "lucide-svelte";
 	import { fade } from "svelte/transition";
 	import { onNavigate } from "$app/navigation";
+	import Chat from "$lib/components/serverbench/chat.svelte";
 
 	const categories: Record<string, any> = {
 		moderation: {
@@ -106,6 +107,11 @@
 	<Aside bind:width {height} {categories} {currentCategory} />
 	{#if community}
 		{#key community}
+			<div class="fixed right-6 bottom-3 max-w-sm z-50">
+				{#if optionUrl != "/moderation/activity"}
+					<Chat popup={true} />
+				{/if}
+			</div>
 			<div class="grow py-4 w-full h-screen overflow-y-scroll">
 				<div style={`min-height:${height}px;`} />
 				<div class="flex flex-row justify-between">
