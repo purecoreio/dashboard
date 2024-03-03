@@ -15,13 +15,14 @@
     import type MediaProfile from "$lib/sb/media/MediaProfile";
     import type Creator from "$lib/sb/media/Creator";
     import JoinAsCreator from "./JoinAsCreator.svelte";
+    import SubmitContent from "./SubmitContent.svelte";
 
     const platforms: MediaPlatform[] = ["youtube", "tiktok", "twitch"];
 
     const user = Srvbench.getInstance().getUser();
 
     let sources: MediaProfile[] = [];
-    let profiles: Creator[] = [];
+    let creatorProfiles: Creator[] = [];
 
     onMount(async () => {
         await load();
@@ -29,7 +30,7 @@
 
     async function load() {
         sources = await user.listMediaSources();
-        profiles = await user.listMediaProfiles();
+        creatorProfiles = await user.listMediaProfiles();
     }
 
     async function link(platform: MediaPlatform) {
@@ -126,7 +127,7 @@
                 </Table.Row>
             </Table.Header>
             <Table.Body>
-                {#each profiles as profile}
+                {#each creatorProfiles as profile}
                     <Table.Row>
                         <Table.Cell>{profile.community.name}</Table.Cell>
                         <Table.Cell>
@@ -173,9 +174,7 @@
                     <Table.Head>Video</Table.Head>
                     <Table.Head>Status</Table.Head>
                     <Table.Head class="text-right">
-                        <Button size="sm" variant="outline"
-                            >Submit Content</Button
-                        >
+                        <SubmitContent {creatorProfiles} />
                     </Table.Head>
                 </Table.Row>
             </Table.Header>
