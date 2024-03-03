@@ -5,7 +5,8 @@
     import { Label } from "$lib/components/ui/label";
     import Srvbench from "$lib/sb/Srvbench";
     import { Loader2 } from "lucide-svelte";
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
+    import { page } from "$app/stores";
 
     const dispatch = createEventDispatcher();
 
@@ -25,6 +26,13 @@
         }
         loading = false;
     }
+
+    onMount(async () => {
+        if ($page.url.searchParams.has("media_community")) {
+            communityId = $page.url.searchParams.get("media_community");
+            await join();
+        }
+    });
 </script>
 
 <Dialog.Root bind:open>

@@ -1,6 +1,6 @@
 <script lang="ts">
     import Section from "$lib/components/serverbench/section.svelte";
-    import Submission, { mock } from "$lib/sb/media/Submission";
+    import Submission from "$lib/sb/media/Submission";
     import * as Table from "$lib/components/ui/table";
     import * as Card from "$lib/components/ui/card";
     import { Input } from "$lib/components/ui/input";
@@ -8,8 +8,8 @@
     import { MoreVertical } from "lucide-svelte";
     import MediaIcon from "$lib/components/serverbench/mediaIcon.svelte"
     import Submissions from "./Submissions.svelte";
-    let pending: Submission[] = [mock];
-    let creators = [mock.creator];
+    let pending: Submission[] = [];
+    let creators:any[] = [];
     let submissions = pending;
 </script>
 

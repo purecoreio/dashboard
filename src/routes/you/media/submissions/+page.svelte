@@ -16,6 +16,9 @@
     import type Creator from "$lib/sb/media/Creator";
     import JoinAsCreator from "./JoinAsCreator.svelte";
     import SubmitContent from "./SubmitContent.svelte";
+    import type Submission from "$lib/sb/media/Submission";
+    import Onboarding from "./Onboarding.svelte";
+    import { page } from "$app/stores";
 
     const platforms: MediaPlatform[] = ["youtube", "tiktok", "twitch"];
 
@@ -23,21 +26,30 @@
 
     let sources: MediaProfile[] = [];
     let creatorProfiles: Creator[] = [];
+    let submissions: Submission[] = [];
+    let submitting: boolean = false;
 
     onMount(async () => {
         await load();
     });
 
+    function startSubmit() {
+        if ($page.url.searchParams.has("media_submit")) submitting = true;
+    }
+
     async function load() {
         sources = await user.listMediaSources();
         creatorProfiles = await user.listMediaProfiles();
+        submissions = await user.getSubmissions();
     }
 
     async function link(platform: MediaPlatform) {
-        user.linkMediaSource(platform);
+        await user.linkMediaSource(platform);
+        await load();
     }
 </script>
 
+<Onboarding on:created={load} on:finished={startSubmit} {platforms} />
 <Section title="Accounts">
     <Card.Root class="overflow-hidden">
         <Table.Root>
@@ -168,56 +180,71 @@
         <Table.Root>
             <Table.Header>
                 <Table.Row>
-                    <Table.Head class="w-[100px]">Account</Table.Head>
+                    <Table.Head>Account</Table.Head>
                     <Table.Head>Community</Table.Head>
-                    <Table.Head>Clicks</Table.Head>
                     <Table.Head>Video</Table.Head>
                     <Table.Head>Status</Table.Head>
                     <Table.Head class="text-right">
-                        <SubmitContent {creatorProfiles} />
+                        <SubmitContent
+                            bind:submitting
+                            on:submitted={() => load()}
+                            {creatorProfiles}
+                        />
                     </Table.Head>
                 </Table.Row>
             </Table.Header>
             <Table.Body>
-                <Table.Row>
-                    <Table.Cell>
-                        <div class="flex flex-row gap-2 items-center">
-                            <MediaIcon platform="youtube" />
-                            quiquelhappy
-                        </div>
-                    </Table.Cell>
-                    <Table.Cell>PureVanilla</Table.Cell>
-                    <Table.Cell>0</Table.Cell>
-                    <Table.Cell>
-                        <Input disabled value="lol get donkey'd" />
-                    </Table.Cell>
-                    <Table.Cell>
-                        <Badge>Reviewing</Badge>
-                    </Table.Cell>
-                    <Table.Cell class="text-right">
-                        <DropdownMenu.Root>
-                            <DropdownMenu.Trigger>
-                                <Button
-                                    class="rounded-full"
-                                    size="icon"
-                                    variant="outline"
-                                >
-                                    <MoreVertical />
-                                </Button>
-                            </DropdownMenu.Trigger>
-                            <DropdownMenu.Content>
-                                <DropdownMenu.Group>
-                                    <DropdownMenu.Label
-                                        >Manage</DropdownMenu.Label
+                {#each submissions as submission}
+                    <Table.Row>
+                        <Table.Cell class="text-nowrap">
+                            <div class="flex flex-row gap-2 items-center">
+                                <MediaIcon
+                                    platform={submission.profile.platform}
+                                />
+                                {submission.profile.username}
+                            </div>
+                        </Table.Cell>
+                        <Table.Cell
+                            >{submission.uploader.community.name}</Table.Cell
+                        >
+                        <Table.Cell>
+                            <Input disabled value={submission.title} />
+                        </Table.Cell>
+                        <Table.Cell>
+                            {#if submission.verification.declined == null}
+                                <Badge>Reviewing</Badge>
+                            {:else if submission.verification.declined}
+                                <Badge variant="destructive">Declined</Badge>
+                            {:else}
+                                <Badge variant="secondary">Approved</Badge>
+                            {/if}
+                        </Table.Cell>
+                        <Table.Cell class="text-right">
+                            <DropdownMenu.Root>
+                                <DropdownMenu.Trigger>
+                                    <Button
+                                        class="rounded-full"
+                                        size="icon"
+                                        variant="outline"
                                     >
-                                    <DropdownMenu.Separator />
-                                    <DropdownMenu.Item>Unlist</DropdownMenu.Item
-                                    >
-                                </DropdownMenu.Group>
-                            </DropdownMenu.Content>
-                        </DropdownMenu.Root>
-                    </Table.Cell>
-                </Table.Row>
+                                        <MoreVertical />
+                                    </Button>
+                                </DropdownMenu.Trigger>
+                                <DropdownMenu.Content>
+                                    <DropdownMenu.Group>
+                                        <DropdownMenu.Label
+                                            >Manage</DropdownMenu.Label
+                                        >
+                                        <DropdownMenu.Separator />
+                                        <DropdownMenu.Item
+                                            >Unlist</DropdownMenu.Item
+                                        >
+                                    </DropdownMenu.Group>
+                                </DropdownMenu.Content>
+                            </DropdownMenu.Root>
+                        </Table.Cell>
+                    </Table.Row>
+                {/each}
             </Table.Body>
         </Table.Root>
     </Card.Root>

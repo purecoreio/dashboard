@@ -2,7 +2,6 @@
 	import SSO from "$lib/sso/SSO";
 	import "../app.pcss";
 	import Header from "./Header.svelte";
-	import * as Card from "$lib/components/ui/card";
 	import Button from "$lib/components/ui/button/button.svelte";
 	import type Community from "$lib/sb/Community";
 	import Aside from "./Aside.svelte";
@@ -21,6 +20,7 @@
 	import { fade } from "svelte/transition";
 	import { onNavigate } from "$app/navigation";
 	import Chat from "$lib/components/serverbench/chat.svelte";
+	import Login from "./Login.svelte";
 
 	const allCategories: Record<string, any> = {
 		"": {
@@ -70,21 +70,12 @@
 
 	const sso = SSO.getInstance("serverbench.io");
 	let logged = sso.logged;
-	const methods = [
-		"minecraft",
-		"github",
-		"google",
-		"microsoft",
-		"steam",
-		"xbox",
-		"discord",
-	];
-	let community: Community | null;
 
-	async function login(method: string) {
-		await sso.login(method);
-		logged = sso.logged;
+	function handleLogin(event: CustomEvent<boolean>) {
+		logged = event.detail;
 	}
+
+	let community: Community | null;
 
 	let height: number;
 	let width: number;
@@ -168,35 +159,5 @@
 		{/key}
 	{/if}
 {:else}
-	<div class="h-screen flex flex-col items-center justify-center">
-		<main class="w-full text-center flex flex-col gap-3 max-w-sm">
-			<h1 class="font-bold text-2xl">serverbench</h1>
-			<Card.Root class="flex flex-col gap-1 p-2">
-				{#each methods as method}
-					<Button on:click={() => login(method)} class="capitalize">
-						{method}
-					</Button>
-				{/each}
-			</Card.Root>
-			<small>
-				serverbench.io is a product built by <a
-					target="_blank"
-					class="underline"
-					href="https://nominal.es">nominal.es</a
-				>.<br />
-				By logging in you accept our
-				<a
-					class="underline"
-					target="_blank"
-					href="https://nominal.es/legal">terms of service</a
-				>
-				and
-				<a
-					class="underline"
-					target="_blank"
-					href="https://nominal.es/legal">privacy policy</a
-				>
-			</small>
-		</main>
-	</div>
+	<Login on:logged={handleLogin} />
 {/if}

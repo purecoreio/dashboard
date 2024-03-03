@@ -1,4 +1,4 @@
-import type Staff from "../Staff"
+import Staff from "../Staff"
 
 export default class Verification {
 
@@ -10,6 +10,14 @@ export default class Verification {
         this.declined = declined
         this.on = on
         this.by = by
+    }
+
+    public static fromObject(obj: any) {
+        return new Verification(
+            obj.declined,
+            obj.on ? new Date(obj.on) : null,
+            null // TODO: obj.by ? Staff.fromObject(obj.by) : null
+        )
     }
 
 }

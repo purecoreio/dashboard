@@ -8,13 +8,18 @@
     import type Creator from "$lib/sb/media/Creator";
     import type { MediaPlatform } from "$lib/sb/media/MediaProfile";
     import { Loader2 } from "lucide-svelte";
+    import { createEventDispatcher, onMount } from "svelte";
+
+    const dispatch = createEventDispatcher();
 
     let url: string | null = null;
-    export let creatorProfiles: Creator[] = [];
-    let creatorProfile: string | null = null;
+    export let creatorProfiles: Creator[] = [],
+        submitting: boolean;
+    let creatorProfile: any = null;
     let loading: boolean = false;
 
     async function submitContent() {
+        if (loading) return;
         loading = true;
         try {
             const link = new URL(url!);
@@ -40,7 +45,9 @@
                 platform = "tiktok";
                 id = link.pathname.split("video")[1].split("/")[1];
             } else if (link.hostname == "vm.tiktok.com") {
-                throw new Error("tiktok share urls must use this format: https://www.tiktok.com/@<username>/video/<video id>. try copying the url from your browser address bar instead.")
+                throw new Error(
+                    "tiktok share urls must use this format: https://www.tiktok.com/@<username>/video/<video id>. try copying the url from your browser address bar instead.",
+                );
             } else if (
                 link.hostname == "twitch.tv" ||
                 link.hostname == "www.twitch.tv"
@@ -50,14 +57,40 @@
             } else {
                 throw new Error("unsupported link");
             }
-            if(!platform || !id) throw new Error("unknown video or platform")
+            if (!platform || !id) throw new Error("unknown video or platform");
             console.log(platform, id);
-        } catch (error) {}
+            console.log(
+                await Srvbench.getInstance()
+                    .getUser()
+                    .submitContent(
+                        creatorProfiles.find(
+                            (p) => p.id == creatorProfile?.value,
+                        )!.community,
+                        platform,
+                        id,
+                    ),
+            );
+            dispatch("submitted");
+            submitting = false;
+            url = null;
+        } catch (error) {
+            console.log(error);
+        }
         loading = false;
     }
+
+    $: creatorProfiles,
+        (() => {
+            if (creatorProfiles.length > 0) {
+                creatorProfile = {
+                    label: creatorProfiles[0].community.name,
+                    id: creatorProfiles[0].community.id,
+                };
+            }
+        })();
 </script>
 
-<Dialog.Root>
+<Dialog.Root bind:open={submitting}>
     <Dialog.Trigger>
         <Button size="sm" variant="outline">Submit Content</Button>
     </Dialog.Trigger>
@@ -71,7 +104,7 @@
         <div class="flex flex-col gap-3">
             <div>
                 <Label for="community">Community</Label>
-                <Select.Root portal={null}>
+                <Select.Root bind:selected={creatorProfile} portal={null}>
                     <Select.Trigger>
                         <Select.Value placeholder="Select a community" />
                     </Select.Trigger>
@@ -88,11 +121,7 @@
                             {/each}
                         </Select.Group>
                     </Select.Content>
-                    <Select.Input
-                        bind:value={creatorProfile}
-                        id="community"
-                        name="community"
-                    />
+                    <Select.Input id="community" name="community" />
                 </Select.Root>
             </div>
             <div>

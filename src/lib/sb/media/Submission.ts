@@ -10,20 +10,20 @@ export default class Submission {
 
     public readonly id: string
     public readonly created: Date
-    public readonly creator: Creator
+    public readonly uploader: Creator
+    public readonly title: string
     public readonly profile: MediaProfile
     public readonly eid: string
     public readonly verification: Verification
-    public readonly member: Member
 
-    constructor(id: string, created: Date, creator: Creator, profile: MediaProfile, eid: string, verification: Verification, member: Member) {
+    constructor(id: string, created: Date, uploader: Creator, title: string, profile: MediaProfile, eid: string, verification: Verification) {
         this.id = id
         this.created = created
-        this.creator = creator
+        this.uploader = uploader
+        this.title = title
         this.profile = profile
         this.eid = eid
         this.verification = verification
-        this.member = member
     }
 
     public get url(): string {
@@ -37,44 +37,16 @@ export default class Submission {
         }
     }
 
+    public static fromObject(obj: any) {
+        return new Submission(
+            obj.id,
+            new Date(obj.created),
+            Creator.fromObject(obj.uploader),
+            obj.title,
+            MediaProfile.fromObject(obj.profile),
+            obj.eid,
+            Verification.fromObject(obj.verification),
+        )
+    }
+
 }
-const youtube =
-    new MediaProfile(
-        'a',
-        'youtube',
-        'b',
-        'quiquelhappy'
-    )
-
-const member =
-    new Member(
-        'a',
-        'b',
-        'minecraft',
-        'quiquelhappy',
-        [],
-        new Date(),
-        0
-    )
-
-export const mock = new Submission(
-    'a',
-    new Date(),
-    new Creator(
-        'a',
-        'aaa',
-        [youtube],
-        new Community(
-            'a', 'a', 'a'
-        ),
-        member
-    ),
-    youtube,
-    'b',
-    new Verification(
-        null,
-        null,
-        null
-    ),
-    member
-)
