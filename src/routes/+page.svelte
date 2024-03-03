@@ -1,14 +1,4 @@
 <script>
-	import * as Card from "$lib/components/ui/card";
-	import Section from "$lib/components/serverbench/section.svelte"
+	import { goto } from "$app/navigation";
+	goto("/moderation/activity");
 </script>
-
-<div class="container">
-	<Section title="Owned">
-		<Card.Root class="p-2">
-			<div>
-				purevanilla
-			</div>
-		</Card.Root>
-	</Section>
-</div>

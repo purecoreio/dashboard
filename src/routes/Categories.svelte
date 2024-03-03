@@ -1,11 +1,13 @@
 <script lang="ts">
     import { page } from "$app/stores";
-    export let categories: Record<string, any>, currentCategory: string | null;
+    export let categories: Record<string, any>,
+        currentCategory: string | null,
+        base: string;
 </script>
 
-{#each Object.keys(categories) as category}
+{#each Object.keys(categories ?? {}) as category}
     <a
-        href={`/${category}/${categories[category].options[0]}`}
+        href={`${base}/${category}/${categories[category].options[0]}`}
         class:bg-primary={currentCategory == category}
         class:text-white={currentCategory == category}
         class:dark:text-black={currentCategory == category}

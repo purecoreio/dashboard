@@ -7,7 +7,6 @@
 	import type Community from "$lib/sb/Community";
 	import Aside from "./Aside.svelte";
 	import { page } from "$app/stores";
-	import * as ToggleGroup from "$lib/components/ui/toggle-group";
 
 	import {
 		Goal,
@@ -17,46 +16,55 @@
 		Handshake,
 		ShoppingBasket,
 		Server,
+		Video,
 	} from "lucide-svelte";
 	import { fade } from "svelte/transition";
 	import { onNavigate } from "$app/navigation";
 	import Chat from "$lib/components/serverbench/chat.svelte";
 
-	const categories: Record<string, any> = {
-		moderation: {
-			icon: Gavel,
-			options: ["activity", "punishments", "appeals"],
+	const allCategories: Record<string, any> = {
+		"": {
+			moderation: {
+				icon: Gavel,
+				options: ["activity", "punishments", "appeals"],
+			},
+			community: {
+				icon: Users,
+				options: ["players", "demographics"],
+			},
+			marketing: {
+				icon: Goal,
+				options: ["voting", "media"],
+			},
+			monetization: {
+				icon: ShoppingBasket,
+				options: [
+					"transactions",
+					"packages",
+					"variables",
+					"sales",
+					"coupons",
+					"subscriptions",
+				],
+			},
+			servers: {
+				icon: Server,
+				options: ["hosts"],
+			},
+			team: {
+				icon: Handshake,
+				options: ["members", "roles", "invites"],
+			},
+			settings: {
+				icon: Cog,
+				options: ["key"],
+			},
 		},
-		community: {
-			icon: Users,
-			options: ["players", "demographics"],
-		},
-		marketing: {
-			icon: Goal,
-			options: ["voting", "media"],
-		},
-		monetization: {
-			icon: ShoppingBasket,
-			options: [
-				"transactions",
-				"packages",
-				"variables",
-				"sales",
-				"coupons",
-				"subscriptions",
-			],
-		},
-		servers: {
-			icon: Server,
-			options: ["hosts"],
-		},
-		team: {
-			icon: Handshake,
-			options: ["members", "roles", "invites"],
-		},
-		settings: {
-			icon: Cog,
-			options: ["key"],
+		"/you": {
+			media: {
+				icon: Video,
+				options: ["submissions"],
+			},
 		},
 	};
 
@@ -96,19 +104,22 @@
 
 	$: currentCategory =
 		Object.keys(categories).find(
-			(m) => m == $page.url.pathname.split("/")[1],
+			(m) => m == $page.url.pathname.substring(base.length).split("/")[1],
 		) ?? null;
 
-	$: optionUrl = $page.url.pathname.split("/").slice(0, 3).join("/");
+	$: optionUrl = $page.url.pathname;
+
+	$: base = $page.url.pathname.startsWith("/you/") ? "/you" : "";
+	$: categories = allCategories[base];
 </script>
 
 {#if logged}
-	<Header bind:height bind:community {categories} {currentCategory} />
-	<Aside bind:width {height} {categories} {currentCategory} />
+	<Header bind:height bind:community {base} {categories} {currentCategory} />
+	<Aside bind:width {height} {base} {categories} {currentCategory} />
 	{#if community}
 		{#key community}
 			<div class="fixed right-6 bottom-3 max-w-sm z-50">
-				{#if optionUrl != "/moderation/activity"}
+				{#if base == "" && optionUrl != "/moderation/activity"}
 					<Chat popup={true} />
 				{/if}
 			</div>
@@ -131,9 +142,10 @@
 									>
 										{#each categories[currentCategory].options as option}
 											<Button
-												href={`/${currentCategory}/${option}`}
-												variant={optionUrl ==
-												`/${currentCategory}/${option}`
+												href={`${base}/${currentCategory}/${option}`}
+												variant={`${base}/${currentCategory}/${option}`.startsWith(
+													optionUrl,
+												)
 													? "default"
 													: "outline"}
 												class="capitalize rounded-full"

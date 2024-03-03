@@ -4,7 +4,9 @@
     import { Button } from "$lib/components/ui/button";
     import { page } from "$app/stores";
 
-    export let categories: Record<string, any>, currentCategory: string | null;
+    export let categories: Record<string, any>,
+        currentCategory: string | null,
+        base: string;
 </script>
 
 <DropdownMenu.Root>
@@ -20,7 +22,7 @@
         <DropdownMenu.Group>
             {#each Object.keys(categories) as category}
                 <DropdownMenu.Item
-                    href={`/${category}/${categories[category].options[0]}`}
+                    href={`${base}/${category}/${categories[category].options[0]}`}
                     class={`capitalize ${category == currentCategory ? "font-bold" : ""}`}
                 >
                     <svelte:component

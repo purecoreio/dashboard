@@ -35,6 +35,7 @@
 	let loadingCommunities: boolean = true;
 	export let community: Community | null = null,
 		categories: Record<string, any>,
+		base: string,
 		currentCategory: string | null;
 	let creating: boolean = false;
 
@@ -94,24 +95,26 @@
 
 <ModeWatcher defaultMode={"light"} track={true} />
 
-<CreateJoin
-	on:community={handleCreate}
-	force={!hasCommunity && !loadingCommunities}
-	bind:creating
-/>
+{#if base == ""}
+	<CreateJoin
+		on:community={handleCreate}
+		force={!hasCommunity && !loadingCommunities}
+		bind:creating
+	/>
+{/if}
 
 <nav
 	bind:this={nav}
 	class="bg-white dark:bg-black dark:border-neutral-900 bg-opacity-60 dark:bg-opacity-60 backdrop-blur-lg py-2 flex flex-row items-center fixed w-full px-4 border-b-[1px] gap-3 z-50"
 >
 	<div class="block lg:hidden">
-		<MiniNav {categories} {currentCategory} />
+		<MiniNav {base} {categories} {currentCategory} />
 	</div>
-	<div class="flex flex-row items-center gap-2 grow">
+	<a href="/" class="flex flex-row items-center gap-2 grow">
 		<span class="font-semibold text-xl"> serverbench </span>
 		<Badge class="hidden lg:block">alpha</Badge>
-	</div>
-	{#if community}
+	</a>
+	{#if community && base==''}
 		<div in:fade={{ duration: 100 }}>
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger>
@@ -203,8 +206,7 @@
 						</DropdownMenu.Item>
 					{/each}
 					<DropdownMenu.Separator />
-					<DropdownMenu.Item>Machines</DropdownMenu.Item>
-					<DropdownMenu.Item>Plan</DropdownMenu.Item>
+					<DropdownMenu.Item href="/you/media/submissions">Media</DropdownMenu.Item>
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item on:click={toggleMode}
 						>Dark/Light Mode</DropdownMenu.Item

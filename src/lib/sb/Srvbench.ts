@@ -1,6 +1,7 @@
 import SSO from "$lib/sso/SSO";
 import Community from "./Community";
 import Staff from "./Staff";
+import User from "./User";
 import type { HandlerType } from "./voting/HandlerType";
 import VotingSite from "./voting/VotingSite";
 
@@ -70,7 +71,7 @@ export default class Srvbench {
         return staff
     }
 
-    private async getCommunities(force:boolean = false): Promise<[Community[], Staff[]]> {
+    private async getCommunities(force: boolean = false): Promise<[Community[], Staff[]]> {
         if (force || !this.ownedCommunities || !this.moderatedCommunities) {
             const result = await this.rest('community')
             const owned = result.owned.map((o: any) => Community.fromObject(o))
@@ -82,11 +83,11 @@ export default class Srvbench {
         return [this.ownedCommunities, this.moderatedCommunities]
     }
 
-    public async getOwnedCommunities(force:boolean = false): Promise<Community[]> {
+    public async getOwnedCommunities(force: boolean = false): Promise<Community[]> {
         return (await this.getCommunities(force))[0]!
     }
 
-    public async getModeratedCommunities(force:boolean = false) {
+    public async getModeratedCommunities(force: boolean = false) {
         return (await this.getCommunities(force))[1]!
     }
 
@@ -128,6 +129,10 @@ export default class Srvbench {
         await SSO.getInstance().session?.renewIfDue()
         args['token'] = SSO.getInstance().session!.access.token
         return new WebSocket(`wss://stream.serverbench.io/${endpoint}?${new URLSearchParams(args).toString()}`)
+    }
+
+    public getUser() {
+        return new User()
     }
 
 }
