@@ -58,7 +58,7 @@
                 throw new Error("unsupported link");
             }
             if (!platform || !id) throw new Error("unknown video or platform");
-            console.log(platform, id);
+            console.log(platform, id, creatorProfile, creatorProfiles);
             console.log(
                 await Srvbench.getInstance()
                     .getUser()
@@ -84,7 +84,7 @@
             if (creatorProfiles.length > 0) {
                 creatorProfile = {
                     label: creatorProfiles[0].community.name,
-                    id: creatorProfiles[0].community.id,
+                    value: creatorProfiles[0].id,
                 };
             }
         })();
