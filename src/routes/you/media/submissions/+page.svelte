@@ -211,9 +211,9 @@
                             <Input disabled value={submission.title} />
                         </Table.Cell>
                         <Table.Cell>
-                            {#if submission.verification.declined == null}
+                            {#if submission.getVerification().declined == null}
                                 <Badge>Reviewing</Badge>
-                            {:else if submission.verification.declined}
+                            {:else if submission.getVerification().declined}
                                 <Badge variant="destructive">Declined</Badge>
                             {:else}
                                 <Badge variant="secondary">Approved</Badge>

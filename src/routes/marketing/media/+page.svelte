@@ -6,15 +6,33 @@
     import { Input } from "$lib/components/ui/input";
     import { Button } from "$lib/components/ui/button";
     import { MoreVertical } from "lucide-svelte";
-    import MediaIcon from "$lib/components/serverbench/mediaIcon.svelte"
     import Submissions from "./Submissions.svelte";
-    let pending: Submission[] = [];
-    let creators:any[] = [];
-    let submissions = pending;
+    import type Creator from "$lib/sb/media/Creator";
+    import Srvbench from "$lib/sb/Srvbench";
+    import { onMount } from "svelte";
+
+    let creators: Creator[] = [];
+    let submissions: Submission[] = [];
+
+    async function load() {
+        creators = await Srvbench.getInstance().getCommunity()!.getCreators();
+        submissions = await Srvbench.getInstance()
+            .getCommunity()!
+            .getSubmissions();
+    }
+
+    async function handleUpdate(event: CustomEvent<Submission[]>) {
+        submissions = event.detail;
+        console.log('received', event.detail)
+    }
+
+    onMount(async () => {
+        await load();
+    });
 </script>
 
 <Section title="Pending Reviews">
-    <Submissions submissions={pending} />
+    <Submissions bind:submissions showPending={true} on:update={handleUpdate} />
 </Section>
 
 <Section title="Creators">
@@ -55,5 +73,9 @@
 </Section>
 
 <Section title="Submissions">
-    <Submissions submissions={pending} />
+    <Submissions
+        bind:submissions
+        showPending={false}
+        on:update={handleUpdate}
+    />
 </Section>

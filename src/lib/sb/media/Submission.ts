@@ -1,7 +1,7 @@
 import Community from "../Community"
 import Member from "../Member"
+import Srvbench from "../Srvbench"
 import Creator from "./Creator"
-import type { MediaPlatform } from "./MediaProfile"
 import MediaProfile from "./MediaProfile"
 import Verification from "./Verification"
 
@@ -14,7 +14,7 @@ export default class Submission {
     public readonly title: string
     public readonly profile: MediaProfile
     public readonly eid: string
-    public readonly verification: Verification
+    private verification: Verification
 
     constructor(id: string, created: Date, uploader: Creator, title: string, profile: MediaProfile, eid: string, verification: Verification) {
         this.id = id
@@ -47,6 +47,22 @@ export default class Submission {
             obj.eid,
             Verification.fromObject(obj.verification),
         )
+    }
+
+    public getVerification() {
+        return this.verification
+    }
+
+    public async setStatus(status: 'declined' | 'approved') {
+        await Srvbench.getInstance().rest(`${this.uploader.community.endpoint}/media/submission/${this.id}`, {
+            decline: status == 'declined'
+        })
+        this.verification = new Verification(
+            status == 'declined',
+            new Date(),
+            null
+        )
+        return this
     }
 
 }
