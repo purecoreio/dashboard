@@ -112,7 +112,7 @@
 	</div>
 	<a href="/" class="flex flex-row items-center gap-2 grow">
 		<span class="font-semibold text-xl"> serverbench </span>
-		<Badge class="hidden lg:block">alpha</Badge>
+		<!-- <Badge class="hidden lg:block">alpha</Badge> -->
 	</a>
 	{#if community && base==''}
 		<div in:fade={{ duration: 100 }}>
