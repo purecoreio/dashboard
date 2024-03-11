@@ -59,6 +59,14 @@ export default class Community {
         })).map((m: any) => Member.fromObject(m))
     }
 
+    public async getGeojson(): Promise<any> {
+        return (await Srvbench.getInstance().rest(`${this.endpoint}/demographics/geojson`))
+    }
+
+    public async getCountries(): Promise<Record<string,number>> {
+        return (await Srvbench.getInstance().rest(`${this.endpoint}/demographics/country`))
+    }
+
     public async getMembersByRank(page: number, rank: number): Promise<Member[]> {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/members/ranked`, {
             page: page,

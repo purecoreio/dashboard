@@ -109,7 +109,7 @@
 	<Aside bind:width {height} {base} {categories} {currentCategory} />
 	{#if community || base != ""}
 		{#key community}
-			<div class="fixed right-6 bottom-3 max-w-sm z-50">
+			<div class="fixed right-6 bottom-3 max-w-md z-50">
 				{#if base == "" && optionUrl != "/moderation/activity"}
 					<Chat popup={true} />
 				{/if}
