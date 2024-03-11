@@ -3,7 +3,8 @@ import Key from "./Key"
 import Member from "./Member"
 import Role from "./Role"
 import Srvbench from "./Srvbench"
-import type Creator from "./media/Creator"
+import Creator from "./media/Creator"
+import Submission from "./media/Submission"
 import ModerationCoverage from "./stat/ModerationCoverage"
 import NewMembers from "./stat/NewMembers"
 import Playtime from "./stat/Playtime"
@@ -49,7 +50,7 @@ export default class Community {
         return this.keys!
     }
 
-    private get endpoint() {
+    public get endpoint() {
         return `community/${this.id}`
     }
 
@@ -120,6 +121,14 @@ export default class Community {
 
     public async getModerationCoverage(): Promise<ModerationCoverage> {
         return ModerationCoverage.fromObj(await Srvbench.getInstance().rest(`${this.endpoint}/coverage/moderation`))
+    }
+
+    public async getSubmissions(): Promise<Submission[]> {
+        return (await Srvbench.getInstance().rest(`${this.endpoint}/media/submissions`)).map((s: any) => Submission.fromObject(s))
+    }
+
+    public async getCreators(): Promise<Creator[]> {
+        return (await Srvbench.getInstance().rest(`${this.endpoint}/media/profiles`)).map((s: any) => Creator.fromObject(s))
     }
 
 }
