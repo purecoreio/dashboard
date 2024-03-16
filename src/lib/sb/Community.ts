@@ -104,6 +104,10 @@ export default class Community {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/stats/playtime`)).map((n: any) => Playtime.fromObject(n, this))
     }
 
+    public async getActivity(): Promise<any[]> {
+        return (await Srvbench.getInstance().rest(`${this.endpoint}/stats/activity`))
+    }
+
     public async getRoles(): Promise<Role[]> {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/roles`)).map((r: any) => Role.fromObject(r))
     }

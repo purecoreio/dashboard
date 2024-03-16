@@ -8,6 +8,7 @@
     import { Button } from "$lib/components/ui/button";
     import { Loader2 } from "lucide-svelte";
     import IntersectionObserver from "svelte-intersection-observer";
+    import Frappe from "$lib/components/serverbench/chart/line/Frappe.svelte";
 
     let page = 0;
     let rank: number | null = null;
@@ -48,10 +49,12 @@
 
     $: intersecting,
         (async () => {
-            if(!intersecting) return
+            if (!intersecting) return;
             await loadMembers();
         })();
 </script>
+
+<Frappe />
 
 <Card.Root>
     <Table.Root>
