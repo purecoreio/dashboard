@@ -81,7 +81,9 @@
 	let width: number;
 	let hide: boolean = false;
 
-	let timeout: number;
+	const animationDuration = 100
+
+	let timeout: NodeJS.Timeout;
 	onNavigate(() => {
 		clearTimeout(timeout);
 		hide = true;
@@ -89,7 +91,7 @@
 			timeout = setTimeout(() => {
 				resolve();
 				hide = false;
-			}, 75);
+			}, animationDuration);
 		});
 	});
 
@@ -122,33 +124,37 @@
 						style={`min-width:${width ?? 0}px`}
 					/>
 					<main class="px-2 grow">
-						{#if !hide}
-							<div
-								class="max-w-4xl mx-auto w-full flex flex-col gap-3"
-								transition:fade={{ duration: 75, delay: 0 }}
-							>
-								{#if currentCategory}
+						<div
+							class="max-w-4xl mx-auto w-full flex flex-col gap-3"
+						>
+							{#if currentCategory}
+								<div class="flex flex-row gap-3 items-center">
+									{#each categories[currentCategory].options as option}
+										<Button
+											href={`${base}/${currentCategory}/${option}`}
+											variant={`${base}/${currentCategory}/${option}`.startsWith(
+												optionUrl,
+											)
+												? "default"
+												: "outline"}
+											class="capitalize rounded-full"
+										>
+											{option}
+										</Button>
+									{/each}
+								</div>
+								{#if !hide}
 									<div
-										class="flex flex-row gap-3 items-center"
+										transition:fade={{
+											duration: animationDuration,
+											delay: 0,
+										}}
 									>
-										{#each categories[currentCategory].options as option}
-											<Button
-												href={`${base}/${currentCategory}/${option}`}
-												variant={`${base}/${currentCategory}/${option}`.startsWith(
-													optionUrl,
-												)
-													? "default"
-													: "outline"}
-												class="capitalize rounded-full"
-											>
-												{option}
-											</Button>
-										{/each}
+										<slot />
 									</div>
 								{/if}
-								<slot />
-							</div>
-						{/if}
+							{/if}
+						</div>
 					</main>
 					<div
 						class="hidden lg:block"
