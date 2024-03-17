@@ -50,6 +50,9 @@ dependencies:
   svelte-sonner:
     specifier: ^0.3.19
     version: 0.3.19(svelte@4.2.12)
+  svelte-tiny-linked-charts:
+    specifier: ^1.6.0
+    version: 1.6.0(svelte@4.2.12)
   tailwind-merge:
     specifier: ^2.2.1
     version: 2.2.1
@@ -2904,6 +2907,14 @@ packages:
     resolution: {integrity: sha512-jpPOgLtHwRaB6Vqo2dUQMv15/yUV/BQWTjKpEqQ11uqRSHKjAYUKZyGrHB2cQsGmyjR0JUzBD58btpgNqINQ/Q==}
     peerDependencies:
       svelte: '>=3 <5'
+    dependencies:
+      svelte: 4.2.12
+    dev: false
+
+  /svelte-tiny-linked-charts@1.6.0(svelte@4.2.12):
+    resolution: {integrity: sha512-y4ey6XkMjcMulsWpuLeC4xku/hIMoBH6/YbOJNvEISd71QOjPdXQh0Is44i23v6jI8M7HdydmaZtUCiEd37Rvg==}
+    peerDependencies:
+      svelte: ^4.0.0
     dependencies:
       svelte: 4.2.12
     dev: false
