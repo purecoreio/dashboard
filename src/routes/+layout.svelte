@@ -145,6 +145,7 @@
 								</div>
 								{#if !hide}
 									<div
+										class="flex flex-col gap-3"
 										transition:fade={{
 											duration: animationDuration,
 											delay: 0,

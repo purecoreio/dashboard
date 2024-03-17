@@ -20,6 +20,9 @@ dependencies:
   chart.js:
     specifier: ^4.4.2
     version: 4.4.2
+  chartjs-adapter-moment:
+    specifier: ^1.0.1
+    version: 1.0.1(chart.js@4.4.2)(moment@2.30.1)
   clsx:
     specifier: ^2.1.0
     version: 2.1.0
@@ -35,6 +38,9 @@ dependencies:
   mode-watcher:
     specifier: ^0.2.1
     version: 0.2.1(svelte@4.2.12)
+  moment:
+    specifier: ^2.30.1
+    version: 2.30.1
   svelte-chartjs:
     specifier: ^3.1.5
     version: 3.1.5(chart.js@4.4.2)(svelte@4.2.12)
@@ -1338,6 +1344,16 @@ packages:
       '@kurkle/color': 0.3.2
     dev: false
 
+  /chartjs-adapter-moment@1.0.1(chart.js@4.4.2)(moment@2.30.1):
+    resolution: {integrity: sha512-Uz+nTX/GxocuqXpGylxK19YG4R3OSVf8326D+HwSTsNw1LgzyIGRo+Qujwro1wy6X+soNSnfj5t2vZ+r6EaDmA==}
+    peerDependencies:
+      chart.js: '>=3.0.0'
+      moment: ^2.10.2
+    dependencies:
+      chart.js: 4.4.2
+      moment: 2.30.1
+    dev: false
+
   /cheap-ruler@3.0.2:
     resolution: {integrity: sha512-02T332h1/HTN6cDSufLP8x4JzDs2+VC+8qZ/N0kWIVPyc2xUkWwWh3B2fJxR7raXkL4Mq7k554mfuM9ofv/vGg==}
     dev: false
@@ -2300,6 +2316,10 @@ packages:
       svelte: ^4.0.0
     dependencies:
       svelte: 4.2.12
+    dev: false
+
+  /moment@2.30.1:
+    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
     dev: false
 
   /mri@1.2.0:

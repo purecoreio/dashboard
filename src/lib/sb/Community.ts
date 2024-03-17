@@ -5,9 +5,12 @@ import Role from "./Role"
 import Srvbench from "./Srvbench"
 import Creator from "./media/Creator"
 import Submission from "./media/Submission"
+import DataPoint from "./stat/DataPoint"
 import ModerationCoverage from "./stat/ModerationCoverage"
 import NewMembers from "./stat/NewMembers"
 import Playtime from "./stat/Playtime"
+import Series from "./stat/Series"
+import Stat from "./stat/Stat"
 import VotingSettings from "./votingSettings/VotingSettings"
 
 export default class Community {
@@ -64,7 +67,7 @@ export default class Community {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/demographics/geojson`))
     }
 
-    public async getCountries(): Promise<Record<string,number>> {
+    public async getCountries(): Promise<Record<string, number>> {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/demographics/country`))
     }
 
@@ -104,8 +107,14 @@ export default class Community {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/stats/playtime`)).map((n: any) => Playtime.fromObject(n, this))
     }
 
-    public async getActivity(): Promise<any[]> {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/stats/activity`))
+    public async getActivity(): Promise<Stat> {
+        const d = await Srvbench.getInstance().rest(`${this.endpoint}/stats/activity`)
+        return Stat.fromObject(d)
+    }
+
+    public async getRetentionSpan(): Promise<Stat> {
+        const d = await Srvbench.getInstance().rest(`${this.endpoint}/stats/retention/span`)
+        return Stat.fromObject(d)
     }
 
     public async getRoles(): Promise<Role[]> {

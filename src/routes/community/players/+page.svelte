@@ -8,11 +8,16 @@
     import { Button } from "$lib/components/ui/button";
     import { Loader2 } from "lucide-svelte";
     import IntersectionObserver from "svelte-intersection-observer";
-    import Frappe from "$lib/components/serverbench/chart/line/Frappe.svelte";
+    import Frappe from "$lib/components/serverbench/chart/Chartjs.svelte";
+    import Chartjs from "$lib/components/serverbench/chart/Chartjs.svelte";
+    import type Stat from "$lib/sb/stat/Stat";
 
     let page = 0;
     let rank: number | null = null;
     let members: Member[] = [];
+
+    let activityStat: Stat | null = null;
+    let retentionSpanStat: Stat | null = null;
 
     $: rank,
         (async () => {
@@ -42,7 +47,12 @@
     }
 
     onMount(async () => {
-        await loadMembers();
+        let _: any;
+        [activityStat, retentionSpanStat, _] = await Promise.all([
+            Srvbench.getInstance().getCommunity()!.getActivity(),
+            Srvbench.getInstance().getCommunity()!.getRetentionSpan(),
+            await loadMembers(),
+        ]);
     });
     let element: HTMLElement;
     let intersecting: boolean;
@@ -54,7 +64,8 @@
         })();
 </script>
 
-<Frappe />
+<Chartjs stat={activityStat} />
+<Chartjs stat={retentionSpanStat} log tiny />
 
 <Card.Root>
     <Table.Root>
