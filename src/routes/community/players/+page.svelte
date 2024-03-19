@@ -18,6 +18,7 @@
 
     let activityStat: Stat | null = null;
     let retentionSpanStat: Stat | null = null;
+    let newReturningStat:Stat|null = null;
 
     $: rank,
         (async () => {
@@ -48,10 +49,11 @@
 
     onMount(async () => {
         let _: any;
-        [activityStat, retentionSpanStat, _] = await Promise.all([
+        [activityStat, retentionSpanStat, newReturningStat, _] = await Promise.all([
             Srvbench.getInstance().getCommunity()!.getActivity(),
             Srvbench.getInstance().getCommunity()!.getRetentionSpan(),
-            await loadMembers(),
+            Srvbench.getInstance().getCommunity()!.getNewReturningMembers(),
+            loadMembers(),
         ]);
     });
     let element: HTMLElement;
@@ -65,6 +67,7 @@
 </script>
 
 <Chartjs stat={activityStat} />
+<Chartjs stat={newReturningStat} />
 <Chartjs stat={retentionSpanStat} log tiny />
 
 <Card.Root>

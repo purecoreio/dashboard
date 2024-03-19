@@ -7,19 +7,43 @@
     import mapboxgl from "mapbox-gl";
     let map: any;
     let mapContainer: HTMLDivElement;
-    import { VisSingleContainer, VisDonut, VisTooltip } from "@unovis/svelte";
-    import { Donut, type GenericDataRecord } from "@unovis/ts";
     import Srvbench from "$lib/sb/Srvbench";
+    import Section from "$lib/components/serverbench/section.svelte";
     import Badge from "$lib/components/ui/badge/badge.svelte";
+    import DateTicker from "./DateTicker.svelte";
+    import { ArrowRight } from "lucide-svelte";
+    import Heatmap from "./Heatmap.svelte";
 
     let data: any;
-    let countries: Record<string, number> = {};
+    let holidays: Record<string, any> = {};
+    let sortedHolidays: any[];
+    $: holidays, getSortedHolidays();
+    let rendering = true;
+
+    function getSortedHolidays() {
+        const cronoHolidays: any[] = [];
+        for (const country of Object.keys(holidays)) {
+            for (const holiday of holidays[country].holidays) {
+                cronoHolidays.push({
+                    start: new Date(holiday.start),
+                    end: new Date(holiday.end),
+                    name: holiday.name,
+                    country,
+                    percentage: holidays[country].percentage,
+                });
+            }
+        }
+        sortedHolidays = cronoHolidays.sort(function (a, b) {
+            return a.start.getTime() - b.start.getTime();
+        });
+    }
 
     onMount(async () => {
-        [countries, data] = await Promise.all([
-            Srvbench.getInstance().getCommunity()!.getCountries(),
+        [data, holidays] = await Promise.all([
             Srvbench.getInstance().getCommunity()!.getGeojson(),
+            Srvbench.getInstance().getCommunity()!.getHolidays(),
         ]);
+        rendering = true;
         map = new Map({
             container: mapContainer,
             accessToken:
@@ -98,6 +122,7 @@
                 },
                 "waterway-label",
             );
+            rendering = false;
         });
     });
 
@@ -105,64 +130,44 @@
         if (!map) return;
         map.remove();
     });
-    const value = (d: number) => d;
-    const sortFunction = (a: number, b: number) => a - b;
-
-    let ns: number[] = [];
-    for (let i = 0; i < 5; i++) {
-        ns.push(i);
-    }
-    const triggers = {
-        [Donut.selectors.segment]: (d: any) =>
-            `<span>${Object.keys(countries)[d.index]}, ${d.value}</span>`,
-    };
 </script>
 
 <Card.Root class="overflow-hidden">
     <div class="relative aspect-video">
-        <div class="map" bind:this={mapContainer} />
+        <div
+            class:opacity-0={rendering}
+            class="map w-full h-full transition-opacity duration-1000"
+            bind:this={mapContainer}
+        />
     </div>
 </Card.Root>
-<div class="flex flex-row gap-5">
-    <Card.Root
-        class="p-5 flex flex-col items-center justify-center"
-    >
-        <div class="mx-auto">
-            <VisSingleContainer
-                height={180}
-                width={180}
-                data={Object.values(countries)}
-            >
-                <VisDonut {sortFunction} {value} />
-                <VisTooltip {triggers} />
-            </VisSingleContainer>
-        </div>
-    </Card.Root>
-    <Card.Root class="grow">
-        <div class="flex flex-col w-full h-full items-center justify-center">
-            <span class="number text-5xl mb-3">
-                {Object.values(countries).reduce(
-                    (partialSum, a) => partialSum + Number(a),
-                    0,
-                )}
+<Section title="holidays">
+    {#key sortedHolidays}
+        <Heatmap holidays={sortedHolidays} />
+    {/key}
+    {#each sortedHolidays as holiday}
+        <Card.Root class="p-3 flex flex-row gap-3 items-center">
+            <div class="w-7">
+                <img
+                    class="h-4"
+                    alt={holiday.country}
+                    src={`https://flagcdn.com/${holiday.country.toLowerCase()}.svg`}
+                />
+            </div>
+            <span class="font-semibold w-6 text-center">
+                {holiday.country}
             </span>
-            <Badge>Players</Badge>
-        </div>
-    </Card.Root>
-    <Card.Root class="grow">
-        <div class="flex flex-col w-full h-full items-center justify-center">
-            <span class="number text-5xl mb-3">
-                {Object.keys(countries).length}
-            </span>
-            <Badge>Countries</Badge>
-        </div>
-    </Card.Root>
-</div>
-
-<style>
-    .map {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-    }
-</style>
+            <div class="w-20 text-center">
+                <Badge>
+                    {Math.trunc(holiday.percentage * 10000) / 100}%
+                </Badge>
+            </div>
+            {holiday.name}
+            <div class="ml-auto flex flex-row gap-3 items-center">
+                <DateTicker date={holiday.start} />
+                <ArrowRight />
+                <DateTicker date={holiday.end} />
+            </div>
+        </Card.Root>
+    {/each}
+</Section>

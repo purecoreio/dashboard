@@ -98,7 +98,7 @@ export default class Stat {
                     for (let i = 0; i < labels.length; i++) {
                         const l = labels[i];
                         datasets.push({
-                            type: s.type == 'area' ? 'line' : s.type,
+                            type: s.type == 'area' ? 'bar' : s.type,
                             label: l,
                             hidden: !s.labels[l],
                             borderColor: getColor(i),

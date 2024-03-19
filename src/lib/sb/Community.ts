@@ -71,6 +71,10 @@ export default class Community {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/demographics/country`))
     }
 
+    public async getHolidays(): Promise<Record<string, any>> {
+        return (await Srvbench.getInstance().rest(`${this.endpoint}/holidays`))
+    }
+
     public async getMembersByRank(page: number, rank: number): Promise<Member[]> {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/members/ranked`, {
             page: page,
@@ -114,6 +118,11 @@ export default class Community {
 
     public async getRetentionSpan(): Promise<Stat> {
         const d = await Srvbench.getInstance().rest(`${this.endpoint}/stats/retention/span`)
+        return Stat.fromObject(d)
+    }
+
+    public async getNewReturningMembers(): Promise<Stat> {
+        const d = await Srvbench.getInstance().rest(`${this.endpoint}/stats/newreturning`)
         return Stat.fromObject(d)
     }
 
