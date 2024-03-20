@@ -12,9 +12,7 @@
     import Badge from "$lib/components/ui/badge/badge.svelte";
     import DateTicker from "./DateTicker.svelte";
     import { ArrowRight } from "lucide-svelte";
-    import Heatmap from "./Heatmap.svelte";
     import Holiday from "$lib/sb/holiday/Holiday";
-    import { Chart } from "chart.js";
     import Chartjs from "$lib/components/serverbench/chart/Chartjs.svelte";
 
     let data: any;

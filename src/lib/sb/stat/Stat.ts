@@ -1,7 +1,8 @@
 import DataPoint from "./DataPoint";
 import Series, { type StatType } from "./Series";
+import moment from 'moment';
 
-export type GraphLib = 'unovis' | 'chartjs'
+export type GraphLib = 'unovis' | 'chartjs' | 'svelte-heatmap'
 export type Resolution = null | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
 
 const colors: Record<string, string> = {
@@ -13,6 +14,10 @@ const colors: Record<string, string> = {
     purple: 'rgb(153, 102, 255)',
     grey: 'rgb(201, 203, 207)'
 }
+
+const dailyFormat = 'dd'
+const weeklyFormat = 'YY/WW (MMM)'
+
 export function getColor(i: number) {
     const k = Object.keys(colors)
     const c: string = Object.keys(colors)[i - Math.trunc(i / k.length) * k.length]
@@ -57,63 +62,56 @@ export default class Stat {
         switch (lib) {
             case 'chartjs':
                 if (this.getType('chartjs') == 'matrix') {
-                    const scales = {
-                        y: {
-                            type: 'time',
-                            offset: true,
-                            time: {
-                                unit: 'day',
-                                round: 'day',
-                                isoWeekday: 1,
-                                parser: 'e',
-                                displayFormats: {
-                                    day: 'e'
-                                }
-                            },
-                            reverse: true,
-                            position: 'right',
-                            ticks: {
-                                maxRotation: 0,
-                                autoSkip: true,
-                                padding: 1,
-                                font: {
-                                    size: 9
-                                }
-                            },
-                            grid: {
-                                display: false,
-                                drawBorder: false,
-                                tickLength: 0
+                    const isoWeekday = 1;
+                    const grid = {
+                        display: false,
+                        drawBorder: false,
+                        tickLength: 0,
+                    }
+                    const ticks = {
+                        maxRotation: 0,
+                        autoSkip: true,
+                        padding: 1
+                    }
+                    const y = {
+                        type: 'time',
+                        offset: true,
+                        time: {
+                            isoWeekday,
+                            unit: 'day',
+                            round: 'day',
+                            parser: dailyFormat,
+                            displayFormats: {
+                                day: 'dd'
                             }
                         },
-                        x: {
-                            type: 'time',
-                            position: 'bottom',
-                            offset: true,
-                            time: {
-                                unit: 'week',
-                                round: 'week',
-                                isoWeekday: 1,
-                                displayFormats: {
-                                    week: 'MMM dd'
-                                }
-                            },
-                            ticks: {
-                                maxRotation: 0,
-                                autoSkip: true,
-                                font: {
-                                    size: 9
-                                }
-                            },
-                            grid: {
-                                display: false,
-                                drawBorder: false,
-                                tickLength: 0,
+                        reverse: false,
+                        position: 'right',
+                        ticks,
+                        grid,
+                        min: moment().startOf('isoWeek'),
+                        max: moment().endOf('isoWeek')
+                    }
+                    const x = {
+                        type: 'time',
+                        offset: true,
+                        reverse: true,
+                        time: {
+                            isoWeekday,
+                            unit: 'week',
+                            round: 'week',
+                            displayFormats: {
+                                week: weeklyFormat
                             }
-                        }
-                    };
+                        },
+                        ticks,
+                        grid,
+                    }
                     return {
-                        scales,
+                        scales: {
+                            x: this.stacked ? y : x,
+                            y: this.stacked ? x : y
+                        },
                         plugins: {
                             legend: false,
                             tooltip: {
@@ -122,9 +120,10 @@ export default class Stat {
                                     title() {
                                         return '';
                                     },
-                                    label(context:any) {
+                                    label(context: any) {
                                         const v = context.dataset.data[context.dataIndex];
-                                        return [v.d.toLocaleDateString(), v.v.toFixed(2)+'%'];
+                                        if (!v) return '0%'
+                                        return [v.d.toLocaleDateString(), v.v.toFixed(2) + '%'];
                                     }
                                 }
                             },
@@ -170,13 +169,22 @@ export default class Stat {
     }
 
     private getISODayString(date: Date) {
-        const day = date.getDay();
-        const weekdays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-        return weekdays[day];
+        return moment(date).format(dailyFormat)
     }
 
     getSeries(lib: GraphLib): any | any[] {
         switch (lib) {
+            case 'svelte-heatmap':
+                const m = this.series.find(s => s.type == 'matrix')
+                if (!m) return []
+                const l = Object.keys(m.labels)[0]
+                if (!l) return []
+                return m.data.map(d => {
+                    return {
+                        date: d.key as Date,
+                        value: d.data[l]
+                    }
+                })
             case 'chartjs':
                 let datasets: any[] = []
                 for (const s of this.series) {
@@ -188,30 +196,24 @@ export default class Stat {
                             datasets.push({
                                 data: s.data.map(d => {
                                     const k = d.key as Date
+                                    const day = moment(k).format(dailyFormat)
+                                    const date = moment(k)
                                     return {
-                                        x: k,
-                                        y: k,
+                                        x: this.stacked ? day : date,
+                                        y: this.stacked ? date : day,
                                         d: k,
                                         v: d.data[l]
                                     }
                                 }),
                                 backgroundColor(c: any) {
-                                    const value = c.dataset.data[c.dataIndex].v;
-                                    const alpha = (10 + value) / 60;
-                                    return `rgba(0,0,0,${alpha})`
-                                },
-                                borderColor(c: any) {
-                                    const value = c.dataset.data[c.dataIndex].v;
-                                    const alpha = (10 + value) / 60;
+                                    const value = c.dataset.data[c.dataIndex]?.v ?? 0;
+                                    const alpha = value / 100;
                                     return `rgba(0,0,0,${alpha})`
                                 },
                                 borderWidth: 1,
-                                hoverBackgroundColor: 'yellow',
-                                hoverBorderColor: 'yellowgreen',
-                                width(c: any) {
-                                    const a = c.chart.chartArea || {};
-                                    return (a.right - a.left) / 53 - 1;
-                                },
+                                hoverBackgroundColor: colors.blue,
+                                hoverBorderColor: colors.blue,
+                                width: ({ chart }) => (chart.chartArea || {}).width / chart.scales.x.ticks.length,
                                 height(c: any) {
                                     const a = c.chart.chartArea || {};
                                     return (a.bottom - a.top) / 7 - 1;
@@ -219,7 +221,6 @@ export default class Stat {
                                 label: l,
                                 hidden: !s.labels[l],
                             })
-                            console.log(datasets)
                         } else {
                             if (this.resolution == null) {
                                 data = s.data.map(d => {

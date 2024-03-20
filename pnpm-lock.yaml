@@ -50,6 +50,9 @@ dependencies:
   svelte-fa:
     specifier: ^4.0.2
     version: 4.0.2(svelte@4.2.12)
+  svelte-heatmap:
+    specifier: ^1.0.2
+    version: 1.0.2
   svelte-sonner:
     specifier: ^0.3.19
     version: 0.3.19(svelte@4.2.12)
@@ -2850,6 +2853,10 @@ packages:
       svelte: ^4.0.0
     dependencies:
       svelte: 4.2.12
+    dev: false
+
+  /svelte-heatmap@1.0.2:
+    resolution: {integrity: sha512-qVsJj/Y/FQCjYJ2A7QU/v87FjGFjWqrTIb+qPumrudzH5w6D5WoubHF7Q2g38naJry4ADO1I0K29UuC86t5lJw==}
     dev: false
 
   /svelte-hmr@0.15.3(svelte@4.2.12):
