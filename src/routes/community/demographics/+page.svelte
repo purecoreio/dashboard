@@ -13,37 +13,20 @@
     import DateTicker from "./DateTicker.svelte";
     import { ArrowRight } from "lucide-svelte";
     import Heatmap from "./Heatmap.svelte";
+    import Holiday from "$lib/sb/holiday/Holiday";
+    import { Chart } from "chart.js";
+    import Chartjs from "$lib/components/serverbench/chart/Chartjs.svelte";
 
     let data: any;
-    let holidays: Record<string, any> = {};
-    let sortedHolidays: any[];
-    $: holidays, getSortedHolidays();
+    let holidays: Holiday[] = [];
     let rendering = true;
 
-    function getSortedHolidays() {
-        const cronoHolidays: any[] = [];
-        for (const country of Object.keys(holidays)) {
-            for (const holiday of holidays[country].holidays) {
-                cronoHolidays.push({
-                    start: new Date(holiday.start),
-                    end: new Date(holiday.end),
-                    name: holiday.name,
-                    country,
-                    percentage: holidays[country].percentage,
-                });
-            }
-        }
-        sortedHolidays = cronoHolidays.sort(function (a, b) {
-            return a.start.getTime() - b.start.getTime();
-        });
-    }
-
     onMount(async () => {
+        rendering = true;
         [data, holidays] = await Promise.all([
             Srvbench.getInstance().getCommunity()!.getGeojson(),
             Srvbench.getInstance().getCommunity()!.getHolidays(),
         ]);
-        rendering = true;
         map = new Map({
             container: mapContainer,
             accessToken:
@@ -141,11 +124,11 @@
         />
     </div>
 </Card.Root>
+{#key holidays}
+    <Chartjs stat={Holiday.mergeIntoStat(holidays)} tiny />
+{/key}
 <Section title="holidays">
-    {#key sortedHolidays}
-        <Heatmap holidays={sortedHolidays} />
-    {/key}
-    {#each sortedHolidays as holiday}
+    {#each holidays as holiday}
         <Card.Root class="p-3 flex flex-row gap-3 items-center">
             <div class="w-7">
                 <img
@@ -159,7 +142,7 @@
             </span>
             <div class="w-20 text-center">
                 <Badge>
-                    {Math.trunc(holiday.percentage * 10000) / 100}%
+                    {Math.trunc(holiday.affected.percentage * 10000) / 100}%
                 </Badge>
             </div>
             {holiday.name}

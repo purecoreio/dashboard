@@ -1,6 +1,6 @@
 import type DataPoint from "./DataPoint"
 
-export type StatType = 'bar' | 'line' | 'pie' | 'area'
+export type StatType = 'bar' | 'line' | 'pie' | 'area' | 'matrix'
 export default class Series {
     public readonly type: StatType
     public readonly labels: Record<string, boolean>

@@ -56,37 +56,123 @@ export default class Stat {
     getSettings(lib: GraphLib, log: boolean): any {
         switch (lib) {
             case 'chartjs':
-                return {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            stacked: this.stacked,
-                            type: this.resolution != null ? (this.series[0]?.type == 'bar' ? 'timeseries' : 'time') : 'linear',
-                            time: this.resolution != null ? {
-                                unit: this.resolution
-                            } : undefined,
+                if (this.getType('chartjs') == 'matrix') {
+                    const scales = {
+                        y: {
+                            type: 'time',
+                            offset: true,
+                            time: {
+                                unit: 'day',
+                                round: 'day',
+                                isoWeekday: 1,
+                                parser: 'e',
+                                displayFormats: {
+                                    day: 'e'
+                                }
+                            },
+                            reverse: true,
+                            position: 'right',
                             ticks: {
-                                stepSize: 1 // Adjust this value as needed to set the step size between each x-value
+                                maxRotation: 0,
+                                autoSkip: true,
+                                padding: 1,
+                                font: {
+                                    size: 9
+                                }
+                            },
+                            grid: {
+                                display: false,
+                                drawBorder: false,
+                                tickLength: 0
                             }
                         },
-                        y: {
-                            type: log ? 'logarithmic' : undefined,
-                            stacked: this.stacked,
-                        },
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
+                        x: {
+                            type: 'time',
+                            position: 'bottom',
+                            offset: true,
+                            time: {
+                                unit: 'week',
+                                round: 'week',
+                                isoWeekday: 1,
+                                displayFormats: {
+                                    week: 'MMM dd'
+                                }
+                            },
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: true,
+                                font: {
+                                    size: 9
+                                }
+                            },
+                            grid: {
+                                display: false,
+                                drawBorder: false,
+                                tickLength: 0,
+                            }
                         }
-                    },
-                    animation: {
-                        duration: 500,
-                        easing: 'easeInOutQuart'
+                    };
+                    return {
+                        scales,
+                        plugins: {
+                            legend: false,
+                            tooltip: {
+                                displayColors: false,
+                                callbacks: {
+                                    title() {
+                                        return '';
+                                    },
+                                    label(context:any) {
+                                        const v = context.dataset.data[context.dataIndex];
+                                        return [v.d.toLocaleDateString(), v.v.toFixed(2)+'%'];
+                                    }
+                                }
+                            },
+                        },
+                    }
+                } else {
+                    return {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                stacked: this.stacked,
+                                type: this.resolution != null ? (this.series[0]?.type == 'bar' ? 'timeseries' : 'time') : 'linear',
+                                time: this.resolution != null ? {
+                                    unit: this.resolution
+                                } : undefined,
+                                ticks: {
+                                    stepSize: 1 // Adjust this value as needed to set the step size between each x-value
+                                }
+                            },
+                            y: {
+                                type: log ? 'logarithmic' : undefined,
+                                stacked: this.stacked,
+                            },
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        },
+                        animation: {
+                            duration: 500,
+                            easing: 'easeInOutQuart'
+                        }
                     }
                 }
             default:
                 break;
         }
+    }
+
+    getType(lib: GraphLib): any {
+        return lib == 'chartjs' && this.series.find(s => s.type == 'matrix') != null ? 'matrix' : undefined
+    }
+
+    private getISODayString(date: Date) {
+        const day = date.getDay();
+        const weekdays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+        return weekdays[day];
     }
 
     getSeries(lib: GraphLib): any | any[] {
@@ -97,24 +183,64 @@ export default class Stat {
                     const labels = Object.keys(s.labels)
                     for (let i = 0; i < labels.length; i++) {
                         const l = labels[i];
-                        datasets.push({
-                            type: s.type == 'area' ? 'bar' : s.type,
-                            label: l,
-                            hidden: !s.labels[l],
-                            borderColor: getColor(i),
-                            backgroundColor: getColor(i),
-                            fill: s.type == 'area',
-                            data: s.data.map(d => {
-                                if (this.resolution == null) {
+                        let data: any[] = []
+                        if (s.type == 'matrix') {
+                            datasets.push({
+                                data: s.data.map(d => {
+                                    const k = d.key as Date
+                                    return {
+                                        x: k,
+                                        y: k,
+                                        d: k,
+                                        v: d.data[l]
+                                    }
+                                }),
+                                backgroundColor(c: any) {
+                                    const value = c.dataset.data[c.dataIndex].v;
+                                    const alpha = (10 + value) / 60;
+                                    return `rgba(0,0,0,${alpha})`
+                                },
+                                borderColor(c: any) {
+                                    const value = c.dataset.data[c.dataIndex].v;
+                                    const alpha = (10 + value) / 60;
+                                    return `rgba(0,0,0,${alpha})`
+                                },
+                                borderWidth: 1,
+                                hoverBackgroundColor: 'yellow',
+                                hoverBorderColor: 'yellowgreen',
+                                width(c: any) {
+                                    const a = c.chart.chartArea || {};
+                                    return (a.right - a.left) / 53 - 1;
+                                },
+                                height(c: any) {
+                                    const a = c.chart.chartArea || {};
+                                    return (a.bottom - a.top) / 7 - 1;
+                                },
+                                label: l,
+                                hidden: !s.labels[l],
+                            })
+                            console.log(datasets)
+                        } else {
+                            if (this.resolution == null) {
+                                data = s.data.map(d => {
                                     return {
                                         x: d.getKey(lib),
                                         y: d.data[l]
                                     }
-                                } else {
-                                    return d.data[l]
-                                }
-                            }),
-                        })
+                                })
+                            } else if (this.resolution) {
+                                data = s.data.map(d => d.data[l])
+                            }
+                            datasets.push({
+                                type: s.type == 'area' ? 'bar' : s.type,
+                                label: l,
+                                hidden: !s.labels[l],
+                                borderColor: getColor(i),
+                                backgroundColor: getColor(i),
+                                fill: s.type == 'area',
+                                data,
+                            })
+                        }
                     }
                 }
                 return {

@@ -8,6 +8,8 @@
     import "chartjs-adapter-moment";
     import * as Tabs from "$lib/components/ui/tabs";
     import { Percent, BarChart } from "lucide-svelte";
+    import "chartjs-adapter-moment";
+    import { MatrixController, MatrixElement } from "chartjs-chart-matrix";
 
     export let stat: Stat | null,
         log: boolean = false,
@@ -20,12 +22,14 @@
             new Chart(container, {
                 data: stat.getSeries("chartjs"),
                 options: stat.getSettings("chartjs", log),
+                type: stat.getType("chartjs"),
             });
         }
     }
 
     let container: HTMLCanvasElement;
     onMount(async () => {
+        Chart.register(MatrixController, MatrixElement);
         Chart.defaults.font.family = "Sora";
         updateChart();
     });

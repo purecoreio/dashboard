@@ -3,6 +3,7 @@ import Key from "./Key"
 import Member from "./Member"
 import Role from "./Role"
 import Srvbench from "./Srvbench"
+import Holiday from "./holiday/Holiday"
 import Creator from "./media/Creator"
 import Submission from "./media/Submission"
 import DataPoint from "./stat/DataPoint"
@@ -71,8 +72,27 @@ export default class Community {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/demographics/country`))
     }
 
-    public async getHolidays(): Promise<Record<string, any>> {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/holidays`))
+    /**
+     * returns the holidays in cronological order (coming earlier first)
+     */
+    public async getHolidays(): Promise<Holiday[]> {
+        const data = await Srvbench.getInstance().rest(`${this.endpoint}/holidays`)
+        const holidays: Holiday[] = []
+        for (const country of Object.keys(data)) {
+            holidays.push(...data[country].holidays.map((h: any) => new Holiday(
+                h.name,
+                new Date(h.start),
+                new Date(h.end),
+                {
+                    absolute: data[country].count,
+                    percentage: data[country].percentage
+                },
+                country
+            )))
+        }
+        return holidays.sort(function (a, b) {
+            return a.start.getTime() - b.start.getTime();
+        });
     }
 
     public async getMembersByRank(page: number, rank: number): Promise<Member[]> {
