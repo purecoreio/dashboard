@@ -4,6 +4,7 @@ import Staff from "./Staff";
 import User from "./User";
 import type { HandlerType } from "./voting/HandlerType";
 import VotingSite from "./voting/VotingSite";
+import { dev } from '$app/environment';
 
 export default class Srvbench {
 
@@ -117,7 +118,7 @@ export default class Srvbench {
             'Authorization': `Bearer ${SSO.getInstance().session?.access.token}`
         })
         if (body) headers.set('Content-Type', 'application/json')
-        const res = await fetch(`https://api.serverbench.io/${endpoint}`, {
+        const res = await fetch(`https://${dev ? 'dev.serverbench.io' : 'api.serverbench.io'}/${endpoint}`, {
             method: body ? 'POST' : 'GET',
             body: body ? JSON.stringify(body) : undefined,
             headers

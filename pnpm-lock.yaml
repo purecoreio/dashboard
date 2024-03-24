@@ -23,6 +23,9 @@ dependencies:
   chartjs-adapter-moment:
     specifier: ^1.0.1
     version: 1.0.1(chart.js@4.4.2)(moment@2.30.1)
+  chartjs-chart-financial:
+    specifier: ^0.2.1
+    version: 0.2.1(chart.js@4.4.2)
   chartjs-chart-matrix:
     specifier: ^2.0.1
     version: 2.0.1(chart.js@4.4.2)
@@ -1361,6 +1364,14 @@ packages:
     dependencies:
       chart.js: 4.4.2
       moment: 2.30.1
+    dev: false
+
+  /chartjs-chart-financial@0.2.1(chart.js@4.4.2):
+    resolution: {integrity: sha512-RI3zrszyf2YdW7ME8I5XDsicy6YaU+uA1XZmGddR3rdcQlGf4pSgGFK8O0PWPO5Szdc8wZ8qpns++yib6pWBaw==}
+    peerDependencies:
+      chart.js: ^4.0.0
+    dependencies:
+      chart.js: 4.4.2
     dev: false
 
   /chartjs-chart-matrix@2.0.1(chart.js@4.4.2):
