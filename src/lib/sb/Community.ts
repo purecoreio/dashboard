@@ -12,6 +12,7 @@ import NewMembers from "./stat/NewMembers"
 import Playtime from "./stat/Playtime"
 import Series from "./stat/Series"
 import Stat from "./stat/Stat"
+import Category from "./store/Category"
 import VotingSettings from "./votingSettings/VotingSettings"
 
 export default class Community {
@@ -35,6 +36,10 @@ export default class Community {
             object.name,
             object.slug
         )
+    }
+
+    public async getCategories() {
+        return (await Srvbench.getInstance().rest(`${this.endpoint}/store/categories`)).map((c: any) => Category.fromObject(c))
     }
 
     public async spectate() {

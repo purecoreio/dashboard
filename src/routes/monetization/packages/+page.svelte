@@ -17,6 +17,8 @@
     import * as Tooltip from "$lib/components/ui/tooltip";
     import Section from "$lib/components/serverbench/section.svelte";
     import { LinkedChart } from "svelte-tiny-linked-charts";
+    import { onMount } from "svelte";
+    import Srvbench from "$lib/sb/Srvbench";
     let data = {
         "2005-01-01": 25,
         "2005-01-02": 20,
@@ -86,6 +88,14 @@
         ["ES", "Spain"],
         ["US", "United States"],
     ];
+
+    onMount(async () => {
+        console.log(
+            await Srvbench.getInstance()
+                .getCommunity()!
+                .getCategories(),
+        );
+    });
 </script>
 
 <Section title="Packages">
@@ -180,7 +190,12 @@
                             {invoice.category.name}
                         </Table.Cell>
                         <Table.Cell>
-                            <LinkedChart width={50} height={30} {data} linked="a" />
+                            <LinkedChart
+                                width={50}
+                                height={30}
+                                {data}
+                                linked="a"
+                            />
                         </Table.Cell>
                         <Table.Cell class="text-right">
                             <Button
