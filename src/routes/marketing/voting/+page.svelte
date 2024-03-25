@@ -18,18 +18,23 @@
     let settings: VotingSettings | null = null;
     let sites: VotingSiteSetup[] = [];
     let handlers: VotingHandler[] = [];
+    let loadingHandlers: boolean = false;
 
     onMount(async () => {
-        const s = await Srvbench.getInstance()
-            .getCommunity()!
-            .getVotingSettings();
-        handlers = await s.getCredentials();
-        sites = s.sites;
-        settings = s;
+        loadingHandlers = true;
+        try {
+            const s = await Srvbench.getInstance()
+                .getCommunity()!
+                .getVotingSettings();
+            handlers = await s.getCredentials();
+            sites = s.sites;
+            settings = s;
+        } catch (error) {}
+        loadingHandlers = false;
     });
 </script>
 
-<Section title="Handlers">
+<Section title="Handlers" loading={loadingHandlers}>
     {#each handlers as handler}
         {#if handler instanceof NuVotifierHandler || handler instanceof VotifierHandler}
             <VotingHandlerCard {handler} />
@@ -37,7 +42,7 @@
     {/each}
 </Section>
 
-<Section title="Featuring">
+<Section title="Featuring" loading={loadingHandlers}>
     <Todo />
 </Section>
 
@@ -45,7 +50,7 @@
     <Todo />
 </Section>
 
-<Section title="Sites">
+<Section title="Sites" loading={loadingHandlers}>
     <Card.Root>
         <Table.Root>
             <Table.Header>

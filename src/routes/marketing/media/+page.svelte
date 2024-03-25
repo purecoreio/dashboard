@@ -12,30 +12,46 @@
     import { onMount } from "svelte";
 
     let creators: Creator[] = [];
-    let submissions: Submission[] = [];
+    let loadingCreators: boolean = false;
 
-    async function load() {
-        creators = await Srvbench.getInstance().getCommunity()!.getCreators();
-        submissions = await Srvbench.getInstance()
-            .getCommunity()!
-            .getSubmissions();
+    let submissions: Submission[] = [];
+    let loadingSubmissions: boolean = false;
+
+    async function loadCreators() {
+        loadingCreators = true;
+        try {
+            creators = await Srvbench.getInstance()
+                .getCommunity()!
+                .getCreators();
+        } catch (error) {}
+        loadingCreators = false;
+    }
+
+    async function loadSubmissions() {
+        loadingSubmissions = true;
+        try {
+            submissions = await Srvbench.getInstance()
+                .getCommunity()!
+                .getSubmissions();
+        } catch (error) {}
+        loadingSubmissions = false;
     }
 
     async function handleUpdate(event: CustomEvent<Submission[]>) {
         submissions = event.detail;
-        console.log('received', event.detail)
+        console.log("received", event.detail);
     }
 
     onMount(async () => {
-        await load();
+        await Promise.all([loadCreators(), loadSubmissions()]);
     });
 </script>
 
-<Section title="Pending Reviews">
+<Section title="Pending Reviews" loading={loadingSubmissions}>
     <Submissions bind:submissions showPending={true} on:update={handleUpdate} />
 </Section>
 
-<Section title="Creators">
+<Section title="Creators" loading={loadingCreators}>
     <Card.Root>
         <Table.Root>
             <Table.Header>
@@ -72,7 +88,7 @@
     </Card.Root>
 </Section>
 
-<Section title="Submissions">
+<Section title="Submissions" loading={loadingSubmissions}>
     <Submissions
         bind:submissions
         showPending={false}

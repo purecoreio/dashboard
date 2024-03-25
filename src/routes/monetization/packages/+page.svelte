@@ -1,258 +1,75 @@
 <script lang="ts">
-    import * as Table from "$lib/components/ui/table/index.js";
-    import * as Card from "$lib/components/ui/card/index.js";
-    import { Badge } from "$lib/components/ui/badge";
-    import { Button } from "$lib/components/ui/button";
-    import { Filter, MoreVertical } from "lucide-svelte";
-    import Label from "$lib/components/ui/label/label.svelte";
-    import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
-    import {
-        ChevronDown,
-        Info,
-        Route,
-        RouteOff,
-        Boxes,
-        Box,
-    } from "lucide-svelte";
-    import * as Tooltip from "$lib/components/ui/tooltip";
     import Section from "$lib/components/serverbench/section.svelte";
-    import { LinkedChart } from "svelte-tiny-linked-charts";
-    import { onMount } from "svelte";
     import Srvbench from "$lib/sb/Srvbench";
-    let data = {
-        "2005-01-01": 25,
-        "2005-01-02": 20,
-        "2005-01-03": 18,
-        "2005-01-04": 17,
-        "2005-01-05": 21,
-        "2005-01-06": 18,
-        "2005-01-07": 17,
-        "2005-01-08": 21,
-        "2005-01-09": 25,
-        "2005-01-10": 20,
-        "2005-01-11": 18,
-    };
+    import type Category from "$lib/sb/store/Category";
+    import { onMount } from "svelte";
+    import StoreCategory from "./StoreCategory.svelte";
+    import * as Popover from "$lib/components/ui/popover";
+    import Input from "$lib/components/ui/input/input.svelte";
+    import Label from "$lib/components/ui/label/label.svelte";
+    import Button from "$lib/components/ui/button/button.svelte";
+    import { Loader2 } from "lucide-svelte";
 
-    const categories = [
-        {
-            name: "cosmetics",
-            upgradable: false,
-        },
-    ];
+    let categories: Category[] = [];
+    let loadingCategories: boolean = false;
+    let creating: boolean = false;
 
-    const invoices = [
-        {
-            amount: {
-                value: 9.99,
-                currency: "EUR",
-                frequency: null,
-            },
-            type: "bundle",
-            category: categories[0],
-            name: "Easter Bundle",
-        },
-        {
-            amount: {
-                value: 5.99,
-                currency: "EUR",
-                frequency: null,
-            },
-            type: "item",
-            category: categories[0],
-            name: "Bunny Ears",
-        },
-        {
-            amount: {
-                value: 5.99,
-                currency: "EUR",
-                frequency: null,
-            },
-            type: "item",
-            category: categories[0],
-            name: "Lily Particles",
-        },
-        {
-            amount: {
-                value: 5.99,
-                currency: "EUR",
-                frequency: null,
-            },
-            type: "item",
-            category: categories[0],
-            name: "Egg Hat",
-        },
-    ];
+    async function loadCategories() {
+        loadingCategories = true;
+        try {
+            categories = await Srvbench.getInstance()
+                .getCommunity()!
+                .getCategories();
+        } catch (error) {}
+        loadingCategories = false;
+    }
 
-    let country: string | null = null;
-    const countries = [
-        ["ES", "Spain"],
-        ["US", "United States"],
-    ];
+    let name: string | null;
+    let description: string | null;
+
+    async function create() {
+        creating = true;
+        try {
+            categories.push(
+                await Srvbench.getInstance()
+                    .getCommunity()!
+                    .createCategory(name!, description!),
+            );
+            categories=categories
+            name = null;
+            description = null;
+        } catch (error) {}
+        creating = false;
+    }
 
     onMount(async () => {
-        console.log(
-            await Srvbench.getInstance()
-                .getCommunity()!
-                .getCategories(),
-        );
+        await loadCategories();
     });
 </script>
 
-<Section title="Packages">
-    <Card.Root>
-        <Table.Root>
-            <Table.Header>
-                <Table.Row>
-                    <Table.Head>Name</Table.Head>
-                    <Table.Head class="flex flex-row gap-2 items-center">
-                        <Label id="country">Price</Label>
-                        <DropdownMenu.Root>
-                            <DropdownMenu.Trigger>
-                                <Button
-                                    class="flex flex-row gap-1 items-center"
-                                    size="sm"
-                                    variant="outline"
-                                >
-                                    {country ?? "Fallback"}
-                                    <ChevronDown class="w-4 h-4" />
-                                </Button>
-                            </DropdownMenu.Trigger>
-                            <DropdownMenu.Content>
-                                <DropdownMenu.Group>
-                                    <DropdownMenu.Label
-                                        >Region</DropdownMenu.Label
-                                    >
-                                    <DropdownMenu.Separator />
-                                    <DropdownMenu.Item
-                                        on:click={() => (country = null)}
-                                        >Fallback</DropdownMenu.Item
-                                    >
-                                    <DropdownMenu.Separator />
-                                    {#each countries as countryEntry}
-                                        <DropdownMenu.Item
-                                            on:click={() =>
-                                                (country = countryEntry[0])}
-                                            >{countryEntry[1]}</DropdownMenu.Item
-                                        >
-                                    {/each}
-                                </DropdownMenu.Group>
-                            </DropdownMenu.Content>
-                        </DropdownMenu.Root>
-
-                        <Tooltip.Root>
-                            <Tooltip.Trigger>
-                                <Button variant="ghost" size="sm">
-                                    <Info class="w-4 h-4" />
-                                </Button>
-                            </Tooltip.Trigger>
-                            <Tooltip.Content>
-                                <p>Price internationalization</p>
-                            </Tooltip.Content>
-                        </Tooltip.Root>
-                    </Table.Head>
-                    <Table.Head>Category</Table.Head>
-                    <Table.Head>Volume</Table.Head>
-                    <Table.Head>
-                        <Button
-                            class="flex flex-row gap-1 items-center ml-auto"
-                            variant="secondary"
-                            size="sm"
-                        >
-                            <Filter class="w-4 h-4" /> Filter
-                        </Button>
-                    </Table.Head>
-                </Table.Row>
-            </Table.Header>
-            <Table.Body>
-                {#each invoices as invoice, i (i)}
-                    <Table.Row>
-                        <Table.Cell
-                            class="font-medium flex flex-row gap-2 items-center"
-                        >
-                            <Button
-                                size="sm"
-                                variant="secondary"
-                                class="rounded-full aspect-square"
-                            >
-                                {#if invoice.type == "bundle"}
-                                    <Boxes />
-                                {:else if invoice.type == "item"}
-                                    <Box />
-                                {/if}
-                            </Button>
-                            {invoice.name}
-                        </Table.Cell>
-                        <Table.Cell
-                            >{invoice.amount.value}
-                            {invoice.amount.currency}</Table.Cell
-                        >
-                        <Table.Cell>
-                            {invoice.category.name}
-                        </Table.Cell>
-                        <Table.Cell>
-                            <LinkedChart
-                                width={50}
-                                height={30}
-                                {data}
-                                linked="a"
-                            />
-                        </Table.Cell>
-                        <Table.Cell class="text-right">
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                class="rounded-full"
-                            >
-                                <MoreVertical />
-                            </Button>
-                        </Table.Cell>
-                    </Table.Row>
-                {/each}
-            </Table.Body>
-        </Table.Root>
-    </Card.Root>
-</Section>
-<Section title="categories">
-    <Card.Root>
-        <Table.Root>
-            <Table.Header>
-                <Table.Row>
-                    <Table.Head>Name</Table.Head>
-                    <Table.Head>Upgradable</Table.Head>
-                </Table.Row>
-            </Table.Header>
-            <Table.Body>
-                {#each categories as category}
-                    <Table.Row>
-                        <Table.Cell class="font-medium"
-                            >{category.name}</Table.Cell
-                        >
-                        <Table.Cell>
-                            <Badge
-                                class="flex-inline flex-row gap-1 items-center"
-                                variant="outline"
-                            >
-                                {#if category.upgradable}
-                                    <Route class="w-4 h-4" />
-                                    Upgradable
-                                {:else}
-                                    <RouteOff class="w-4 h-4" />
-                                    Non-Upgradable
-                                {/if}
-                            </Badge>
-                        </Table.Cell>
-                        <Table.Cell class="text-right">
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                class="rounded-full"
-                            >
-                                <MoreVertical />
-                            </Button>
-                        </Table.Cell>
-                    </Table.Row>
-                {/each}
-            </Table.Body>
-        </Table.Root>
-    </Card.Root>
+<Section title="Categories" loading={loadingCategories}>
+    <div class="flex flex-col gap-2" slot="add">
+        <div>
+            <Label for="name">Name</Label>
+            <Input bind:value={name} disabled={creating} id="name" />
+        </div>
+        <div>
+            <Label for="description">Description</Label>
+            <Input
+                bind:value={description}
+                disabled={creating}
+                id="description"
+            />
+        </div>
+        <Button on:click={() => create()} disabled={creating}>
+            {#if creating}
+                <Loader2 class="animate-spin" />
+            {:else}
+                Create Category
+            {/if}
+        </Button>
+    </div>
+    {#each categories as category}
+        <StoreCategory {category} />
+    {/each}
 </Section>

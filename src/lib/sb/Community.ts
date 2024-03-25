@@ -42,6 +42,13 @@ export default class Community {
         return (await Srvbench.getInstance().rest(`${this.endpoint}/store/categories`)).map((c: any) => Category.fromObject(c))
     }
 
+    public async createCategory(name: string, description: string) {
+        return Category.fromObject(await Srvbench.getInstance().rest(`${this.endpoint}/store/categories`, {
+            name,
+            description
+        }))
+    }
+
     public async spectate() {
         const now = new Date()
         return Srvbench.getInstance().openSocket('community/spectate', {
