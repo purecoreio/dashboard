@@ -11,7 +11,6 @@
         Boxes,
         Box,
         Loader2,
-        BadgeMinus,
         AlertCircle,
         Sparkle,
     } from "lucide-svelte";
@@ -23,6 +22,8 @@
     import { fade, scale } from "svelte/transition";
     import SkuOptionsMenu from "./SkuOptionsMenu.svelte";
     import { createEventDispatcher } from "svelte";
+    import ProductPerks from "./ProductPerks.svelte";
+    import type Perk from "$lib/sb/store/sku/perk/Perk";
 
     let data = {
         "2005-01-01": 1,
@@ -86,7 +87,8 @@
     }
 
     export let sku: Product | Bundle | Sku,
-        country: string | null = null;
+        country: string | null = null,
+        perks: Perk[];
 </script>
 
 <Table.Row>
@@ -159,6 +161,16 @@
     <Table.Cell>
         <LinkedChart width={50} height={30} {data} linked="a" />
     </Table.Cell>
+    <Table.Cell class="text-center">
+        {#if sku instanceof Product}
+            <ProductPerks {perks} product={sku} />
+        {:else if sku instanceof Bundle}
+            <Button variant="outline">
+                {sku.products.length}
+                Product{sku.products.length != 1 ? "s" : ""}
+            </Button>
+        {/if}
+    </Table.Cell>
     <Table.Cell class="flex flex-row justify-between">
         <div class="opacity-20 hover:opacity-100 transition">
             <SkuOptions
@@ -193,9 +205,7 @@
                     <MoreVertical />
                 </Button>
             </div>
-            <DropdownMenu.Item
-                class="flex flex-row items-center gap-2"
-            >
+            <DropdownMenu.Item class="flex flex-row items-center gap-2">
                 <Sparkle class="w-4 h-4" /> Perks
             </DropdownMenu.Item>
         </SkuOptionsMenu>

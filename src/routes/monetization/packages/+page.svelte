@@ -8,11 +8,13 @@
     import Label from "$lib/components/ui/label/label.svelte";
     import Button from "$lib/components/ui/button/button.svelte";
     import { Loader2 } from "lucide-svelte";
+    import type Perk from "$lib/sb/store/sku/perk/Perk";
 
     let categories: Category[] = [];
     let loadingCategories: boolean = false;
     let fallbackCurrency: string | null = null;
     let creating: boolean = false;
+    let perks: Perk[] = [];
 
     let country: string | null = null;
 
@@ -23,7 +25,7 @@
                 .getCommunity()!
                 .getCategories();
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
         loadingCategories = false;
     }
@@ -55,9 +57,10 @@
 
     onMount(async () => {
         let _: void;
-        [_, fallbackCurrency] = await Promise.all([
+        [_, fallbackCurrency, perks] = await Promise.all([
             loadCategories(),
             Srvbench.getInstance().getCommunity()!.getFallbackCurrency(),
+            Srvbench.getInstance().getCommunity()!.getPerks(),
         ]);
     });
 </script>
@@ -88,9 +91,13 @@
             {/if}
         </Button>
     </div>
-    <div>
-        {#each categories as category}
-            <StoreCategory on:delete={handleDelete} bind:country {category} {fallbackCurrency} />
-        {/each}
-    </div>
+    {#each categories as category}
+        <StoreCategory
+            on:delete={handleDelete}
+            bind:country
+            {category}
+            {fallbackCurrency}
+            {perks}
+        />
+    {/each}
 </Section>

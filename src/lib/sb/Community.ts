@@ -13,6 +13,7 @@ import Playtime from "./stat/Playtime"
 import Series from "./stat/Series"
 import Stat from "./stat/Stat"
 import Category from "./store/Category"
+import Perk from "./store/sku/perk/Perk"
 import VotingSettings from "./votingSettings/VotingSettings"
 
 export default class Community {
@@ -40,6 +41,10 @@ export default class Community {
 
     public async getCategories() {
         return (await this.rest(`store/categories`)).map((c: any) => Category.fromObject(c, this))
+    }
+
+    public async getPerks() {
+        return (await this.rest(`store/perks`)).map((c: any) => Perk.fromObject(c, this))
     }
 
     public async getFallbackCurrency() {

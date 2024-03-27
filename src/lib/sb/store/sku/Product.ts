@@ -13,7 +13,7 @@ export default class Product extends Sku {
     }
 
     public static fromObject(obj: any, category: Category) {
-        return new Product(
+        const product = new Product(
             obj.id,
             obj.created,
             obj.name,
@@ -23,8 +23,11 @@ export default class Product extends Sku {
             'product',
             obj.disabled,
             obj.visible,
-            obj.perks.map((p: any) => PerkUsage.fromObject(p))
+            []
         )
+        product.perks.push(...
+            obj.perks.map((p: any) => PerkUsage.fromObject(p, product)))
+        return product
     }
 
     public async update(name?: string, description?: string, disabled?: boolean, visible?: boolean) {

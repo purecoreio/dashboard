@@ -16,6 +16,7 @@
     import SkuOptions from "./SkuOptions.svelte";
     import SkuRow from "./SkuRow.svelte";
     import SkuOptionsMenu from "./SkuOptionsMenu.svelte";
+    import type Perk from "$lib/sb/store/sku/perk/Perk";
 
     const countries = [
         ["ES", "Spain"],
@@ -27,7 +28,8 @@
 
     export let category: Category,
         country: string | null = null,
-        fallbackCurrency: string | null = null;
+        fallbackCurrency: string | null = null,
+        perks: Perk[];
 
     async function update(
         name?: string,
@@ -77,7 +79,7 @@
     }
 </script>
 
-<Card.Root class="mb-3">
+<Card.Root>
     <Table.Root>
         <Table.Header>
             <Table.Row>
@@ -100,7 +102,7 @@
                         </div>
                     {/if}
                 </Table.Head>
-                <Table.Head class="w-1/3 text-ellipsis">
+                <Table.Head class="text-ellipsis">
                     <div class="flex flex-row gap-2 items-center">
                         <Label id="country">Price</Label>
                         <DropdownMenu.Root>
@@ -136,20 +138,10 @@
                                 </DropdownMenu.Group>
                             </DropdownMenu.Content>
                         </DropdownMenu.Root>
-
-                        <Tooltip.Root>
-                            <Tooltip.Trigger>
-                                <Button variant="ghost" size="sm">
-                                    <Info class="w-4 h-4" />
-                                </Button>
-                            </Tooltip.Trigger>
-                            <Tooltip.Content>
-                                <p>Price internationalization</p>
-                            </Tooltip.Content>
-                        </Tooltip.Root>
                     </div>
                 </Table.Head>
                 <Table.Head>Volume</Table.Head>
+                <Table.Head class="text-center">Contents</Table.Head>
                 <Table.Head class="flex flex-row items-center justify-between">
                     <div>
                         <SkuOptions
@@ -233,7 +225,7 @@
         </Table.Header>
         <Table.Body>
             {#each category.skus as sku}
-                <SkuRow on:delete={handleDelete} {sku} {country} />
+                <SkuRow on:delete={handleDelete} {sku} {country} {perks} />
             {/each}
         </Table.Body>
     </Table.Root>
