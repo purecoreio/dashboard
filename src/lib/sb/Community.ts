@@ -39,14 +39,22 @@ export default class Community {
     }
 
     public async getCategories() {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/store/categories`)).map((c: any) => Category.fromObject(c))
+        return (await this.rest(`store/categories`)).map((c: any) => Category.fromObject(c, this))
+    }
+
+    public async getFallbackCurrency() {
+        return (await this.rest(`store/currency`)).currency
+    }
+
+    public async rest(endpoint: string, body?: any, method?: 'POST' | 'GET' | 'DELETE' | 'PATCH') {
+        return Srvbench.getInstance().rest(`community/${this.id}/${endpoint}`, body, method)
     }
 
     public async createCategory(name: string, description: string) {
-        return Category.fromObject(await Srvbench.getInstance().rest(`${this.endpoint}/store/categories`, {
+        return Category.fromObject(await this.rest(`store/categories`, {
             name,
             description
-        }))
+        }), this)
     }
 
     public async spectate() {
@@ -61,34 +69,30 @@ export default class Community {
 
     public async getKeys() {
         if (this.keys == null) {
-            this.keys = (await Srvbench.getInstance().rest(`${this.endpoint}/keys`)).map((o: any) => Key.fromObject(o))
+            this.keys = (await this.rest(`keys`)).map((o: any) => Key.fromObject(o))
         }
         return this.keys!
     }
 
-    public get endpoint() {
-        return `community/${this.id}`
-    }
-
     public async getMembers(page: number): Promise<Member[]> {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/members`, {
+        return (await this.rest(`members`, {
             page: page
         })).map((m: any) => Member.fromObject(m))
     }
 
     public async getGeojson(): Promise<any> {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/demographics/geojson`))
+        return (await this.rest(`demographics/geojson`))
     }
 
     public async getCountries(): Promise<Record<string, number>> {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/demographics/country`))
+        return (await this.rest(`$demographics/country`))
     }
 
     /**
      * returns the holidays in cronological order (coming earlier first)
      */
     public async getHolidays(): Promise<Holiday[]> {
-        const data = await Srvbench.getInstance().rest(`${this.endpoint}/holidays`)
+        const data = await this.rest(`holidays`)
         const holidays: Holiday[] = []
         for (const country of Object.keys(data)) {
             holidays.push(...data[country].holidays.map((h: any) => new Holiday(
@@ -108,81 +112,81 @@ export default class Community {
     }
 
     public async getMembersByRank(page: number, rank: number): Promise<Member[]> {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/members/ranked`, {
+        return (await this.rest(`members/ranked`, {
             page: page,
             rank: rank
         })).map((m: any) => Member.fromObject(m))
     }
 
     public async searchMember(name: string) {
-        return Member.fromObject(await Srvbench.getInstance().rest(`${this.endpoint}/members/search`, {
+        return Member.fromObject(await this.rest(`members/search`, {
             name
         }))
     }
 
     public async getMember(id: string): Promise<Member> {
-        return Member.fromObject(await Srvbench.getInstance().rest(`${this.endpoint}/member/${id}`))!
+        return Member.fromObject(await this.rest(`member/${id}`))!
     }
 
     public async createRole(name: string, permissions: string[]) {
-        return Role.fromObject(await Srvbench.getInstance().rest(`${this.endpoint}/roles`, {
+        return Role.fromObject(await this.rest(`roles`, {
             name,
             permissions
         }))
     }
 
     public async getNewMembers(): Promise<NewMembers[]> {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/stats/new_players`)).map((n: any) => NewMembers.fromObject(n, this))
+        return (await this.rest(`stats/new_players`)).map((n: any) => NewMembers.fromObject(n, this))
     }
 
     public async getVotingSettings(): Promise<VotingSettings> {
-        return VotingSettings.fromObject(await Srvbench.getInstance().rest(`${this.endpoint}/voting/settings`), this)
+        return VotingSettings.fromObject(await this.rest(`voting/settings`), this)
     }
 
     public async getPlaytimes(): Promise<Playtime[]> {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/stats/playtime`)).map((n: any) => Playtime.fromObject(n, this))
+        return (await this.rest(`stats/playtime`)).map((n: any) => Playtime.fromObject(n, this))
     }
 
     public async getActivity(): Promise<Stat> {
-        const d = await Srvbench.getInstance().rest(`${this.endpoint}/stats/activity`)
+        const d = this.rest(`stats/activity`)
         return Stat.fromObject(d)
     }
 
     public async getRetentionSpan(): Promise<Stat> {
-        const d = await Srvbench.getInstance().rest(`${this.endpoint}/stats/retention/span`)
+        const d = this.rest(`stats/retention/span`)
         return Stat.fromObject(d)
     }
 
     public async getNewReturningMembers(): Promise<Stat> {
-        const d = await Srvbench.getInstance().rest(`${this.endpoint}/stats/newreturning`)
+        const d = await this.rest(`stats/newreturning`)
         return Stat.fromObject(d)
     }
 
     public async getRoles(): Promise<Role[]> {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/roles`)).map((r: any) => Role.fromObject(r))
+        return (await this.rest(`roles`)).map((r: any) => Role.fromObject(r))
     }
 
     public async createInvite(role: Role, member: Member) {
-        return Invite.fromObject(await Srvbench.getInstance().rest(`${this.endpoint}/invites`, {
+        return Invite.fromObject(await this.rest(`invites`, {
             role: role.id,
             member: member.id
         }))
     }
 
     public async getInvites(): Promise<Invite[]> {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/invites`)).map((r: any) => Invite.fromObject(r))
+        return (await this.rest(`invites`)).map((r: any) => Invite.fromObject(r))
     }
 
     public async getModerationCoverage(): Promise<ModerationCoverage> {
-        return ModerationCoverage.fromObj(await Srvbench.getInstance().rest(`${this.endpoint}/coverage/moderation`))
+        return ModerationCoverage.fromObj(await this.rest(`coverage/moderation`))
     }
 
     public async getSubmissions(): Promise<Submission[]> {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/media/submissions`)).map((s: any) => Submission.fromObject(s))
+        return (await this.rest(`media/submissions`)).map((s: any) => Submission.fromObject(s))
     }
 
     public async getCreators(): Promise<Creator[]> {
-        return (await Srvbench.getInstance().rest(`${this.endpoint}/media/profiles`)).map((s: any) => Creator.fromObject(s))
+        return (await this.rest(`media/profiles`)).map((s: any) => Creator.fromObject(s))
     }
 
 }

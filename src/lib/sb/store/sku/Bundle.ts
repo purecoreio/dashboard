@@ -7,8 +7,8 @@ export default class Bundle extends Sku {
 
     public readonly products: Product[]
 
-    constructor(id: string, created: Date, name: string, description: string, prices: I18nPrice[], category: Category, type: string, enabled: boolean, visible: boolean, products: Product[]) {
-        super(id, created, name, description, prices, category, type, enabled, visible)
+    constructor(id: string, created: Date, name: string, description: string, prices: I18nPrice[], category: Category, type: string, disabled: boolean, visible: boolean, products: Product[]) {
+        super(id, created, name, description, prices, category, type, disabled, visible)
         this.products = products
     }
 
@@ -21,7 +21,7 @@ export default class Bundle extends Sku {
             obj.prices.map((p: any) => I18nPrice.fromObject(p)),
             category,
             'bundle',
-            obj.enabled,
+            obj.disabled,
             obj.visible,
             obj.products.map((p: any) => Product.fromObject(p, category))
         )

@@ -112,18 +112,24 @@ export default class Srvbench {
         return VotingSite.fromObject(response)
     }
 
-    public async rest(endpoint: string, body?: any) {
+    public async rest(endpoint: string, body?: any, method?: 'POST' | 'GET' | 'DELETE' | 'PATCH') {
+        if (!method) method = body ? 'POST' : 'GET'
         await SSO.getInstance().session?.renewIfDue()
         const headers = new Headers({
             'Authorization': `Bearer ${SSO.getInstance().session?.access.token}`
         })
         if (body) headers.set('Content-Type', 'application/json')
         const res = await fetch(`https://${dev ? 'dev.serverbench.io' : 'api.serverbench.io'}/${endpoint}`, {
-            method: body ? 'POST' : 'GET',
+            method: method,
             body: body ? JSON.stringify(body) : undefined,
             headers
         })
-        return await res.json()
+        try {
+            return await res.json()
+        } catch (error) {
+            return null
+        }
+
     }
 
     public async openSocket(endpoint: string, args: Record<string, string>) {

@@ -10,10 +10,10 @@ export default class Sku {
     public readonly prices: I18nPrice[]
     public readonly category: Category
     public readonly type: string
-    public readonly enabled: boolean
+    public readonly disabled: boolean
     public readonly visible: boolean
 
-    constructor(id: string, created: Date, name: string, description: string, prices: I18nPrice[], category: Category, type: string, enabled: boolean, visible: boolean) {
+    constructor(id: string, created: Date, name: string, description: string, prices: I18nPrice[], category: Category, type: string, disabled: boolean, visible: boolean) {
         this.id = id
         this.created = created
         this.name = name
@@ -21,7 +21,7 @@ export default class Sku {
         this.prices = prices
         this.category = category
         this.type = type
-        this.enabled = enabled
+        this.disabled = disabled
         this.visible = visible
     }
 
