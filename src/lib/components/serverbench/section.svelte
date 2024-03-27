@@ -5,7 +5,8 @@
     import { Skeleton } from "$lib/components/ui/skeleton";
     import { fade } from "svelte/transition";
     export let title: string,
-        loading: boolean = false;
+        loading: boolean = false,
+        adding = false;
     const SLOTS = $$props.$$slots;
 </script>
 
@@ -15,7 +16,7 @@
             {title}
         </p>
         <div class="transition" class:opacity-0={!SLOTS.add && !loading}>
-            <Popover.Root>
+            <Popover.Root bind:open={adding}>
                 <Popover.Trigger disabled={!SLOTS.add}>
                     <Button
                         size="icon"
