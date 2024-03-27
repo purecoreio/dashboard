@@ -4,7 +4,6 @@
     import type Category from "$lib/sb/store/Category";
     import { onMount } from "svelte";
     import StoreCategory from "./StoreCategory.svelte";
-    import * as Popover from "$lib/components/ui/popover";
     import Input from "$lib/components/ui/input/input.svelte";
     import Label from "$lib/components/ui/label/label.svelte";
     import Button from "$lib/components/ui/button/button.svelte";
@@ -12,7 +11,10 @@
 
     let categories: Category[] = [];
     let loadingCategories: boolean = false;
+    let fallbackCurrency: string | null = null;
     let creating: boolean = false;
+
+    let country: string | null = null;
 
     async function loadCategories() {
         loadingCategories = true;
@@ -20,8 +22,14 @@
             categories = await Srvbench.getInstance()
                 .getCommunity()!
                 .getCategories();
-        } catch (error) {}
+        } catch (error) {
+            console.log(error)
+        }
         loadingCategories = false;
+    }
+
+    function handleDelete(customEvent: CustomEvent<string>) {
+        categories = categories.filter((c) => c.id != customEvent.detail);
     }
 
     let name: string | null;
@@ -33,21 +41,32 @@
             categories.push(
                 await Srvbench.getInstance()
                     .getCommunity()!
-                    .createCategory(name!, description!),
+                    .createCategory(name!, description ?? ""),
             );
-            categories=categories
+            categories = categories;
             name = null;
             description = null;
+            addingCategory = false;
         } catch (error) {}
         creating = false;
     }
 
+    let addingCategory: boolean = false;
+
     onMount(async () => {
-        await loadCategories();
+        let _: void;
+        [_, fallbackCurrency] = await Promise.all([
+            loadCategories(),
+            Srvbench.getInstance().getCommunity()!.getFallbackCurrency(),
+        ]);
     });
 </script>
 
-<Section title="Categories" loading={loadingCategories}>
+<Section
+    title="Categories"
+    loading={loadingCategories}
+    bind:adding={addingCategory}
+>
     <div class="flex flex-col gap-2" slot="add">
         <div>
             <Label for="name">Name</Label>
@@ -63,13 +82,15 @@
         </div>
         <Button on:click={() => create()} disabled={creating}>
             {#if creating}
-                <Loader2 class="animate-spin" />
+                <Loader2 class="w-4 h-4 animate-spin" />
             {:else}
                 Create Category
             {/if}
         </Button>
     </div>
-    {#each categories as category}
-        <StoreCategory {category} />
-    {/each}
+    <div>
+        {#each categories as category}
+            <StoreCategory on:delete={handleDelete} bind:country {category} {fallbackCurrency} />
+        {/each}
+    </div>
 </Section>
