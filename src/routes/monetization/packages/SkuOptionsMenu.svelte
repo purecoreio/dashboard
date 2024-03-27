@@ -1,5 +1,7 @@
 <script lang="ts">
     import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
+    import * as Dialog from "$lib/components/ui/dialog/index.js";
+    import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
     import { Button } from "$lib/components/ui/button";
     import {
         GitCompare,
@@ -10,14 +12,21 @@
         Pause,
         Settings2,
         Trash,
+        Type,
     } from "lucide-svelte";
     import { createEventDispatcher } from "svelte";
+    import Label from "$lib/components/ui/label/label.svelte";
+    import Input from "$lib/components/ui/input/input.svelte";
 
     export let loading: boolean,
         name: string,
+        description: string,
         upgradeable: boolean | null = null,
         visible: boolean,
-        disabled: boolean;
+        disabled: boolean,
+        renaming: boolean;
+
+    let deleting = false;
 
     const dispatch = createEventDispatcher();
 
@@ -27,6 +36,15 @@
 
     function remove() {
         dispatch("delete");
+        deleting = false;
+    }
+
+    function rename() {
+        dispatch("rename", {
+            name,
+            description,
+        });
+        renaming = false;
     }
 
     function toggleVisible() {
@@ -37,6 +55,44 @@
         dispatch("upgradeable", !upgradeable);
     }
 </script>
+
+<AlertDialog.Root bind:open={deleting}>
+    <AlertDialog.Content>
+        <AlertDialog.Header>
+            <AlertDialog.Title>Are you sure?</AlertDialog.Title>
+            <AlertDialog.Description>
+                <slot name="delete" />
+            </AlertDialog.Description>
+        </AlertDialog.Header>
+        <AlertDialog.Footer>
+            <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+            <AlertDialog.Action on:click={() => remove()}
+                >Continue</AlertDialog.Action
+            >
+        </AlertDialog.Footer>
+    </AlertDialog.Content>
+</AlertDialog.Root>
+<Dialog.Root bind:open={renaming}>
+    <Dialog.Content class="sm:max-w-[425px]">
+        <Dialog.Header>
+            <Dialog.Title>{name}</Dialog.Title>
+        </Dialog.Header>
+        <div class="grid gap-4 py-4">
+            <div>
+                <Label for="name">Name</Label>
+                <Input id="name" bind:value={name} />
+            </div>
+            <div>
+                <Label for="description">Description</Label>
+                <Input id="description" bind:value={description} />
+            </div>
+        </div>
+        <Dialog.Footer>
+            <Button on:click={() => rename()} type="submit">Save changes</Button
+            >
+        </Dialog.Footer>
+    </Dialog.Content>
+</Dialog.Root>
 
 <DropdownMenu.Root>
     <DropdownMenu.Trigger>
@@ -95,10 +151,17 @@
                     Set Disabled
                 {/if}
             </DropdownMenu.Item>
+            <DropdownMenu.Item
+                on:click={() => (renaming = true)}
+                class="flex flex-row items-center gap-2"
+            >
+                <Type class="w-4 h-4" />
+                Title/Description
+            </DropdownMenu.Item>
             <slot />
             <DropdownMenu.Separator />
             <DropdownMenu.Item
-                on:click={() => remove()}
+                on:click={() => (deleting = true)}
                 class="text-destructive flex flex-row items-center gap-2"
             >
                 <Trash class="w-4 h-4" /> Delete

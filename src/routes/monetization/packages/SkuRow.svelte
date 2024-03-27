@@ -2,6 +2,7 @@
     import Bundle from "$lib/sb/store/sku/Bundle";
     import * as Tooltip from "$lib/components/ui/tooltip/index.js";
     import Product from "$lib/sb/store/sku/Product";
+    import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
 
     import * as Table from "$lib/components/ui/table/index.js";
     import { Button } from "$lib/components/ui/button";
@@ -12,6 +13,7 @@
         Loader2,
         BadgeMinus,
         AlertCircle,
+        Sparkle,
     } from "lucide-svelte";
     import { LinkedChart } from "svelte-tiny-linked-charts";
 
@@ -20,7 +22,6 @@
     import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
     import { fade, scale } from "svelte/transition";
     import SkuOptionsMenu from "./SkuOptionsMenu.svelte";
-    import * as AlertDialog from "$lib/components/ui/alert-dialog";
     import { createEventDispatcher } from "svelte";
 
     let data = {
@@ -56,11 +57,10 @@
         loading = false;
     }
 
-    let renaming = false,
-        deleting = false;
+    let renaming = false;
 
     $: price = sku.prices.find((p) => p.country == country);
-    $: fallback = sku.prices.find((p) => !p.country)!;
+    $: fallback = sku.prices.find((p) => !p.country);
 
     const dispatch = createEventDispatcher();
 
@@ -79,26 +79,16 @@
         loading = false;
     }
 
+    async function handleRename(
+        ev: CustomEvent<Record<"name" | "description", string>>,
+    ) {
+        await update(ev.detail.name, ev.detail.description);
+    }
+
     export let sku: Product | Bundle | Sku,
         country: string | null = null;
 </script>
 
-<AlertDialog.Root bind:open={deleting}>
-    <AlertDialog.Content>
-        <AlertDialog.Header>
-            <AlertDialog.Title>Are you sure?</AlertDialog.Title>
-            <AlertDialog.Description>
-                You won't be able to restore <b>{sku.name}</b>!
-            </AlertDialog.Description>
-        </AlertDialog.Header>
-        <AlertDialog.Footer>
-            <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-            <AlertDialog.Action on:click={() => remove()}
-                >Continue</AlertDialog.Action
-            >
-        </AlertDialog.Footer>
-    </AlertDialog.Content>
-</AlertDialog.Root>
 <Table.Row>
     <Table.Cell class="font-medium flex flex-row gap-2 items-center">
         <Button
@@ -143,8 +133,8 @@
                         {price.amount}
                         {price.currency}
                     {:else}
-                        {fallback.amount}
-                        {fallback.currency}
+                        {fallback?.amount}
+                        {fallback?.currency}
                     {/if}
                     {#if !price}
                         <Tooltip.Root>
@@ -183,11 +173,14 @@
         <SkuOptionsMenu
             {loading}
             name={sku.name}
+            description={sku.description}
+            bind:renaming
             visible={sku.visible}
             on:disabled={() => update(undefined, undefined, !sku.disabled)}
             on:visible={() =>
                 update(undefined, undefined, undefined, !sku.visible)}
-            on:delete={() => (deleting = true)}
+            on:delete={() => remove()}
+            on:rename={handleRename}
             disabled={sku.disabled}
         >
             <div slot="trigger">
@@ -200,6 +193,11 @@
                     <MoreVertical />
                 </Button>
             </div>
+            <DropdownMenu.Item
+                class="flex flex-row items-center gap-2"
+            >
+                <Sparkle class="w-4 h-4" /> Perks
+            </DropdownMenu.Item>
         </SkuOptionsMenu>
     </Table.Cell>
 </Table.Row>

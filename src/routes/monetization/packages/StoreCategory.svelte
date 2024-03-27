@@ -5,16 +5,13 @@
     import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
     import Label from "$lib/components/ui/label/label.svelte";
     import { Button } from "$lib/components/ui/button";
-    import * as Dialog from "$lib/components/ui/dialog/index.js";
-    import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
     import * as Popover from "$lib/components/ui/popover/index.js";
-    import { Plus, Type, ChevronDown, Info } from "lucide-svelte";
+    import { Plus, ChevronDown, Info } from "lucide-svelte";
     import * as Tooltip from "$lib/components/ui/tooltip";
 
     import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
     import { fade } from "svelte/transition";
     import { createEventDispatcher } from "svelte";
-    import Input from "$lib/components/ui/input/input.svelte";
     import SkuCreation from "./SkuCreation.svelte";
     import SkuOptions from "./SkuOptions.svelte";
     import SkuRow from "./SkuRow.svelte";
@@ -26,15 +23,11 @@
     ];
 
     let loading: boolean = false,
-        renaming = false,
-        deleting = false;
+        renaming = false;
 
     export let category: Category,
         country: string | null = null,
         fallbackCurrency: string | null = null;
-
-    let name = category.name,
-        description = category.description;
 
     async function update(
         name?: string,
@@ -44,8 +37,6 @@
         disabled?: boolean,
     ) {
         loading = true;
-        deleting = false;
-        renaming = false;
         try {
             category = await category.update(
                 name,
@@ -78,46 +69,13 @@
     function handleDelete(ev: CustomEvent<string>) {
         category = category;
     }
-</script>
 
-<AlertDialog.Root bind:open={deleting}>
-    <AlertDialog.Content>
-        <AlertDialog.Header>
-            <AlertDialog.Title>Are you sure?</AlertDialog.Title>
-            <AlertDialog.Description>
-                All packages located on <b>{category.name}</b> will be removed too!
-            </AlertDialog.Description>
-        </AlertDialog.Header>
-        <AlertDialog.Footer>
-            <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-            <AlertDialog.Action on:click={() => remove()}
-                >Continue</AlertDialog.Action
-            >
-        </AlertDialog.Footer>
-    </AlertDialog.Content>
-</AlertDialog.Root>
-<Dialog.Root bind:open={renaming}>
-    <Dialog.Content class="sm:max-w-[425px]">
-        <Dialog.Header>
-            <Dialog.Title>Edit {category.name}</Dialog.Title>
-        </Dialog.Header>
-        <div class="grid gap-4 py-4">
-            <div>
-                <Label for="name">Name</Label>
-                <Input id="name" bind:value={name} />
-            </div>
-            <div>
-                <Label for="description">Description</Label>
-                <Input id="description" bind:value={description} />
-            </div>
-        </div>
-        <Dialog.Footer>
-            <Button on:click={() => update(name, description)} type="submit"
-                >Save changes</Button
-            >
-        </Dialog.Footer>
-    </Dialog.Content>
-</Dialog.Root>
+    async function handleRename(
+        ev: CustomEvent<Record<"name" | "description", string>>,
+    ) {
+        await update(ev.detail.name, ev.detail.description);
+    }
+</script>
 
 <Card.Root class="mb-3">
     <Table.Root>
@@ -245,9 +203,11 @@
                     <SkuOptionsMenu
                         {loading}
                         name={category.name}
+                        description={category.description}
                         disabled={category.disabled}
                         upgradeable={category.upgradeable}
                         visible={category.visible}
+                        bind:renaming
                         on:disabled={() =>
                             update(
                                 undefined,
@@ -265,16 +225,9 @@
                             )}
                         on:upgradeable={() =>
                             update(undefined, undefined, !category.upgradeable)}
-                        on:delete={() => (deleting = true)}
-                    >
-                        <DropdownMenu.Item
-                            on:click={() => (renaming = true)}
-                            class="flex flex-row items-center gap-2"
-                        >
-                            <Type class="w-4 h-4" />
-                            Title/Description
-                        </DropdownMenu.Item>
-                    </SkuOptionsMenu>
+                        on:delete={() => remove()}
+                        on:rename={handleRename}
+                    ></SkuOptionsMenu>
                 </Table.Head>
             </Table.Row>
         </Table.Header>
