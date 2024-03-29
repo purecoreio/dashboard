@@ -62,6 +62,13 @@ export default class Community {
         }), this)
     }
 
+    public async createPerk(name: string, description: string) {
+        return Perk.fromObject(await this.rest(`store/perks`, {
+            name,
+            description
+        }), this)
+    }
+
     public async spectate() {
         const now = new Date()
         return Srvbench.getInstance().openSocket('community/spectate', {

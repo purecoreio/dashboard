@@ -3,15 +3,23 @@ import type Community from "$lib/sb/Community"
 export default class Perk {
 
     public readonly id: string
-    public readonly name: string
-    public readonly description: string
+    private _name: string
+    private _description: string
     public readonly community: Community
 
     constructor(id: string, name: string, description: string, community: Community) {
         this.id = id
-        this.name = name
-        this.description = description
+        this._name = name
+        this._description = description
         this.community = community
+    }
+
+    public get name(): string {
+        return this._name
+    }
+
+    public get description(): string {
+        return this._description
     }
 
     public static fromObject(obj: any, community: Community) {
@@ -21,6 +29,20 @@ export default class Perk {
             obj.description,
             community
         )
+    }
+
+    public async delete() {
+        await this.community.rest(`store/perks/${this.id}`, undefined, 'DELETE')
+    }
+
+    public async update(name: string, description: string) {
+        const perk = Perk.fromObject(await this.community.rest(`store/perks/${this.id}`, {
+            name,
+            description
+        }), this.community)
+        this._name = name
+        this._description = description
+        return perk
     }
 
 }

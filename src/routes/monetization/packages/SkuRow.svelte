@@ -163,7 +163,7 @@
     </Table.Cell>
     <Table.Cell class="text-center">
         {#if sku instanceof Product}
-            <ProductPerks {perks} product={sku} />
+            <ProductPerks bind:perks product={sku} />
         {:else if sku instanceof Bundle}
             <Button variant="outline">
                 {sku.products.length}

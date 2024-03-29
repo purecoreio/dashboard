@@ -1,6 +1,7 @@
 import type Category from "../Category";
 import I18nPrice from "../price/I18nPrice";
 import Sku from "./Sku";
+import type Perk from "./perk/Perk";
 import PerkUsage from "./perk/PerkUsage";
 
 export default class Product extends Sku {
@@ -28,6 +29,17 @@ export default class Product extends Sku {
         product.perks.push(...
             obj.perks.map((p: any) => PerkUsage.fromObject(p, product)))
         return product
+    }
+
+    public async usePerk(perk: Perk, amount: number | null = null) {
+        return Product.fromObject(await this.category.community.rest(`store/categories/${this.category.id}/products/${this.id}/perks/${perk.id}`, {
+            amount
+        }), this.category)
+    }
+
+    public async removePerk(perk: Perk) {
+        return Product.fromObject(await this.category.community.rest(`store/categories/${this.category.id}/products/${this.id}/perks/${perk.id}`, undefined, 'DELETE'),
+            this.category)
     }
 
     public async update(name?: string, description?: string, disabled?: boolean, visible?: boolean) {

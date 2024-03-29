@@ -225,7 +225,7 @@
         </Table.Header>
         <Table.Body>
             {#each category.skus as sku}
-                <SkuRow on:delete={handleDelete} {sku} {country} {perks} />
+                <SkuRow on:delete={handleDelete} {sku} {country} bind:perks />
             {/each}
         </Table.Body>
     </Table.Root>

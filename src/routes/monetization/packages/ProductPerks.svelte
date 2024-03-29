@@ -5,16 +5,16 @@
     import type Perk from "$lib/sb/store/sku/perk/Perk";
     import * as Table from "$lib/components/ui/table";
     import * as Card from "$lib/components/ui/card/index.js";
-    import { Input } from "$lib/components/ui/input";
-    import { X, Trash2, ChevronsUpDown, Check, Plus } from "lucide-svelte";
-    import * as Command from "$lib/components/ui/command/index.js";
-    import * as Popover from "$lib/components/ui/popover/index.js";
+    import { Workflow } from "lucide-svelte";
+    import PerkRow from "./PerkRow.svelte";
+    import * as Alert from "$lib/components/ui/alert";
+    import type PerkUsage from "$lib/sb/store/sku/perk/PerkUsage";
 
     export let product: Product,
         perks: Perk[],
         open: boolean = false;
 
-    let openPerk = false;
+    let perkUsages: PerkUsage[] = product.perks;
 </script>
 
 <Dialog.Root bind:open>
@@ -24,70 +24,55 @@
             Perk{product.perks.length != 1 ? "s" : ""}
         </Button>
     </Dialog.Trigger>
-    <Dialog.Content class="sm:max-w-[425px]">
+    <Dialog.Content class="max-w-xl">
         <Dialog.Header>
             <Dialog.Title>{product.name}</Dialog.Title>
         </Dialog.Header>
-        <Card.Root>
-            <Table.Root>
-                <Table.Header>
-                    <Table.Row>
-                        <Table.Head class="w-1/2">Amount</Table.Head>
-                        <Table.Head>Perk</Table.Head>
-                    </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                    {#each product.perks as usage}
+        <Alert.Root class="text-left">
+            <Workflow class="w-4 h-4" />
+            <Alert.Title>Perk data is shared accross products</Alert.Title>
+            <Alert.Description>
+                When you update the name or description of any given perk, it
+                will be updated on all products.
+            </Alert.Description>
+        </Alert.Root>
+        <div class="max-h-96 overflow-y-auto">
+            <Card.Root>
+                <Table.Root>
+                    <Table.Header>
                         <Table.Row>
-                            <Table.Cell>
-                                <div class="flex flex-row gap-2">
-                                    <div>
-                                        <Button variant="outline" size="icon">
-                                            <X class="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                    <Input type="number" />
-                                </div>
-                            </Table.Cell>
-                            <Table.Cell>
-                                <div class="flex flex-row gap-2 items-center">
-                                    <span class="grow">
-                                        {usage.perk.name}
-                                    </span>
-                                    <div>
-                                        <Button variant="secondary" size="icon">
-                                            <Trash2 class="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            </Table.Cell>
+                            <Table.Head>Usage</Table.Head>
+                            <Table.Head>Name</Table.Head>
+                            <Table.Head>Amount</Table.Head>
+                            <Table.Head />
                         </Table.Row>
-                    {/each}
-                    <Table.Row>
-                        <Table.Cell>
-                            <div class="flex flex-row gap-2">
-                                <div>
-                                    <Button variant="outline" size="icon">
-                                        <X class="w-4 h-4" />
-                                    </Button>
-                                </div>
-                                <Input type="number" />
-                            </div>
-                        </Table.Cell>
-                        <Table.Cell>
-                            <div class="flex flex-row gap-2 items-center">
-                                <Input placeholder="Name" />
-                                <div>
-                                    <Button size="icon">
-                                        <Plus class="w-4 h-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </Table.Cell>
-                    </Table.Row>
-                </Table.Body>
-            </Table.Root>
-        </Card.Root>
+                    </Table.Header>
+                    <Table.Body>
+                        <PerkRow bind:perkUsages bind:perks bind:product />
+                        {#key perkUsages.length}
+                            {#each perkUsages as perkUsage}
+                                <PerkRow
+                                    bind:perkUsages
+                                    bind:perks
+                                    bind:product
+                                    {perkUsage}
+                                />
+                            {/each}
+                            {#each perks as perk}
+                                {#if !perkUsages.find((p) => p.perk.id == perk.id)}
+                                    <PerkRow
+                                        bind:perkUsages
+                                        bind:perks
+                                        bind:product
+                                        {perk}
+                                    />
+                                {/if}
+                            {/each}
+                        {/key}
+                    </Table.Body>
+                </Table.Root>
+            </Card.Root>
+        </div>
 
         <Dialog.Footer>
             <Button type="submit">Save changes</Button>

@@ -97,7 +97,7 @@
             bind:country
             {category}
             {fallbackCurrency}
-            {perks}
+            bind:perks
         />
     {/each}
 </Section>
