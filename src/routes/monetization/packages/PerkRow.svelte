@@ -2,186 +2,117 @@
     import Button from "$lib/components/ui/button/button.svelte";
     import Input from "$lib/components/ui/input/input.svelte";
     import * as Table from "$lib/components/ui/table";
-    import {
-        Eraser,
-        Loader2,
-        MoreVertical,
-        Plus,
-        Trash,
-        Type,
-        X,
-    } from "lucide-svelte";
-    import { Switch } from "$lib/components/ui/switch";
-    import type PerkUsage from "$lib/sb/store/sku/perk/PerkUsage";
+    import { Eraser, MoreVertical, Plus, Trash, Type, X } from "lucide-svelte";
     import type Perk from "$lib/sb/store/sku/perk/Perk";
-    import Badge from "$lib/components/ui/badge/badge.svelte";
     import * as Tooltip from "$lib/components/ui/tooltip";
-    import type Product from "$lib/sb/store/sku/Product";
-    import Srvbench from "$lib/sb/Srvbench";
-    import { onMount } from "svelte";
     import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
+    import type Product from "$lib/sb/store/sku/Product";
+    import { createEventDispatcher, onMount } from "svelte";
+    import type PerkUsage from "$lib/sb/store/sku/perk/PerkUsage";
+    import Switch from "$lib/components/ui/switch/switch.svelte";
 
-    export let product: Product,
-        perkUsage: PerkUsage | null = null,
-        perk: Perk | null = null,
-        perkUsages: PerkUsage[],
-        perks: Perk[];
+    export let perk: Perk, perkUsage: PerkUsage | null, product: Product;
 
-    let name: string | null = perkUsage?.perk.name ?? perk?.name ?? null;
-    let amount = perkUsage?.amount;
-    let enabled = perkUsage != null || perk == null;
+    const dispatch = createEventDispatcher();
 
+    let amount: number | null = perkUsage?.amount ?? null;
+    let enabled: boolean = perkUsage != null;
     let lastChange: Date | null = null;
+    let name: string = perk.name;
+    let description: string = perk.description;
+    let loading: boolean = false;
+    const updateDelay = 2000;
 
     async function updateIfDue() {
         lastChange = new Date();
-        const delay = 1000 * 3;
         setTimeout(async () => {
-            if (
-                lastChange &&
-                new Date().getTime() - lastChange.getTime() >= delay
-            ) {
-                if (
-                    (perkUsage && perkUsage.perk.name != name) ||
-                    (perk && perk.name != name)
-                ) {
-                    await updatePerk();
-                }
-
-                if (
-                    (!perkUsage && amount) ||
-                    (perkUsage && perkUsage.amount != amount)
-                ) {
-                    if (!perkUsage) {
-                        await addUsage();
-                    } else {
-                        await updateUsage();
-                    }
-                }
+            if (new Date().getTime() - lastChange!.getTime() >= updateDelay) {
+                await update();
             }
-        }, delay);
+        }, updateDelay);
     }
 
-    let description = "";
-    let loading = false;
-
-    async function createAndUse() {
-        loading = true;
-        try {
-            const perk = await Srvbench.getInstance()
-                .getCommunity()!
-                .createPerk(name!, description);
-            perks.push(perk);
-            product = await product.usePerk(perk, amount);
-            perkUsages = product.perks;
-            perks = [...perks];
-            name = null;
-            amount = null;
-            enabled = true;
-        } catch (error) {}
-        loading = false;
-    }
-
-    async function updateUsage() {
-        if (!perkUsage) return;
-        loading = true;
-        try {
-            product = await perkUsage!.update(amount ?? null);
-            perkUsage = product.perks.find((p) => perkUsage!.id == p.id)!;
-            perkUsages = product.perks;
-            perks = [...perks];
-        } catch (error) {}
-        loading = false;
-    }
-
-    async function addUsage() {
-        if (perkUsage) return;
-        loading = true;
-        try {
-            product = await product.usePerk(perk!, amount ?? null);
-            perkUsage = product.perks.find((p) => perkUsage!.id == p.id)!;
-            perkUsages = product.perks;
-            perks = [...perks];
-        } catch (error) {
-            enabled = !enabled;
+    async function update() {
+        // usage amount
+        if (perkUsage && perkUsage!.amount != amount) {
+            await updateUsage();
+        } else if (!perkUsage && amount) {
+            await addUsage();
         }
-        loading = false;
-    }
-
-    async function removeUsage() {
-        if (!perkUsage) return;
-        loading = true;
-        try {
-            product = await perkUsage!.delete();
-            perk = perks.find((p) => p.id == perkUsage!.perk.id)!;
-            perkUsage = null;
-            perkUsages = product.perks;
-            perks = [...perks];
-        } catch (error) {
-            enabled = !enabled;
+        // perk details
+        if (perk.name != name || perk.description != description) {
+            loading = true;
+            try {
+                perk = await perk.update(name, description);
+                dispatch("update", perk);
+            } catch (error) {}
+            loading = false;
         }
-        loading = false;
     }
 
     async function removePerk() {
         loading = true;
         try {
-            const deletedPerk = perk ?? perkUsage!.perk;
-            await deletedPerk.delete();
-            perk = null;
-            perkUsage = null;
-            perkUsages = perkUsages.filter((p) => p.perk.id != deletedPerk.id);
-            perks = perks.filter((p) => p.id != deletedPerk.id);
+            await perk.delete();
+            dispatch("delete", perk);
         } catch (error) {}
         loading = false;
     }
 
-    async function updatePerk() {
+    async function updateUsage() {
         loading = true;
         try {
-            const updatedPerk = perk ?? perkUsage!.perk;
-            await updatedPerk.update(name!, description);
-            perk = updatedPerk;
-            perkUsages = perkUsages;
-            perks = [...perks];
+            product = await perkUsage!.update(amount);
+            product = product;
+            dispatch("usage", product);
         } catch (error) {}
         loading = false;
     }
 
-    let mounted = false;
-
-    onMount(() => {
-        mounted = true;
-    });
-
-    async function handleChange(v: boolean) {
-        if (v) {
-            await addUsage();
-        } else {
-            await removeUsage();
-        }
+    async function removeUsage() {
+        loading = true;
+        try {
+            product = await perkUsage!.delete();
+            product = product;
+            dispatch("usage", product);
+        } catch (error) {}
+        loading = false;
     }
 
-    async function clearAmount(){
-        amount = null
-        await updateIfDue()
+    async function addUsage() {
+        loading = true;
+        try {
+            product = await product.usePerk(perk, amount);
+            perkUsage = product.perks.find((p) => p.perk.id == perk.id)!;
+            product = product;
+            dispatch("usage", product);
+        } catch (error) {}
+        loading = false;
+    }
+
+    async function clearAmount() {
+        amount = null;
+        await updateIfDue();
+    }
+
+    async function handleChange() {
+        if (perkUsage) {
+            await removeUsage();
+            enabled = false;
+        } else {
+            await addUsage();
+            enabled = true;
+        }
     }
 </script>
 
-<Table.Row
-    class={"items-center align-middle dark:bg-opacity-5" +
-        (!perk && !perkUsage ? " bg-white hover:bg-initial" : "")}
->
+<Table.Row class="items-center align-middle transition duration-1000">
     <Table.Cell class="text-center">
-        {#if !perkUsage && !perk}
-            <Badge>New</Badge>
-        {:else}
-            <Switch
-                disabled={loading}
-                bind:checked={enabled}
-                onCheckedChange={handleChange}
-            />
-        {/if}
+        <Switch
+            bind:checked={enabled}
+            disabled={loading}
+            onCheckedChange={handleChange}
+        />
     </Table.Cell>
     <Table.Cell>
         <Input
@@ -222,73 +153,51 @@
         </div>
     </Table.Cell>
     <Table.Cell>
-        {#if !perkUsage && !perk}
-            <Tooltip.Root>
-                <Tooltip.Trigger>
-                    <Button
-                        on:click={() => createAndUse()}
-                        size="icon"
-                        class="rounded-full"
-                        disabled={loading}
+        <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+                <Button size="icon" variant="outline" class="rounded-full">
+                    <MoreVertical class="w-4 h-4" />
+                </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content class="w-52">
+                <DropdownMenu.Group>
+                    <DropdownMenu.Label>
+                        {perk.name}
+                    </DropdownMenu.Label>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item
+                        on:click={() => removeUsage()}
+                        class="flex flex-row items-center gap-2"
                     >
-                        {#if loading}
-                            <Loader2 class="w-4 h-4 animate-spin" />
-                        {:else}
-                            <Plus class="w-4 h-4" />
-                        {/if}
-                    </Button>
-                </Tooltip.Trigger>
-                <Tooltip.Content>
-                    <p>Create perk and add to product</p>
-                </Tooltip.Content>
-            </Tooltip.Root>
-        {:else}
-            <DropdownMenu.Root>
-                <DropdownMenu.Trigger>
-                    <Button size="icon" variant="outline" class="rounded-full">
-                        <MoreVertical class="w-4 h-4" />
-                    </Button>
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Content class="w-52">
-                    <DropdownMenu.Group>
-                        <DropdownMenu.Label>
-                            {perk?.name ?? perkUsage?.perk.name}
-                        </DropdownMenu.Label>
-                        <DropdownMenu.Separator />
+                        <Type class="w-4 h-4" />
+                        Change Description
+                    </DropdownMenu.Item>
+                    {#if perkUsage}
                         <DropdownMenu.Item
                             on:click={() => removeUsage()}
                             class="flex flex-row items-center gap-2"
                         >
-                            <Type class="w-4 h-4" />
-                            Change Description
+                            <X class="w-4 h-4" />
+                            Remove From This
                         </DropdownMenu.Item>
-                        {#if perkUsage}
-                            <DropdownMenu.Item
-                                on:click={() => removeUsage()}
-                                class="flex flex-row items-center gap-2"
-                            >
-                                <X class="w-4 h-4" />
-                                Remove From This
-                            </DropdownMenu.Item>
-                        {:else}
-                            <DropdownMenu.Item
-                                on:click={() => addUsage()}
-                                class="flex flex-row items-center gap-2"
-                            >
-                                <Plus class="w-4 h-4" />
-                                Add To This
-                            </DropdownMenu.Item>
-                        {/if}
-                        <DropdownMenu.Separator />
+                    {:else}
                         <DropdownMenu.Item
-                            on:click={() => removePerk()}
-                            class="text-destructive flex flex-row items-center gap-2"
+                            on:click={() => addUsage()}
+                            class="flex flex-row items-center gap-2"
                         >
-                            <Trash class="w-4 h-4" /> Remove From All
+                            <Plus class="w-4 h-4" />
+                            Add To This
                         </DropdownMenu.Item>
-                    </DropdownMenu.Group>
-                </DropdownMenu.Content>
-            </DropdownMenu.Root>
-        {/if}
+                    {/if}
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item
+                        on:click={() => removePerk()}
+                        class="text-destructive flex flex-row items-center gap-2"
+                    >
+                        <Trash class="w-4 h-4" /> Remove From All
+                    </DropdownMenu.Item>
+                </DropdownMenu.Group>
+            </DropdownMenu.Content>
+        </DropdownMenu.Root>
     </Table.Cell>
 </Table.Row>

@@ -29,7 +29,7 @@
     export let category: Category,
         country: string | null = null,
         fallbackCurrency: string | null = null,
-        perks: Perk[];
+        perks: Perk[] | null;
 
     async function update(
         name?: string,

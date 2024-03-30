@@ -14,7 +14,7 @@
     let loadingCategories: boolean = false;
     let fallbackCurrency: string | null = null;
     let creating: boolean = false;
-    let perks: Perk[] = [];
+    let perks: Perk[] | null = null;
 
     let country: string | null = null;
 

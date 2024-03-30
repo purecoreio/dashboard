@@ -24,6 +24,8 @@
     import { createEventDispatcher } from "svelte";
     import ProductPerks from "./ProductPerks.svelte";
     import type Perk from "$lib/sb/store/sku/perk/Perk";
+    import Price from "$lib/sb/store/price/Price";
+    import SkuPrice from "./SkuPrice.svelte";
 
     let data = {
         "2005-01-01": 1,
@@ -88,7 +90,15 @@
 
     export let sku: Product | Bundle | Sku,
         country: string | null = null,
-        perks: Perk[];
+        perks: Perk[] | null;
+
+    $: perks,
+        (() => {
+            if (sku instanceof Product) {
+                sku.updatePerkCache(perks);
+                sku = sku;
+            }
+        })();
 </script>
 
 <Table.Row>
@@ -131,29 +141,7 @@
         {:else}
             <div in:fade class="flex flex-row items-center gap-2">
                 {#key country}
-                    {#if price}
-                        {price.amount}
-                        {price.currency}
-                    {:else}
-                        {fallback?.amount}
-                        {fallback?.currency}
-                    {/if}
-                    {#if !price}
-                        <Tooltip.Root>
-                            <Tooltip.Trigger asChild let:builder>
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    builders={[builder]}
-                                >
-                                    <AlertCircle class="w-4 h-4" />
-                                </Button>
-                            </Tooltip.Trigger>
-                            <Tooltip.Content>
-                                <p>Fallback Price</p>
-                            </Tooltip.Content>
-                        </Tooltip.Root>
-                    {/if}
+                    <SkuPrice {fallback} {price} />
                 {/key}
             </div>
         {/if}

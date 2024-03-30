@@ -6,11 +6,15 @@ import PerkUsage from "./perk/PerkUsage";
 
 export default class Product extends Sku {
 
-    public readonly perks: PerkUsage[]
+    private _perks: PerkUsage[]
 
     constructor(id: string, created: Date, name: string, description: string, prices: I18nPrice[], category: Category, type: string, disabled: boolean, visible: boolean, perks: PerkUsage[]) {
         super(id, created, name, description, prices, category, type, disabled, visible)
-        this.perks = perks
+        this._perks = perks
+    }
+
+    public get perks() {
+        return this._perks
     }
 
     public static fromObject(obj: any, category: Category) {
@@ -26,9 +30,24 @@ export default class Product extends Sku {
             obj.visible,
             []
         )
-        product.perks.push(...
+        product._perks.push(...
             obj.perks.map((p: any) => PerkUsage.fromObject(p, product)))
         return product
+    }
+
+    public updatePerkCache(allExistingPerks: Perk[] | null) {
+        if (allExistingPerks == null) return this.perks
+        let toBeRemoved: Perk[] = []
+        for (const usage of this.perks) {
+            const existingPerk = allExistingPerks.find(p => p.id == usage.perk.id)
+            if (existingPerk) {
+                usage.updatePerkCache(existingPerk)
+            } else {
+                toBeRemoved.push(usage.perk)
+            }
+        }
+        this._perks = this.perks.filter(p => !toBeRemoved.find(r => r.id == p.perk.id))
+        return this._perks
     }
 
     public async usePerk(perk: Perk, amount: number | null = null) {
