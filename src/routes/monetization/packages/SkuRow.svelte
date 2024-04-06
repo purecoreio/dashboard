@@ -141,7 +141,7 @@
         {:else}
             <div in:fade class="flex flex-row items-center gap-2">
                 {#key country}
-                    <SkuPrice {fallback} {price} />
+                    <SkuPrice {sku} {fallback} {price} />
                 {/key}
             </div>
         {/if}
