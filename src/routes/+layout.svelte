@@ -57,7 +57,7 @@
 			},
 			settings: {
 				icon: Cog,
-				options: ["key"],
+				options: ["key", "discord"],
 			},
 		},
 		"/you": {
@@ -81,7 +81,7 @@
 	let width: number;
 	let hide: boolean = false;
 
-	const animationDuration = 100
+	const animationDuration = 100;
 
 	let timeout: NodeJS.Timeout;
 	onNavigate(() => {

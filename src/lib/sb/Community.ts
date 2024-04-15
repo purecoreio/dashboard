@@ -69,6 +69,19 @@ export default class Community {
         }), this)
     }
 
+    public async requestDiscordLinkIntent() {
+        const link = await this.rest(`discord/link`)
+        return {
+            code: link.code as string,
+            url: link.url as string
+        }
+    }
+
+    public async getDiscord() {
+        const guild = await this.rest(`discord`)
+        return guild.guild
+    }
+
     public async spectate() {
         const now = new Date()
         return Srvbench.getInstance().openSocket('community/spectate', {
