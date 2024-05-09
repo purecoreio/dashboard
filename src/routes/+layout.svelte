@@ -16,11 +16,13 @@
 		ShoppingBasket,
 		Server,
 		Video,
+		ServerCog,
 	} from "lucide-svelte";
 	import { fade } from "svelte/transition";
 	import { onNavigate } from "$app/navigation";
 	import Chat from "$lib/components/serverbench/chat.svelte";
 	import Login from "./Login.svelte";
+	import { Toaster } from "$lib/components/ui/sonner";
 
 	const allCategories: Record<string, any> = {
 		"": {
@@ -65,6 +67,10 @@
 				icon: Video,
 				options: ["submissions"],
 			},
+			supervisor: {
+				icon: ServerCog,
+				options: ["machines", "templates"],
+			},
 		},
 	};
 
@@ -106,6 +112,7 @@
 	$: categories = allCategories[base];
 </script>
 
+<Toaster />
 {#if logged}
 	<Header bind:height bind:community {base} {categories} {currentCategory} />
 	<Aside bind:width {height} {base} {categories} {currentCategory} />

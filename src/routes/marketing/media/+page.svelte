@@ -12,10 +12,10 @@
     import { onMount } from "svelte";
 
     let creators: Creator[] = [];
-    let loadingCreators: boolean = false;
+    let loadingCreators: boolean = true;
 
     let submissions: Submission[] = [];
-    let loadingSubmissions: boolean = false;
+    let loadingSubmissions: boolean = true;
 
     async function loadCreators() {
         loadingCreators = true;

@@ -1,5 +1,8 @@
 import type Community from "./Community";
 import Srvbench from "./Srvbench";
+import Machine from "./machine/Machine";
+import HostingImage from "./machine/container/HostingImage";
+import HostingTemplate from "./machine/container/HostingTemplate";
 import Creator from "./media/Creator";
 import MediaProfile from "./media/MediaProfile";
 import type { MediaPlatform } from "./media/MediaProfile";
@@ -8,6 +11,43 @@ import SubmissionResult from "./media/SubmissionResult";
 
 export default class User {
 
+    // machines
+
+    public async getMachines() {
+        return (await Srvbench.getInstance().rest('machine')).map((m: any) => Machine.fromObject(m))
+    }
+
+    public async createMachine() {
+        return Machine.fromObject(await Srvbench.getInstance().rest('machine', {}))
+    }
+
+    // hosting templates
+
+    public async getHostingTemplates() {
+        return (await Srvbench.getInstance().rest('hosting/template')).map((m: any) => HostingTemplate.fromObject(m))
+    }
+
+    public async createHostingTemplate(image: HostingImage, name: string | null) {
+        return HostingTemplate.fromObject(await Srvbench.getInstance().rest('hosting/template', {
+            image: image.id,
+            name
+        }))
+    }
+
+    // hosting images
+
+    public async getHostingImages() {
+        return (await Srvbench.getInstance().rest('hosting/image')).map((m: any) => HostingImage.fromObject(m))
+    }
+
+    public async createHostingImage(uri: string) {
+        return HostingImage.fromObject(await Srvbench.getInstance().rest('hosting/image', {
+            uri
+        }))
+    }
+
+
+    // media
 
     public async linkMediaSource(platform: MediaPlatform): Promise<void> {
         const link = await Srvbench.getInstance().rest(`media/sources/${platform}`, {})

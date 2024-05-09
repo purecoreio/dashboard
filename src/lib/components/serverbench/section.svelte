@@ -30,7 +30,7 @@
                         {/if}
                     </Button>
                 </Popover.Trigger>
-                <Popover.Content>
+                <Popover.Content class="z-0">
                     <slot name="add" />
                 </Popover.Content>
             </Popover.Root>

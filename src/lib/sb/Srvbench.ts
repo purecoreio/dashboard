@@ -92,7 +92,10 @@ export default class Srvbench {
         return (await this.getCommunities(force))[1]!
     }
 
-    public async getVotingSites() {
+    public async getVotingSites(): Promise<{
+        verified: VotingSite[],
+        owned: VotingSite[]
+    }> {
         const response = await this.rest('votingsites')
         return {
             verified: response.verified.map((s: any) => VotingSite.fromObject(s)),
@@ -125,6 +128,9 @@ export default class Srvbench {
             headers
         })
         try {
+            if (method == 'DELETE') {
+                if (res.status == 204) return true
+            }
             return await res.json()
         } catch (error) {
             return null

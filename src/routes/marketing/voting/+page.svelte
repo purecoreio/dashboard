@@ -14,13 +14,18 @@
     import { ExternalLink } from "lucide-svelte";
     import * as Tooltip from "$lib/components/ui/tooltip";
     import Todo from "$lib/components/serverbench/todo.svelte";
+    import RankRewards from "./RankRewards.svelte";
+    import StreakRewards from "./StreakRewards.svelte";
+    import Label from "$lib/components/ui/label/label.svelte";
+    import SiteSetup from "./SiteSetup.svelte";
 
     let settings: VotingSettings | null = null;
     let sites: VotingSiteSetup[] = [];
     let handlers: VotingHandler[] = [];
-    let loadingHandlers: boolean = false;
+    let loadingHandlers: boolean = true;
+    let settingUpSite: boolean = false;
 
-    onMount(async () => {
+    async function loadHanders() {
         loadingHandlers = true;
         try {
             const s = await Srvbench.getInstance()
@@ -31,7 +36,21 @@
             settings = s;
         } catch (error) {}
         loadingHandlers = false;
+    }
+
+    onMount(async () => {
+        await loadHanders();
     });
+
+    async function handleSiteSetup(ev: CustomEvent<VotingSiteSetup>) {
+        settingUpSite = false;
+        if (!handlers.find((h) => h.type == ev.detail.handlerType)) {
+            await loadHanders();
+        } else {
+            sites.push(ev.detail);
+            sites = sites;
+        }
+    }
 </script>
 
 <Section title="Handlers" loading={loadingHandlers}>
@@ -46,11 +65,23 @@
     <Todo />
 </Section>
 
-<Section title="Rewards">
-    <Todo />
+<Section title="Rewards" loading={loadingHandlers}>
+    {#if settings}
+        <RankRewards bind:settings />
+        <StreakRewards bind:settings />
+    {/if}
 </Section>
 
-<Section title="Sites" loading={loadingHandlers}>
+<Section title="Sites" loading={loadingHandlers} bind:adding={settingUpSite}>
+    <div class="flex flex-col gap-2" slot="add">
+        {#if settings}
+            <SiteSetup
+                votingSettings={settings}
+                bind:creating={settingUpSite}
+                on:setupsite={handleSiteSetup}
+            />
+        {/if}
+    </div>
     <Card.Root>
         <Table.Root>
             <Table.Header>
