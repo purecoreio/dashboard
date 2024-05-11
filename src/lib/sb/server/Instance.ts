@@ -21,7 +21,7 @@ export default class Instance {
         return this._container
     }
 
-    private setContainer(container: Container) {
+    setContainer(container: Container | null) {
         this._container = container
     }
 
@@ -32,16 +32,18 @@ export default class Instance {
             server,
             null
         )
-        if(obj.container) instance.setContainer(Container.fromObject(obj.container, instance))
+        if (obj.container) instance.setContainer(Container.fromObject(obj.container, instance))
         return instance
     }
 
     public async host(machine: Machine, template: HostingTemplate, path: string) {
-        return Container.fromObject(await this.server.community.rest(`servers/${this.server.id}/instance/${this.id}/container`, {
+        const container = Container.fromObject(await this.server.community.rest(`servers/${this.server.id}/instance/${this.id}/container`, {
             hostingTemplate: template.id,
             machineToken: await machine.getToken(),
             path
-        }))
+        }), this)
+        this._container = container
+        return container
     }
 
 

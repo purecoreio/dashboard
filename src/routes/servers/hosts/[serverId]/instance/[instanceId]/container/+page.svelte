@@ -14,6 +14,7 @@
     import type HostingTemplate from "$lib/sb/machine/container/HostingTemplate";
     import { toast } from "svelte-sonner";
     import { Loader2 } from "lucide-svelte";
+    import ResetPassword from "./ResetPassword.svelte";
     let ans = "x"
         .repeat(5)
         .replace(
@@ -36,22 +37,41 @@
         loading = true;
         try {
             const container = await $instance.host(machine!, template!, path!);
+            console.log(container);
+            instance.set(container.instance!);
             path = null;
             machine = null;
             template = null;
             hosting = false;
             toast.success("hosted: " + container.ip.ip);
         } catch (error) {
-            console.log(error)
+            console.log(error);
             toast.error("unable to host");
         }
         loading = false;
     }
+
+    async function unhost() {
+        loading = true;
+        try {
+            const instanceUpdate = await $instance.container!.unhost();
+            if (instanceUpdate) instance.set(instanceUpdate);
+            toast.success("unhosted");
+        } catch (error) {
+            console.log(error);
+            toast.error("unable to unhost");
+        }
+        loading = false;
+    }
+
 </script>
 
 <Dialog.Root bind:open={hosting}>
     <Dialog.Content>
         <div class="flex flex-col gap-3">
+            <Dialog.Header>
+                <Dialog.Title>Host</Dialog.Title>
+            </Dialog.Header>
             <MachineSelector bind:machine disabled={loading} />
             <TemplateSelector bind:template disabled={loading} />
             <Input disabled={loading} bind:value={path} />
@@ -74,8 +94,15 @@
 
 {#if $instance}
     {#if !$instance.container}
-        <Button on:click={() => (hosting = true)}>Host</Button>
+        <Button disabled={loading} on:click={() => (hosting = true)}
+            >Host</Button
+        >
     {:else}
-        <Button>Unhost</Button>
+        <Button
+            variant="destructive"
+            disabled={loading}
+            on:click={() => unhost()}>Unhost</Button
+        >
+        <ResetPassword container={$instance.container} />
     {/if}
 {/if}

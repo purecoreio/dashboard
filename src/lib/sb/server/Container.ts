@@ -46,6 +46,13 @@ export default class Container {
 
     public async unhost() {
         await this.instance?.server.community.rest(`servers/${this.instance?.server.id}/instance/${this.instance?.id}/container`, undefined, 'DELETE')
+        this.instance?.setContainer(null)
+        return this.instance
+    }
+
+    public async resetPassword(): Promise<string> {
+        const { password } = await this.instance?.server.community.rest(`servers/${this.instance?.server.id}/instance/${this.instance?.id}/container/password`, undefined, 'POST')
+        return password
     }
 
 }
