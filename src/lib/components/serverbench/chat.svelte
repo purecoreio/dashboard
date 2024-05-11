@@ -308,10 +308,6 @@
     </div>
 {/if}
 
-<div>
-    <Toaster offset={70} position={popup ? "top-center" : "bottom-center"} />
-</div>
-
 <style>
     table tr {
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);

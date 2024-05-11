@@ -6,6 +6,7 @@ import Srvbench from "./Srvbench"
 import Holiday from "./holiday/Holiday"
 import Creator from "./media/Creator"
 import Submission from "./media/Submission"
+import Server from "./server/Server"
 import DataPoint from "./stat/DataPoint"
 import ModerationCoverage from "./stat/ModerationCoverage"
 import NewMembers from "./stat/NewMembers"
@@ -37,6 +38,20 @@ export default class Community {
             object.name,
             object.slug
         )
+    }
+
+    public async getServers() {
+        return (await this.rest('servers')).map((s: any) => Server.fromObject(s, this))
+    }
+
+    public async getServer(id: string) {
+        return Server.fromObject(await this.rest(`servers/${id}`), this)
+    }
+
+    public async createServer(name: string) {
+        return Server.fromObject(await this.rest('servers', {
+            name
+        }), this)
     }
 
     public async getCategories() {
