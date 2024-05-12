@@ -1,3 +1,4 @@
+import Srvbench from "../Srvbench"
 import type Machine from "../machine/Machine"
 import type HostingTemplate from "../machine/container/HostingTemplate"
 import Container from "./Container"
@@ -44,6 +45,14 @@ export default class Instance {
         }), this)
         this._container = container
         return container
+    }
+
+    public socket() {
+        return Srvbench.getInstance().openSocket('admin/instance', {
+            community: this.server.community.id,
+            server: this.server.id,
+            instance: this.id
+        })
     }
 
 

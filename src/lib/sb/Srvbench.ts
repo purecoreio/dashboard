@@ -141,7 +141,7 @@ export default class Srvbench {
     public async openSocket(endpoint: string, args: Record<string, string>) {
         await SSO.getInstance().session?.renewIfDue()
         args['token'] = SSO.getInstance().session!.access.token
-        return new WebSocket(`wss://stream.serverbench.io/${endpoint}?${new URLSearchParams(args).toString()}`)
+        return new WebSocket(`wss://${dev ? 'hansel.serverbench.io' : 'stream.serverbench.io'}/${endpoint}?${new URLSearchParams(args).toString()}`)
     }
 
     public getUser() {
