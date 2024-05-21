@@ -56,7 +56,7 @@
     </Dialog.Content>
 </Dialog.Root>
 
-<Button on:click={() => resetPassword()} disabled={loading}>
+<Button variant="outline" on:click={() => resetPassword()} disabled={loading}>
     {#if loading}
         <Loader2 class="animate-spin w-4 h-4" />
     {:else}

@@ -26,6 +26,9 @@ dependencies:
   chart.js:
     specifier: ^4.4.2
     version: 4.4.2
+  chartjs-adapter-date-fns:
+    specifier: ^3.0.0
+    version: 3.0.0(chart.js@4.4.2)(date-fns@3.6.0)
   chartjs-adapter-moment:
     specifier: ^1.0.1
     version: 1.0.1(chart.js@4.4.2)(moment@2.30.1)
@@ -44,6 +47,9 @@ dependencies:
   copy-text-to-clipboard:
     specifier: ^3.2.0
     version: 3.2.0
+  date-fns:
+    specifier: ^3.6.0
+    version: 3.6.0
   frappe-charts:
     specifier: 2.0.0-rc23
     version: 2.0.0-rc23
@@ -1753,6 +1759,16 @@ packages:
       '@kurkle/color': 0.3.2
     dev: false
 
+  /chartjs-adapter-date-fns@3.0.0(chart.js@4.4.2)(date-fns@3.6.0):
+    resolution: {integrity: sha512-Rs3iEB3Q5pJ973J93OBTpnP7qoGwvq3nUnoMdtxO+9aoJof7UFcRbWcIDteXuYd1fgAvct/32T9qaLyLuZVwCg==}
+    peerDependencies:
+      chart.js: '>=2.8.0'
+      date-fns: '>=2.0.0'
+    dependencies:
+      chart.js: 4.4.2
+      date-fns: 3.6.0
+    dev: false
+
   /chartjs-adapter-moment@1.0.1(chart.js@4.4.2)(moment@2.30.1):
     resolution: {integrity: sha512-Uz+nTX/GxocuqXpGylxK19YG4R3OSVf8326D+HwSTsNw1LgzyIGRo+Qujwro1wy6X+soNSnfj5t2vZ+r6EaDmA==}
     peerDependencies:
@@ -2212,6 +2228,10 @@ packages:
   /data-uri-to-buffer@2.0.2:
     resolution: {integrity: sha512-ND9qDTLc6diwj+Xe5cdAgVTbLVdXbtxTJRXRhli8Mowuaan+0EJOtdqJ0QCHNSSPyoXGx9HX2/VMnKeC34AChA==}
     dev: true
+
+  /date-fns@3.6.0:
+    resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
+    dev: false
 
   /debug@4.3.4:
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}

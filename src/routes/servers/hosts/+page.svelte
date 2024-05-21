@@ -14,6 +14,8 @@
     import ServerRow from "./ServerRow.svelte";
     import * as Card from "$lib/components/ui/card/index.js";
 
+    let update = 0;
+    let statuses: Record<string, string> = {};
     let loading = true;
     let adding = false;
 
@@ -26,12 +28,32 @@
         loading = true;
         try {
             servers = await Srvbench.getInstance().getCommunity()!.getServers();
+            await dialStatus();
         } catch (error) {
             toast.error("unable to load servers");
-            console.log(error)
+            console.log(error);
         }
         loading = false;
     });
+
+    async function dialStatus() {
+        const ws = await Srvbench.getInstance()
+            .getCommunity()!
+            .instanceSocket();
+        ws.onclose = async () => {
+            toast.error("reconnecting to status updates");
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            return dialStatus();
+        };
+        ws.onopen = () => toast.success("listening for status updates");
+        ws.onmessage = (ev) => {
+            const { type, content, container } = JSON.parse(ev.data);
+            if (type == "status") {
+                statuses[container] = content;
+                update++;
+            }
+        };
+    }
 
     async function createServer() {
         loading = true;
@@ -87,7 +109,7 @@
         <Table.Root>
             <Table.Body>
                 {#each servers as server}
-                    <ServerRow {server} />
+                    <ServerRow {update} {statuses} {server} />
                 {/each}
             </Table.Body>
         </Table.Root>

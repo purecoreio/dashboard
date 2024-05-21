@@ -9,7 +9,7 @@
     import * as Popover from "$lib/components/ui/popover/index.js";
     import { goto } from "$app/navigation";
 
-    export let server: Server;
+    export let server: Server, statuses: Record<string, string>, update: number;
     let open = false;
     let value = "";
 </script>
@@ -35,10 +35,26 @@
                     <div class="text-center float-right w-36">
                         {#if server.instances.length <= 0}
                             <Badge variant="outline">No Instances</Badge>
-                        {:else if server.instances.filter((i) => i.name != null).length == 0}
-                            <Dot
-                                class="text-green-400 animate-pulse ml-auto mr-auto"
-                            />
+                        {:else if server.instances.filter((i) => i.name != null).length == 0 && server.instances[0]}
+                            {#if server.instances[0].container}
+                                {#key update}
+                                    {#if statuses[server.instances[0].container.id]}
+                                        {#if statuses[server.instances[0].container.id] != "die" && statuses[server.instances[0].container.id] != "exited"}
+                                            <Dot
+                                                class="text-green-400 animate-pulse ml-auto mr-auto"
+                                            />
+                                        {:else}
+                                            <Dot
+                                                class="text-red-400 ml-auto mr-auto"
+                                            />
+                                        {/if}
+                                    {:else}
+                                        <Dot
+                                            class="text-gray-400 text-opacity-50 ml-auto mr-auto"
+                                        />
+                                    {/if}
+                                {/key}
+                            {/if}
                         {:else}
                             <Badge>
                                 {server.instances.length} Instances

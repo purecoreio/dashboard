@@ -48,12 +48,7 @@ export default class Instance {
     }
 
     public socket() {
-        return Srvbench.getInstance().openSocket('admin/instance', {
-            community: this.server.community.id,
-            server: this.server.id,
-            instance: this.id
-        })
+        return this!.server.community.instanceSocket([this])
     }
-
 
 }

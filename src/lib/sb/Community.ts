@@ -6,6 +6,7 @@ import Srvbench from "./Srvbench"
 import Holiday from "./holiday/Holiday"
 import Creator from "./media/Creator"
 import Submission from "./media/Submission"
+import type Instance from "./server/Instance"
 import Server from "./server/Server"
 import DataPoint from "./stat/DataPoint"
 import ModerationCoverage from "./stat/ModerationCoverage"
@@ -40,7 +41,7 @@ export default class Community {
         )
     }
 
-    public async getServers() {
+    public async getServers(): Promise<Server[]> {
         return (await this.rest('servers')).map((s: any) => Server.fromObject(s, this))
     }
 
@@ -227,6 +228,17 @@ export default class Community {
 
     public async getCreators(): Promise<Creator[]> {
         return (await this.rest(`media/profiles`)).map((s: any) => Creator.fromObject(s))
+    }
+
+    public async instanceSocket(instances?: Instance[]) {
+        if (!instances) {
+            const servers = await this.getServers()
+            instances = servers.map(s => s.instances).flat()
+        }
+        return Srvbench.getInstance().openSocket('admin/instance', {
+            community: this.id,
+            instance: instances.map(i => i.id).join(',')
+        })
     }
 
 }
