@@ -22,6 +22,7 @@
     import ChartData from "$lib/utils";
     import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
     import Srvbench from "$lib/sb/Srvbench";
+    import RepositoryPicker from "./repositoryPicker/RepositoryPicker.svelte";
 
     function randomStr() {
         return "x"
@@ -174,7 +175,10 @@
     });
 
     let reset = false;
+    let picking = false;
 </script>
+
+<RepositoryPicker bind:picking {loading} />
 
 <Dialog.Root bind:open={hosting}>
     <Dialog.Content>
@@ -249,10 +253,7 @@
                         </DropdownMenu.Trigger>
                         <DropdownMenu.Content>
                             <DropdownMenu.Item
-                                on:click={() =>
-                                    Srvbench.getInstance()
-                                        .getUser()
-                                        .linkDeveloperProfile()}
+                                on:click={() => (picking = true)}
                                 class="flex flex-row gap-2"
                             >
                                 <GitMerge class="w-4 h-4" />

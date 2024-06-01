@@ -1,5 +1,6 @@
 import type Community from "./Community";
 import Srvbench from "./Srvbench";
+import DeveloperProfile from "./developer/DeveloperProfile";
 import Machine from "./machine/Machine";
 import HostingImage from "./machine/container/HostingImage";
 import HostingTemplate from "./machine/container/HostingTemplate";
@@ -10,6 +11,12 @@ import Submission from "./media/Submission";
 import SubmissionResult from "./media/SubmissionResult";
 
 export default class User {
+
+    // developer profiles
+
+    public async getDeveloperProfiles(): Promise<DeveloperProfile[]> {
+        return (await Srvbench.getInstance().rest('developer')).map((d: any) => DeveloperProfile.fromObj(d, this))
+    }
 
     // machines
 
