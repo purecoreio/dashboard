@@ -14,6 +14,42 @@ type FlyAndScaleParams = {
     duration?: number;
 };
 
+export type Point = {
+    x: Date,
+    y: number
+}
+
+export default class ChartData {
+
+    public readonly limit: number
+    public readonly n: Point[]
+    public readonly name: string
+
+    constructor(name: string, limit: number = 50, n: Point[] = []) {
+        this.limit = limit
+        this.n = n
+        this.name = name
+    }
+
+    public add(n: number) {
+        if (this.n.length >= this.limit) {
+            for (let i = 0; i < this.limit - 1; i++) {
+                const next = this.n[i + 1]
+                this.n[i].x = next.x
+                this.n[i].y = next.y
+            }
+            this.n[this.limit - 1].x = new Date()
+            this.n[this.limit - 1].y = n
+        } else {
+            this.n.push({
+                x: new Date(),
+                y: n
+            })
+        }
+    }
+
+}
+
 export const flyAndScale = (
     node: Element,
     params: FlyAndScaleParams = { y: -8, x: 0, start: 0.95, duration: 150 }

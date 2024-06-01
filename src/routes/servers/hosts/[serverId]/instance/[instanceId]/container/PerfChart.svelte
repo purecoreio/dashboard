@@ -6,7 +6,7 @@
     import * as Card from "$lib/components/ui/card/index.js";
     let chartEl: HTMLCanvasElement;
 
-    let chart: Chart;
+    let chart: Chart<any>;
 
     export let title:string
     export let data: {
@@ -28,7 +28,7 @@
                 datasets: [
                     {
                         data,
-                        backgroundColor: "rgba(255,255,255,0.6)"
+                        backgroundColor: "rgba(255,255,255,0.6)",
                     },
                 ],
             },
@@ -60,7 +60,9 @@
     <div class="h-20 w-full relative">
         <div class="absolute top-0 left-0 h-full">
             <div class="flex h-full flex-col items-center justify-center">
-                <div class="ml-5 rounded-full px-5 py-2 border-2 backdrop-blur-md bg-black bg-opacity-50 z-10">
+                <div
+                    class="ml-5 rounded-full px-5 py-2 border-2 backdrop-blur-md bg-black bg-opacity-50 z-10"
+                >
                     {title}
                 </div>
             </div>

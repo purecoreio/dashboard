@@ -89,4 +89,21 @@ export default class User {
         })).map((s: any) => Submission.fromObject(s))
     }
 
+    public async linkDeveloperProfile(platform: string = 'github'): Promise<void> {
+        const { url } = await Srvbench.getInstance().rest('developer', {
+            platform
+        })
+        return new Promise((resolve, reject) => {
+            let opened = window.open(url, '_blank')
+            if (!opened) reject()
+            let interval = setInterval(() => {
+                if (opened!.closed) {
+                    clearInterval(interval)
+                    resolve()
+                    return
+                }
+            }, 100)
+        })
+    }
+
 }

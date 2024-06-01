@@ -9,7 +9,7 @@ export default class Container {
     public readonly id: string
     public readonly instance?: Instance
     public readonly machine: Machine
-    public readonly ip: Ip
+    public readonly ip: Ip | null
     public readonly envs: Record<string, string>
     public readonly ports: Record<number, number>
     public readonly path: string
@@ -17,7 +17,7 @@ export default class Container {
     public readonly storage: number | null
     public readonly template: HostingTemplate
 
-    constructor(id: string, machine: Machine, ip: Ip, envs: Record<string, string>, ports: Record<number, number>, path: string, memory: number, storage: number | null, template: HostingTemplate, instance?: Instance) {
+    constructor(id: string, machine: Machine, ip: Ip | null, envs: Record<string, string>, ports: Record<number, number>, path: string, memory: number, storage: number | null, template: HostingTemplate, instance?: Instance) {
         this.id = id
         this.instance = instance
         this.machine = machine
@@ -34,7 +34,7 @@ export default class Container {
         return new Container(
             obj.id,
             Machine.fromObject(obj.machine),
-            Ip.fromObject(obj.ip),
+            obj.ip ? Ip.fromObject(obj.ip) : null,
             obj.envs,
             obj.ports,
             obj.path,

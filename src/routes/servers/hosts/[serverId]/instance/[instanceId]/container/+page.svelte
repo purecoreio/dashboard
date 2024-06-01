@@ -11,14 +11,17 @@
     import type Machine from "$lib/sb/machine/Machine";
     import type HostingTemplate from "$lib/sb/machine/container/HostingTemplate";
     import { toast } from "svelte-sonner";
-    import { Loader2 } from "lucide-svelte";
+    import { GitMerge, Loader2, SquareAsterisk, Trash2 } from "lucide-svelte";
     import ResetPassword from "./ResetPassword.svelte";
     import Console from "./Console.svelte";
     import Section from "$lib/components/serverbench/section.svelte";
-    import { Dot } from "lucide-svelte";
+    import { Dot, MoreVertical } from "lucide-svelte";
     import { Label } from "$lib/components/ui/label/index.js";
     import { Switch } from "$lib/components/ui/switch/index.js";
     import PerfChart from "./PerfChart.svelte";
+    import ChartData from "$lib/utils";
+    import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
+    import Srvbench from "$lib/sb/Srvbench";
 
     function randomStr() {
         return "x"
@@ -52,7 +55,7 @@
             machine = null;
             template = null;
             hosting = false;
-            toast.success("hosted: " + container.ip.ip);
+            toast.success("hosted: " + container.ip?.ip);
             setTimeout(async () => {
                 await tuneInIfDue();
             }, 1000 * 3);
@@ -90,8 +93,10 @@
         x: Date;
         y: number;
     };
-    let cpuData: point[] = [];
-    let memData: point[] = [];
+    const cpuData = new ChartData("cpu");
+    let cpuDataPoints = cpuData.n;
+    const memData = new ChartData("memory");
+    let memDataPoints = memData.n;
     $: status,
         (() => {
             if (status == "die" || status == "exited") {
@@ -140,12 +145,8 @@
                             (cpu_delta / system_cpu_delta) *
                             number_cpus *
                             100.0;
-                        cpuData.push({
-                            x: new Date(),
-                            y: cpu_usage,
-                        });
-                        if (cpuData.length > 50) cpuData.shift();
-                        cpuData = cpuData;
+                        cpuData.add(cpu_usage);
+                        cpuDataPoints = cpuData.n;
                     })();
 
                     (() => {
@@ -154,12 +155,8 @@
                         const available_memory = memory_stats.limit;
                         const memory_usage =
                             (used_memory / available_memory) * 100.0;
-                        memData.push({
-                            x: new Date(),
-                            y: memory_usage,
-                        });
-                        if (memData.length > 50) memData.shift();
-                        memData = memData;
+                        memData.add(memory_usage);
+                        memDataPoints = memData.n;
                     })();
                 }
             };
@@ -175,6 +172,8 @@
     onMount(async () => {
         await tuneInIfDue();
     });
+
+    let reset = false;
 </script>
 
 <Dialog.Root bind:open={hosting}>
@@ -204,6 +203,7 @@
 </Dialog.Root>
 
 {#if $instance}
+    <ResetPassword bind:loading bind:reset container={$instance.container} />
     {#if !$instance.container}
         <Button disabled={loading} on:click={() => (hosting = true)}
             >Host</Button
@@ -232,18 +232,53 @@
                     </Label>
                 </div>
                 <div class="flex flex-row gap-2">
-                    <Button
-                        variant="ghost"
-                        class="text-red-400"
-                        disabled={loading}
-                        on:click={() => unhost()}>Unhost</Button
-                    >
-                    <ResetPassword container={$instance.container} />
+                    <DropdownMenu.Root>
+                        <DropdownMenu.Trigger
+                            disabled={loading}
+                            asChild
+                            let:builder
+                        >
+                            <Button
+                                builders={[builder]}
+                                size="icon"
+                                class="rounded-full"
+                                variant="outline"
+                            >
+                                <MoreVertical class="w-4 h-4" />
+                            </Button>
+                        </DropdownMenu.Trigger>
+                        <DropdownMenu.Content>
+                            <DropdownMenu.Item
+                                on:click={() =>
+                                    Srvbench.getInstance()
+                                        .getUser()
+                                        .linkDeveloperProfile()}
+                                class="flex flex-row gap-2"
+                            >
+                                <GitMerge class="w-4 h-4" />
+                                <span>Sync Repository</span>
+                            </DropdownMenu.Item>
+                            <DropdownMenu.Item
+                                on:click={() => (reset = true)}
+                                class="flex flex-row gap-2"
+                            >
+                                <SquareAsterisk class="w-4 h-4" />
+                                <span>Reset Password</span>
+                            </DropdownMenu.Item>
+                            <DropdownMenu.Item
+                                on:click={() => unhost()}
+                                class="text-red-400 flex flex-row gap-2"
+                            >
+                                <Trash2 class="w-4 h-4" />
+                                <span>Unhost</span>
+                            </DropdownMenu.Item>
+                        </DropdownMenu.Content>
+                    </DropdownMenu.Root>
                 </div>
             </div>
             <Console {lines} />
-            <PerfChart title="CPU" data={cpuData} />
-            <PerfChart title="Memory" data={memData} />
+            <PerfChart title="CPU" data={cpuDataPoints} />
+            <PerfChart title="Memory" data={memDataPoints} />
         </Section>
     {/if}
 {/if}

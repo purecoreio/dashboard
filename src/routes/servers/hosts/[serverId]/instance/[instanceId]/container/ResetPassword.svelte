@@ -7,21 +7,23 @@
     import type Container from "$lib/sb/server/Container";
     import copyTextToClipboard from "copy-text-to-clipboard";
 
-    let loading = false;
-    let reset: boolean = false;
+    export let loading;
+    export let reset: boolean;
     let password: string | null;
 
-    export let container: Container;
+    $: reset,
+        (async () => {
+            if (reset) {
+                try {
+                    password = await container!.resetPassword();
+                    copyToClipboard();
+                } catch (error) {
+                    toast.error("unable to reset password");
+                }
+            }
+        })();
 
-    async function resetPassword() {
-        try {
-            password = await container.resetPassword();
-            reset = true;
-            copyToClipboard();
-        } catch (error) {
-            toast.error("unable to reset password");
-        }
-    }
+    export let container: Container | null;
 
     function copyToClipboard() {
         if (!password) return;
@@ -34,32 +36,26 @@
     }
 </script>
 
-<Dialog.Root bind:open={reset}>
-    <Dialog.Content>
-        <Dialog.Header>
-            <Dialog.Title>Password Reset</Dialog.Title>
-        </Dialog.Header>
-        <div class="flex flex-row gap-2">
-            <Input
-                id="password"
-                type="password"
-                disabled
-                bind:value={password}
-            />
-            <Button disabled={loading} on:click={() => copyToClipboard()}>
-                <ClipboardCopy class="w-4 h-4" />
-            </Button>
-        </div>
-        <Dialog.Footer>
-            <Button on:click={() => (reset = false)}>Close</Button>
-        </Dialog.Footer>
-    </Dialog.Content>
-</Dialog.Root>
-
-<Button variant="outline" on:click={() => resetPassword()} disabled={loading}>
-    {#if loading}
-        <Loader2 class="animate-spin w-4 h-4" />
-    {:else}
-        Reset Password
-    {/if}
-</Button>
+{#if container}
+    <Dialog.Root bind:open={reset}>
+        <Dialog.Content>
+            <Dialog.Header>
+                <Dialog.Title>Password Reset</Dialog.Title>
+            </Dialog.Header>
+            <div class="flex flex-row gap-2">
+                <Input
+                    id="password"
+                    type="password"
+                    disabled
+                    bind:value={password}
+                />
+                <Button disabled={loading} on:click={() => copyToClipboard()}>
+                    <ClipboardCopy class="w-4 h-4" />
+                </Button>
+            </div>
+            <Dialog.Footer>
+                <Button on:click={() => (reset = false)}>Close</Button>
+            </Dialog.Footer>
+        </Dialog.Content>
+    </Dialog.Root>
+{/if}
