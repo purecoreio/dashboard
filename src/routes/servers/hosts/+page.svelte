@@ -49,7 +49,7 @@
         ws.onmessage = (ev) => {
             const { type, content, container } = JSON.parse(ev.data);
             if (type == "status") {
-                statuses[container] = content;
+                statuses[container] = JSON.parse(content);
                 update++;
             }
         };

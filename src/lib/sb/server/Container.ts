@@ -56,4 +56,28 @@ export default class Container {
         return password
     }
 
+    public async getPublicKey(): Promise<string> {
+        const { key } = await this.instance?.server.community.rest(`servers/${this.instance?.server.id}/instance/${this.instance?.id}/container/publicKey`, undefined, 'GET')
+        return key
+    }
+
+    public async stop() {
+        await this.instance?.server.community.rest(`servers/${this.instance?.server.id}/instance/${this.instance?.id}/container/stop`, undefined, 'POST')
+    }
+
+    public async start() {
+        await this.instance?.server.community.rest(`servers/${this.instance?.server.id}/instance/${this.instance?.id}/container/start`, undefined, 'POST')
+    }
+
+    public async transfer(out: boolean, address: string, user: string, path: string, mirror: boolean = false, port: number = 22, password: string | null = null) {
+        await this.instance?.server.community.rest(`servers/${this.instance?.server.id}/instance/${this.instance?.id}/container/transfer`, {
+            out,
+            address,
+            user,
+            path,
+            password,
+            mirror,
+            port
+        }, 'POST')
+    }
 }

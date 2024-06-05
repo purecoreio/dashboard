@@ -1,22 +1,15 @@
 <script lang="ts">
-    import { Button } from "$lib/components/ui/button";
-    import * as Dialog from "$lib/components/ui/dialog";
     import type DeveloperProfile from "$lib/sb/developer/DeveloperProfile";
+    import type Repository from "$lib/sb/developer/Repository";
     import DeveloperProfilePicker from "./DeveloperProfilePicker.svelte";
+    import RepositoryBranchPicker from "./RepositoryBranchPicker.svelte";
+    import RepositoryDirectoryPicker from "./RepositoryDirectoryPicker.svelte";
 
-    export let loading;
-    export let picking: boolean;
-    let developerProfile: DeveloperProfile | null = null;
+    export let developerProfile: DeveloperProfile | null = null;
+    export let repository:Repository|null=null
+    export let branch:string|null=null
 </script>
 
-<Dialog.Root bind:open={picking}>
-    <Dialog.Content>
-        <Dialog.Header>
-            <Dialog.Title>Repository Settings</Dialog.Title>
-        </Dialog.Header>
-        <DeveloperProfilePicker bind:developerProfile />
-        <Dialog.Footer>
-            <Button on:click={() => (picking = false)}>Close</Button>
-        </Dialog.Footer>
-    </Dialog.Content>
-</Dialog.Root>
+<DeveloperProfilePicker bind:developerProfile />
+<RepositoryDirectoryPicker bind:developerProfile bind:repository />
+<RepositoryBranchPicker bind:repository bind:branch/>

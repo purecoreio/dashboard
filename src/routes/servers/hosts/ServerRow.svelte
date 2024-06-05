@@ -9,7 +9,7 @@
     import * as Popover from "$lib/components/ui/popover/index.js";
     import { goto } from "$app/navigation";
 
-    export let server: Server, statuses: Record<string, string>, update: number;
+    export let server: Server, statuses: Record<string, any>, update: number;
     let open = false;
     let value = "";
 </script>
@@ -39,7 +39,7 @@
                             {#if server.instances[0].container}
                                 {#key update}
                                     {#if statuses[server.instances[0].container.id]}
-                                        {#if statuses[server.instances[0].container.id] != "die" && statuses[server.instances[0].container.id] != "exited"}
+                                        {#if statuses[server.instances[0].container.id]?.running}
                                             <Dot
                                                 class="text-green-400 animate-pulse ml-auto mr-auto"
                                             />

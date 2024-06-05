@@ -1,4 +1,6 @@
 import Srvbench from "../Srvbench"
+import type DeveloperProfile from "../developer/DeveloperProfile"
+import type Repository from "../developer/Repository"
 import type Machine from "../machine/Machine"
 import type HostingTemplate from "../machine/container/HostingTemplate"
 import Container from "./Container"
@@ -37,11 +39,14 @@ export default class Instance {
         return instance
     }
 
-    public async host(machine: Machine, template: HostingTemplate, path: string) {
+    public async host(machine: Machine, template: HostingTemplate, path: string, developerProfile: DeveloperProfile | null = null, repository: Repository | null = null, branch: string | null = null) {
         const container = Container.fromObject(await this.server.community.rest(`servers/${this.server.id}/instance/${this.id}/container`, {
             hostingTemplate: template.id,
             machineToken: await machine.getToken(),
-            path
+            path,
+            developerProfile: developerProfile?.id,
+            repository: repository?.eid,
+            branch
         }), this)
         this._container = container
         return container

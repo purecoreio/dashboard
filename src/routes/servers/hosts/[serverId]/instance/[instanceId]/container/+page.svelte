@@ -11,7 +11,15 @@
     import type Machine from "$lib/sb/machine/Machine";
     import type HostingTemplate from "$lib/sb/machine/container/HostingTemplate";
     import { toast } from "svelte-sonner";
-    import { GitMerge, Loader2, SquareAsterisk, Trash2 } from "lucide-svelte";
+    import {
+        GitMerge,
+        Loader2,
+        Play,
+        Square,
+        SquareAsterisk,
+        Trash2,
+        UploadCloud,
+    } from "lucide-svelte";
     import ResetPassword from "./ResetPassword.svelte";
     import Console from "./Console.svelte";
     import Section from "$lib/components/serverbench/section.svelte";
@@ -23,6 +31,13 @@
     import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
     import Srvbench from "$lib/sb/Srvbench";
     import RepositoryPicker from "./repositoryPicker/RepositoryPicker.svelte";
+    import { Checkbox } from "$lib/components/ui/checkbox";
+    import type DeveloperProfile from "$lib/sb/developer/DeveloperProfile";
+    import type Repository from "$lib/sb/developer/Repository";
+    import { fade } from "svelte/transition";
+    import { Progress } from "$lib/components/ui/progress";
+    import * as Tooltip from "$lib/components/ui/tooltip/index.js";
+    import Transfer from "./Transfer.svelte";
 
     function randomStr() {
         return "x"
@@ -49,7 +64,14 @@
     async function host() {
         loading = true;
         try {
-            const container = await $instance.host(machine!, template!, path!);
+            const container = await $instance.host(
+                machine!,
+                template!,
+                path!,
+                developerProfile,
+                repository,
+                branch,
+            );
             console.log(container);
             instance.set(container.instance!);
             path = "/home/happy/" + randomStr();
@@ -85,11 +107,12 @@
     let socket: WebSocket;
     let connected = false;
     let connecting = false;
+    let transfer = false
 
     $: $instance, tuneInIfDue();
 
     let lines: string[] = [];
-    let status: string | null = null;
+    let status: any | null = null;
     type point = {
         x: Date;
         y: number;
@@ -100,13 +123,10 @@
     let memDataPoints = memData.n;
     $: status,
         (() => {
-            if (status == "die" || status == "exited") {
-                online = false;
-            } else {
-                online = true;
-            }
+            online = status?.running;
         })();
     let online = false;
+    let deleted: string[] = [];
 
     async function tuneInIfDue() {
         if (socket) {
@@ -130,7 +150,7 @@
                     lines.push(content);
                     lines = lines;
                 } else if (type == "status") {
-                    status = content;
+                    status = JSON.parse(content);
                 } else if (type == "load") {
                     const { cpu_stats, precpu_stats, memory_stats } =
                         JSON.parse(content);
@@ -159,6 +179,19 @@
                         memData.add(memory_usage);
                         memDataPoints = memData.n;
                     })();
+                } else if (type == "progress") {
+                    const progress = JSON.parse(content);
+                    if (!deleted.includes(progress.id)) {
+                        tasks[progress.id] = progress;
+                        if (progress.errored) {
+                            toast.error("failed task " + progress.description);
+                        }
+                        if (tasks[progress.id].finished) {
+                            delete tasks[progress.id];
+                            deleted.push(progress.id);
+                        }
+                        tasks = tasks;
+                    }
                 }
             };
             socket.onclose = () => {
@@ -175,10 +208,12 @@
     });
 
     let reset = false;
-    let picking = false;
+    let repositorySettings = false;
+    let developerProfile: DeveloperProfile | null = null;
+    let repository: Repository | null = null;
+    let branch: string | null = null;
+    let tasks: Record<string, any> = {};
 </script>
-
-<RepositoryPicker bind:picking {loading} />
 
 <Dialog.Root bind:open={hosting}>
     <Dialog.Content>
@@ -189,11 +224,35 @@
             <MachineSelector bind:machine disabled={loading} />
             <TemplateSelector bind:template disabled={loading} />
             <Input disabled={loading} bind:value={path} />
+            <div class="flex flex-row gap-2 items-center">
+                <Checkbox
+                    id="repository-settings"
+                    bind:checked={repositorySettings}
+                />
+                <Label
+                    for="repository-settings"
+                    class="text-sm font-medium leading-none"
+                >
+                    Use a git repository
+                </Label>
+            </div>
+            {#if repositorySettings}
+                <RepositoryPicker
+                    bind:developerProfile
+                    bind:repository
+                    bind:branch
+                />
+            {/if}
         </div>
         <Dialog.Footer>
             <Button
                 on:click={() => host()}
-                disabled={loading || !machine || !path || !template}
+                disabled={loading ||
+                    !machine ||
+                    !path ||
+                    !template ||
+                    (repositorySettings &&
+                        (!developerProfile || !repository || !branch))}
                 type="submit"
             >
                 {#if loading}
@@ -207,6 +266,7 @@
 </Dialog.Root>
 
 {#if $instance}
+    <Transfer bind:transfer container={$instance.container}/>
     <ResetPassword bind:loading bind:reset container={$instance.container} />
     {#if !$instance.container}
         <Button disabled={loading} on:click={() => (hosting = true)}
@@ -217,14 +277,14 @@
             title={`${$server.name}${$instance.name != null ? "/" : ""}${$instance.name ?? ""}`}
             loading={connecting}
         >
-            <div class="flex flex-row justify-between items-center">
+            <div class="flex flex-row items-center gap-2">
                 <div
                     class:invisible={!status}
-                    class="flex items-center space-x-2 transition"
+                    class="flex items-center space-x-2 transition mr-auto"
                 >
                     <Switch bind:checked={online} disabled id="online-status" />
                     <Label for="online-status">
-                        {#if status != "die" && status != "exited"}
+                        {#if online}
                             <Dot class="text-green-500 animate-ping" />
                         {:else if status}
                             <Dot class="text-red-500" />
@@ -234,6 +294,98 @@
                             />
                         {/if}
                     </Label>
+                </div>
+                {#if Object.keys(tasks).length > 0}
+                    <div transition:fade>
+                        <DropdownMenu.Root>
+                            <DropdownMenu.Trigger asChild let:builder>
+                                <Button
+                                    builders={[builder]}
+                                    class="rounded-full flex flex-row gap-2"
+                                    variant="outline"
+                                >
+                                    <Loader2 class="animate-spin w-4 h-4" />
+                                    <Tooltip.Root>
+                                        <Tooltip.Trigger asChild let:builder>
+                                            <span
+                                                class="max-w-64 overflow-hidden overflow-ellipsis whitespace-nowrap"
+                                            >
+                                                {#if Object.keys(tasks).length == 1}
+                                                    {Object.values(tasks)[0]
+                                                        .description}
+                                                {:else}
+                                                    Multiple Tasks
+                                                {/if}
+                                            </span>
+                                        </Tooltip.Trigger>
+                                        {#if Object.keys(tasks).length == 1}
+                                            <Tooltip.Content>
+                                                <p>
+                                                    {Object.values(tasks)[0]
+                                                        .description}
+                                                </p>
+                                            </Tooltip.Content>
+                                        {/if}
+                                    </Tooltip.Root>
+                                </Button>
+                            </DropdownMenu.Trigger>
+                            <DropdownMenu.Content class="w-64">
+                                {#each Object.entries(tasks) as [id, task]}
+                                    <DropdownMenu.Item
+                                        class="flex flex-row items-center gap-2"
+                                    >
+                                        <Tooltip.Root>
+                                            <Tooltip.Trigger
+                                                asChild
+                                                let:builder
+                                            >
+                                                <span
+                                                    class="w-1/4 whitespace-nowrap overflow-hidden overflow-ellipsis"
+                                                >
+                                                    {task.description}
+                                                </span>
+                                            </Tooltip.Trigger>
+                                            <Tooltip.Content>
+                                                <p>
+                                                    {task.description}
+                                                </p>
+                                            </Tooltip.Content>
+                                        </Tooltip.Root>
+                                        <div class="w-full">
+                                            <Progress
+                                                value={task.progress}
+                                                class="h-2"
+                                                max={100}
+                                            />
+                                        </div>
+                                        <span
+                                            class="text-right max-w-10 overflow-hidden w-20"
+                                        >
+                                            {task.progress}%
+                                        </span>
+                                    </DropdownMenu.Item>
+                                {/each}
+                            </DropdownMenu.Content>
+                        </DropdownMenu.Root>
+                    </div>
+                {/if}
+                <div class="flex flex-row items-center">
+                    <Button
+                        on:click={() => $instance.container?.stop()}
+                        disabled={!online}
+                        class="rounded-l-full rounded-r-none "
+                        variant="outline"
+                    >
+                        <Square class="w-4 h-4" />
+                    </Button>
+                    <Button
+                        on:click={() => $instance.container?.start()}
+                        disabled={online}
+                        class="rounded-r-full rounded-l-none"
+                        variant="outline"
+                    >
+                        <Play class="w-4 h-4" />
+                    </Button>
                 </div>
                 <div class="flex flex-row gap-2">
                     <DropdownMenu.Root>
@@ -252,12 +404,20 @@
                             </Button>
                         </DropdownMenu.Trigger>
                         <DropdownMenu.Content>
+                            <!--
                             <DropdownMenu.Item
                                 on:click={() => (picking = true)}
                                 class="flex flex-row gap-2"
                             >
                                 <GitMerge class="w-4 h-4" />
                                 <span>Sync Repository</span>
+                            </DropdownMenu.Item>-->
+                            <DropdownMenu.Item
+                                on:click={() => (transfer = true)}
+                                class="flex flex-row gap-2"
+                            >
+                                <UploadCloud class="w-4 h-4" />
+                                <span>Transfer</span>
                             </DropdownMenu.Item>
                             <DropdownMenu.Item
                                 on:click={() => (reset = true)}

@@ -25,9 +25,13 @@ export default class Repository {
     }
 
     public async getBranches(): Promise<string[]> {
-        return await Srvbench.getInstance().rest(`developer/${this.id}/repo/branches`, {
+        return await Srvbench.getInstance().rest(`developer/${this.owner.id}/repo/branches`, {
             eid: this.eid
         })
+    }
+
+    public get name(){
+        return this.uri.split("/").slice(1).join("/")
     }
 
 
